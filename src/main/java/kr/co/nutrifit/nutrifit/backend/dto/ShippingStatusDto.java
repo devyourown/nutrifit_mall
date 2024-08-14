@@ -1,23 +1,25 @@
 package kr.co.nutrifit.nutrifit.backend.dto;
 
 import jakarta.validation.constraints.NotNull;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.PaymentMethod;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.ShippingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.time.LocalDateTime;
+
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentDto {
+public class ShippingStatusDto {
     @NotNull
-    private Long orderId;
+    private Long shippingId;
 
     @NotNull
-    private Long amount;
+    private ShippingStatus status;
 
     @NotNull
-    private PaymentMethod paymentMethod;
+    private LocalDateTime time;
 }

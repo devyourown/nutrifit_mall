@@ -1,7 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.dto;
 
 import jakarta.validation.constraints.NotNull;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,13 +10,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentDto {
+public class ShippingDto {
+    @NotNull
+    private Long id;
+
     @NotNull
     private Long orderId;
 
     @NotNull
-    private Long amount;
+    private String recipientName;
 
     @NotNull
-    private PaymentMethod paymentMethod;
+    private String address;
+
+    @NotNull
+    private String phoneNumber;
 }
