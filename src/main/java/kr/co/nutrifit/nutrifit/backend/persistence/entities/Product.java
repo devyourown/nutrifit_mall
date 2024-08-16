@@ -16,7 +16,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -27,6 +27,8 @@ public class Product {
 
     @Column(nullable = false)
     private int stockQuantity;
+
+    private int lowStockThreshold;
 
     private String imageUrl;
     private String category;
