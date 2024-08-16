@@ -20,4 +20,7 @@ public class PaymentDto {
 
     @NotNull
     private PaymentMethod paymentMethod;
+
+    @NotNull
+    private String impUid;
 }
