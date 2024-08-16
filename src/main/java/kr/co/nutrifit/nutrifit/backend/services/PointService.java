@@ -9,8 +9,11 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.PointTransactionType
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +23,7 @@ public class PointService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addPoints(String username, long amount, String description) {
-        User user = userRepository.findByUsername(username);
+    public void addPoints(User user, long amount) {
         Point point = pointsRepository.findByUser(user);
 
         // 포인트가 없으면 새로 생성
@@ -37,13 +39,12 @@ public class PointService {
                 .user(user)
                 .points(amount)
                 .transactionType(PointTransactionType.REWARD)
-                .description(description).build();
+                .description(LocalDateTime.now() + " 포인트 추가").build();
         transactionRepository.save(transaction);
     }
 
     @Transactional
-    public void usePoints(String username, long amount, String description) {
-        User user = userRepository.findByUsername(username);
+    public void usePoints(User user, long amount) {
         Point point = pointsRepository.findByUser(user);
 
         if (point == null || point.getPoints() < amount) {
@@ -58,7 +59,7 @@ public class PointService {
                 .user(user)
                 .points(-amount)
                 .transactionType(PointTransactionType.USE)
-                .description(description).build();;
+                .description(LocalDateTime.now() + " 포인트 사용").build();;
         transactionRepository.save(transaction);
     }
 }

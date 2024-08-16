@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,4 +25,14 @@ public class PaymentDto {
 
     @NotNull
     private String impUid;
+
+    @NotNull
+    private List<OrderItemDto> orderItems;
+
+    @NotNull
+    private ShippingDto shippingDto;
+
+    private Long couponId;
+
+    private int usedPoints;
 }

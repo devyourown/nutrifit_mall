@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ProductDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,24 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         productRepository.delete(product);
+    }
+
+    @Transactional
+    public void reduceStock(List<OrderItemDto> items) {
+        List<Product> savedProduct = new ArrayList<>();
+        items.forEach(item -> {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            if (product.getStockQuantity() < item.getQuantity()) {
+                throw new IllegalArgumentException("주문량이 재고를 초과합니다.");
+            }
+            product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
+            if (product.getLowStockThreshold() >= product.getStockQuantity()) {
+                //알림
+            }
+            savedProduct.add(product);
+        });
+        productRepository.saveAll(savedProduct);
     }
 
     public List<ProductDto> getAllProduct() {

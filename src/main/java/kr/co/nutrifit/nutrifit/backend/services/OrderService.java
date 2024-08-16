@@ -19,13 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
     @Transactional
-    public Order createOrder(String username, List<OrderItemDto> orderItemsDto) {
-        User user = userRepository.findByUsername(username);
+    public Order createOrder(User user, List<OrderItemDto> orderItemsDto) {
         Order order = new Order();
         order.setUser(user);
 
@@ -49,8 +46,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public List<Order> getOrdersByUser(String username) {
-        User user = userRepository.findByUsername(username);
+    public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
     }
 }

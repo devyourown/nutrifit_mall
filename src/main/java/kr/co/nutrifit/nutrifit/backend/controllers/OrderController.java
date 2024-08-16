@@ -2,9 +2,11 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
+import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,15 +17,9 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestParam String username, @RequestBody List<OrderItemDto> orderItems) {
-        Order order = orderService.createOrder(username, orderItems);
-        return ResponseEntity.ok(order);
-    }
-
     @GetMapping
-    public ResponseEntity<List<Order>> getUserOrders(@RequestParam String username) {
-        List<Order> orders = orderService.getOrdersByUser(username);
+    public ResponseEntity<List<Order>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter) {
+        List<Order> orders = orderService.getOrdersByUser(userAdapter.getUser());
         return ResponseEntity.ok(orders);
     }
 }

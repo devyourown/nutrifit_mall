@@ -26,13 +26,13 @@ public class CartController {
         if (quantity <= 0) {
             return ResponseEntity.badRequest().body("수량은 1 이상이어야 합니다.");
         }
-        cartService.addItemToCart(user.getUsername(), productId, quantity);
+        cartService.addItemToCart(user.getUser(), productId, quantity);
         return ResponseEntity.status(201).body("상품이 장바구니에 추가되었습니다.");
     }
 
     @GetMapping("/items")
     public ResponseEntity<List<CartItemDto>> getCartItems(@AuthenticationPrincipal UserAdapter user) {
-        List<CartItemDto> cartItems = cartService.getCartItems(user.getUsername());
+        List<CartItemDto> cartItems = cartService.getCartItems(user.getUser());
         return ResponseEntity.ok(cartItems);
     }
 
@@ -54,14 +54,14 @@ public class CartController {
             @AuthenticationPrincipal UserAdapter user,
             @PathVariable Long productId
     ) {
-        cartService.removeItemFromCart(user.getUsername(), productId);
+        cartService.removeItemFromCart(user.getUser(), productId);
         return ResponseEntity.noContent().build();
     }
 
 
     @DeleteMapping("/items")
     public ResponseEntity<String> clearCart(@AuthenticationPrincipal UserAdapter user) {
-        cartService.clearCart(user.getUsername());
+        cartService.clearCart(user.getUser());
         return ResponseEntity.noContent().build();
     }
 }

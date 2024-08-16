@@ -21,12 +21,9 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public void addItemToCart(String username, Long productId, int quantity) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+    public void addItemToCart(User user, Long productId, int quantity) {
         Cart cart = user.getCart();
 
         if (cart == null) {
@@ -47,9 +44,7 @@ public class CartService {
         cartItemRepository.save(cartItem);
     }
 
-    public List<CartItemDto> getCartItems(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
+    public List<CartItemDto> getCartItems(User user) {
         Cart cart = user.getCart();
         if (cart == null || cart.getCartItems().isEmpty()) {
             return List.of(); // 빈 리스트 반환
@@ -71,9 +66,7 @@ public class CartService {
     }
 
     @Transactional
-    public void removeItemFromCart(String username, Long productId) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
+    public void removeItemFromCart(User user, Long productId) {
         Cart cart = user.getCart();
 
         if (cart != null) {
@@ -89,9 +82,7 @@ public class CartService {
     }
 
     @Transactional
-    public void clearCart(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
+    public void clearCart(User user) {
         Cart cart = user.getCart();
 
         if (cart != null && !cart.getCartItems().isEmpty()) {

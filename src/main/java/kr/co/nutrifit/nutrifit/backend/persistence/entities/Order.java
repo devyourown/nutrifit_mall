@@ -36,6 +36,10 @@ public class Order {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_id")
+    private Shipping shipping;
+
     @PrePersist
     public void onOrder() {
         this.orderDate = LocalDateTime.now();
