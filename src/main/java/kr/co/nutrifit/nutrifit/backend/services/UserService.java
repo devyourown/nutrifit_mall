@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
+import kr.co.nutrifit.nutrifit.backend.lib.EmailService;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
@@ -13,10 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User registerUser(SignDto signDto) {
+    public User registerUser(SignDto signDto) throws Exception {
         if (userRepository.existsByUsername(signDto.getUsername()) || userRepository
                 .existsByEmail(signDto.getEmail())) {
             throw new IllegalArgumentException("이메일 혹은 닉네임이 이미 사용중입니다.");
@@ -29,5 +31,30 @@ public class UserService {
                 .role(Role.ROLE_USER)
                 .build();
         return userRepository.save(user);
+    }
+
+    public void resetPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일로 가입된 계정이 없습니다."));
+
+        String tempPassword = generateTempPassword();
+
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        emailService.sendEmail(user.getEmail(), "[뉴트리핏] 비밀번호 재설정", "임시 비밀번호: "+ tempPassword);
+    }
+
+    private String generateTempPassword() {
+        int length = 8;
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder tempPassword = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            int randomIndex = (int) (Math.random() * charSet.length());
+            tempPassword.append(charSet.charAt(randomIndex));
+        }
+
+        return tempPassword.toString();
     }
 }

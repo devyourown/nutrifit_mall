@@ -22,17 +22,15 @@ public class PaymentService {
 
     @Transactional
     public Payment createPayment(User user, PaymentDto paymentDto) {
+        Order order = orderRepository.findById(paymentDto.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
         Payment payment = Payment.builder()
-                .orderId(paymentDto.getOrderId())
                 .amount(paymentDto.getAmount())
+                .order(order)
                 .paymentMethod(paymentDto.getPaymentMethod())
                 .paymentStatus(PaymentStatus.PENDING)
                 .paymentDate(LocalDateTime.now())
                 .user(user).build();
-
-        Order order = orderRepository.findById(paymentDto.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("주문 정보가 없습니다."));
-        payment.setOrder(order);
         // 결제 성공/실패 로직을 여기에 추가. 포트원에 메시지를 보내서 결제가 실제로 완료됐는지 확인.
         payment.setPaymentStatus(PaymentStatus.SUCCESS); // 성공으로 가정
         return paymentRepository.save(payment);
