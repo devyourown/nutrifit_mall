@@ -37,6 +37,18 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+    @Transactional
+    public void deleteReview(Long reviewId, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new SecurityException("리뷰를 삭제할 권한이 없습니다.");
+        }
+
+        reviewRepository.delete(review);
+    }
+
     public List<Review> getReviewsByProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다."));
