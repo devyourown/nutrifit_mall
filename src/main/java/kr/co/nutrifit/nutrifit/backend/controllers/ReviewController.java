@@ -38,4 +38,12 @@ public class ReviewController {
         List<Review> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId());
         return ResponseEntity.ok(reviews);
     }
+
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal UserAdapter userAdapter) {
+        reviewService.deleteReview(reviewId, userAdapter.getUser().getId());
+        return ResponseEntity.noContent().build();
+    }
 }
