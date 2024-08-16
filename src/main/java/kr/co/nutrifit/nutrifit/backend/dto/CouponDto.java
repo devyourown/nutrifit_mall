@@ -1,6 +1,7 @@
-package kr.co.nutrifit.nutrifit.backend.persistence.entities;
+package kr.co.nutrifit.nutrifit.backend.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.DiscountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,33 +9,32 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Builder
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Coupon {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false)
+public class CouponDto {
+    @NotNull
     private String code;
 
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private DiscountType discountType;
-
+    @NotNull
     private int discountValue;
 
+    @NotNull
+    private DiscountType discountType;
+
+    @NotNull
     private LocalDateTime validFrom;
+
+    @NotNull
     private LocalDateTime validUntil;
 
-    private boolean isActive;
-
     private int minimumOrderAmount;
+
     private int maxDiscountAmount;
 
     private int remainingQuantity;
+
 }

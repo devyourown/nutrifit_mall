@@ -19,9 +19,6 @@ public class Payment {
     private Long id;
 
     @Column(nullable = false)
-    private Long orderId;
-
-    @Column(nullable = false)
     private Long amount;
 
     @Enumerated(EnumType.STRING)
@@ -42,4 +39,8 @@ public class Payment {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
+
+    private String transactionId; // PG사로부터 받은 트랜잭션 ID
+
+    private String receiptUrl; // PG사에서 제공하는 영수증 URL
 }
