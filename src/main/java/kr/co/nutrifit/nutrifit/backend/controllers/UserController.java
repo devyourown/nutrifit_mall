@@ -3,12 +3,13 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 import jakarta.validation.Valid;
 import kr.co.nutrifit.nutrifit.backend.dto.JwtAuthenticationDto;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +19,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserController {
     private final AuthenticationManager authenticationManager;
@@ -38,11 +40,12 @@ public class UserController {
                             signDto.getPassword()
                     )
             );
-
             String jwt = tokenProvider.generateToken((UserAdapter) authentication.getPrincipal());
             return ResponseEntity.ok(new JwtAuthenticationDto(jwt));
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("이메일과 비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.status(401).header(HttpHeaders.CONTENT_TYPE,
+                            MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
+                    .body("이메일과 비밀번호가 일치하지 않습니다.");
         }
     }
 
@@ -50,9 +53,23 @@ public class UserController {
     public ResponseEntity<String> registerUser(@RequestBody @Valid SignDto signDto) {
         try {
             userService.registerUser(signDto);
-            return ResponseEntity.ok("사용자가 등록 되었습니다.");
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(201).header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
+                    .body("사용자가 등록 되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String email) {
+        try {
+            userService.resetPassword(email);
+            return ResponseEntity.ok("임시 비밀번호가 이메일로 발송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
