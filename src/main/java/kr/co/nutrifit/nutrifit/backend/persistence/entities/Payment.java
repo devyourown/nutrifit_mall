@@ -21,13 +21,11 @@ public class Payment {
     @Column(nullable = false)
     private Long amount;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    private String paymentMethod;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus paymentStatus;
+    private String paymentStatus;
 
     @Column(nullable = false)
     private LocalDateTime paymentDate;
@@ -40,7 +38,8 @@ public class Payment {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    private String transactionId; // PG사로부터 받은 트랜잭션 ID
+    @Column(nullable = false)
+    private String impUid; // PG사로부터 받은 트랜잭션 ID
 
-    private String receiptUrl; // PG사에서 제공하는 영수증 URL
+    private String merchantUid; // PG사에서 제공하는 영수증 URL
 }

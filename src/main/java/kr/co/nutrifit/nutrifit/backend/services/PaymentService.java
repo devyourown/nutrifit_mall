@@ -1,16 +1,20 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.response.IamportResponse;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PaymentRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.PaymentStatus;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,21 +23,49 @@ import java.util.List;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final IamportClient iamportClient;
 
     @Transactional
     public Payment createPayment(User user, PaymentDto paymentDto) {
-        Order order = orderRepository.findById(paymentDto.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
-        Payment payment = Payment.builder()
+        try {
+            IamportResponse<com.siot.IamportRestClient.response.Payment> response = iamportClient.paymentByImpUid(paymentDto.getImpUid());
+            if (response.getResponse() == null) {
+                throw new IllegalArgumentException("결제 정보가 유효하지 않습니다.");
+            }
+            com.siot.IamportRestClient.response.Payment iamportPayment = response.getResponse();
+
+
+            validatePaymentAmount(iamportPayment, paymentDto);
+            Order order = orderRepository.findById(paymentDto.getOrderId())
+                    .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+            Payment payment = createPaymentEntity(user, paymentDto, iamportPayment, order);
+
+            order.setPayment(payment);
+            return paymentRepository.save(payment);
+        } catch (IamportResponseException e) {
+            throw new RuntimeException("아임포트 API 요청에 실패했습니다: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException("결제 처리 중 네트워크 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    private void validatePaymentAmount(com.siot.IamportRestClient.response.Payment iamportPayment, PaymentDto paymentDto) {
+        if (iamportPayment.getAmount().compareTo(BigDecimal.valueOf(paymentDto.getAmount())) != 0) {
+            throw new IllegalStateException("결제 금액이 일치하지 않습니다.");
+        }
+    }
+
+    private Payment createPaymentEntity(User user, PaymentDto paymentDto, com.siot.IamportRestClient.response.Payment iamportPayment, Order order) {
+        return Payment.builder()
+                .impUid(iamportPayment.getImpUid())
                 .amount(paymentDto.getAmount())
-                .order(order)
-                .paymentMethod(paymentDto.getPaymentMethod())
-                .paymentStatus(PaymentStatus.PENDING)
+                .merchantUid(iamportPayment.getMerchantUid())
+                .paymentMethod(iamportPayment.getPayMethod())
+                .paymentStatus(iamportPayment.getStatus())
                 .paymentDate(LocalDateTime.now())
-                .user(user).build();
-        // 결제 성공/실패 로직을 여기에 추가. 포트원에 메시지를 보내서 결제가 실제로 완료됐는지 확인.
-        payment.setPaymentStatus(PaymentStatus.SUCCESS); // 성공으로 가정
-        return paymentRepository.save(payment);
+                .user(user)
+                .order(order)
+                .build();
     }
 
     public Payment getPaymentByIdAndUser(Long id, User user) {

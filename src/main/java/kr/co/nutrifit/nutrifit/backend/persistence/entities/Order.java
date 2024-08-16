@@ -32,6 +32,10 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
     @PrePersist
     public void onOrder() {
         this.orderDate = LocalDateTime.now();
