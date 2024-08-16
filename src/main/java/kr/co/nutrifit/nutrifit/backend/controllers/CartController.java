@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.CartItem;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.CartService;
@@ -11,50 +12,56 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
 
-    @PostMapping("/add")
+    @PostMapping("/items")
     public ResponseEntity<String> addItemToCart(
             @AuthenticationPrincipal UserAdapter user,
             @RequestParam Long productId,
             @RequestParam int quantity
     ) {
+        if (quantity <= 0) {
+            return ResponseEntity.badRequest().body("수량은 1 이상이어야 합니다.");
+        }
         cartService.addItemToCart(user.getUsername(), productId, quantity);
-        return ResponseEntity.ok("상품이 장바구니에 추가되었습니다.");
+        return ResponseEntity.status(201).body("상품이 장바구니에 추가되었습니다.");
     }
 
-    @GetMapping
-    public ResponseEntity<List<CartItem>> getCartItems(@AuthenticationPrincipal UserAdapter user) {
-        List<CartItem> cartItems = cartService.getCartItems(user.getUsername());
+    @GetMapping("/items")
+    public ResponseEntity<List<CartItemDto>> getCartItems(@AuthenticationPrincipal UserAdapter user) {
+        List<CartItemDto> cartItems = cartService.getCartItems(user.getUsername());
         return ResponseEntity.ok(cartItems);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/items")
     public ResponseEntity<String> updateCartItemQuantity(
             @AuthenticationPrincipal UserAdapter user,
             @RequestParam Long productId,
             @RequestParam int quantity
     ) {
-        Long cartId = user.getUser().getCart().getId();
-        cartService.updateItemQuantity(cartId, productId, quantity);
+        if (quantity <= 0) {
+            return ResponseEntity.badRequest().body("수량은 1 이상이어야 합니다.");
+        }
+        cartService.updateItemQuantity(user.getUser(), productId, quantity);
         return ResponseEntity.ok("아이템 수량이 변경되었습니다.");
     }
 
-    @DeleteMapping("/remove")
+    @DeleteMapping("/items/{productId}")
     public ResponseEntity<String> removeItemFromCart(
             @AuthenticationPrincipal UserAdapter user,
-            @RequestParam Long productId
+            @PathVariable Long productId
     ) {
         cartService.removeItemFromCart(user.getUsername(), productId);
-        return ResponseEntity.ok("상품이 장바구니에서 제거되었습니다.");
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/clear")
+
+    @DeleteMapping("/items")
     public ResponseEntity<String> clearCart(@AuthenticationPrincipal UserAdapter user) {
         cartService.clearCart(user.getUsername());
-        return ResponseEntity.ok("장바구니가 비워졌습니다.");
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.CartItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.CartRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +25,8 @@ public class CartService {
 
     @Transactional
     public void addItemToCart(String username, Long productId, int quantity) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
         Cart cart = user.getCart();
 
         if (cart == null) {
@@ -37,22 +38,42 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
-        CartItem cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .quantity(quantity).build();
+        CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product).orElse(null);
+        if (cartItem == null) {
+            cartItem = CartItem.builder().cart(cart).product(product).quantity(quantity).build();
+        } else {
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        }
         cartItemRepository.save(cartItem);
     }
 
-    public List<CartItem> getCartItems(String username) {
-        User user = userRepository.findByUsername(username);
+    public List<CartItemDto> getCartItems(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
         Cart cart = user.getCart();
-        return cart.getCartItems();
+        if (cart == null || cart.getCartItems().isEmpty()) {
+            return List.of(); // 빈 리스트 반환
+        }
+        return cart.getCartItems().stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+
+    private CartItemDto convertToDto(CartItem item) {
+        Product product = item.getProduct();
+        return CartItemDto.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .imageUrl(product.getImageUrl())
+                .quantity(item.getQuantity())
+                .build();
     }
 
     @Transactional
     public void removeItemFromCart(String username, Long productId) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
         Cart cart = user.getCart();
 
         if (cart != null) {
@@ -69,10 +90,11 @@ public class CartService {
 
     @Transactional
     public void clearCart(String username) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));;
         Cart cart = user.getCart();
 
-        if (cart != null) {
+        if (cart != null && !cart.getCartItems().isEmpty()) {
             cartItemRepository.deleteAll(cart.getCartItems());
         } else {
             throw new IllegalArgumentException("장바구니가 존재하지 않습니다.");
@@ -80,14 +102,13 @@ public class CartService {
     }
 
     @Transactional
-    public void updateItemQuantity(Long cartId, Long productId, int quantity) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니가 존재하지 않습니다."));
+    public void updateItemQuantity(User user, Long productId, int quantity) {
+        Cart cart = user.getCart();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
         CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 카트에 존재하지 않습니다."));
-        if (quantity < 0) {
+        if (quantity <= 0) {
             cartItemRepository.delete(cartItem);
         } else {
             cartItem.setQuantity(quantity);
