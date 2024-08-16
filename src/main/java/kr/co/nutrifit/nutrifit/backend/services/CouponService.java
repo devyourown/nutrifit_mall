@@ -22,11 +22,12 @@ public class CouponService {
     private final UserCouponRepository userCouponRepository;
     private final UserRepository userRepository;
 
-    public Coupon createCoupon(CouponDto couponDto) {
+    public void createCoupon(CouponDto couponDto) {
         Coupon coupon = Coupon.builder()
                 .code(couponDto.getCode())
                 .description(couponDto.getDescription())
                 .discountType(couponDto.getDiscountType())
+                .discountValue(couponDto.getDiscountValue())
                 .validFrom(couponDto.getValidFrom())
                 .validUntil(couponDto.getValidUntil())
                 .minimumOrderAmount(couponDto.getMinimumOrderAmount())
@@ -34,7 +35,7 @@ public class CouponService {
                 .isActive(true)
                 .remainingQuantity(couponDto.getRemainingQuantity())
                 .build();
-        return couponRepository.save(coupon);
+        couponRepository.save(coupon);
     }
 
     public Optional<Coupon> findCouponByCode(String code) {
@@ -57,6 +58,10 @@ public class CouponService {
             throw new IllegalStateException("쿠폰이 모두 소진되었습니다.");
         }
 
+        boolean alreadyAssigned = userCouponRepository.existsByUserAndCoupon(user, coupon);
+        if (alreadyAssigned) {
+            throw new IllegalStateException("해당 쿠폰은 이미 할당 되었습니다.");
+        }
         coupon.setRemainingQuantity(coupon.getRemainingQuantity() - 1);
         couponRepository.save(coupon);
 
@@ -70,7 +75,7 @@ public class CouponService {
     }
 
     @Transactional
-    public void useCoupon(Long userCouponId, Long userId) {
+    public void useCoupon(Long userId, Long userCouponId, Long orderAmount) {
         UserCoupon userCoupon = userCouponRepository.findByIdAndUserId(userCouponId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("쿠폰이 없거나 잘못된 쿠폰입니다."));
 
@@ -83,6 +88,10 @@ public class CouponService {
         // 유효 기간 검증
         if (LocalDateTime.now().isAfter(coupon.getValidUntil())) {
             throw new IllegalStateException("쿠폰이 만료 되었습니다.");
+        }
+
+        if (orderAmount < coupon.getMinimumOrderAmount()) {
+            throw new IllegalStateException("최소 주문 금액을 충족하지 못했습니다.");
         }
 
         userCoupon.setUsed(true);
