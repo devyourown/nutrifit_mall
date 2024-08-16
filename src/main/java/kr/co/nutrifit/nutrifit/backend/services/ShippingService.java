@@ -7,6 +7,7 @@ import kr.co.nutrifit.nutrifit.backend.persistence.ShippingRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Shipping;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ShippingStatus;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,5 +89,15 @@ public class ShippingService {
         });
 
         return shippingRepository.saveAll(shippings);
+    }
+
+    public Shipping getShippingByOrderId(Long orderId, User user) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("해당 주문에 접근할 권한이 없습니다.");
+        }
+        return shippingRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문에 대한 배송 정보를 찾을 수 없습니다."));
     }
 }
