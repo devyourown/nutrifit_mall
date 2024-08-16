@@ -17,13 +17,6 @@ import java.util.List;
 public class ShippingController {
     private final ShippingService shippingService;
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/create")
-    public ResponseEntity<Shipping> createShipping(@RequestBody ShippingDto shippingDto) {
-        Shipping shipping = shippingService.createShipping(shippingDto);
-        return ResponseEntity.ok(shipping);
-    }
-
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<Shipping> updateShippingStatus(@RequestBody ShippingStatusDto statusDto) {

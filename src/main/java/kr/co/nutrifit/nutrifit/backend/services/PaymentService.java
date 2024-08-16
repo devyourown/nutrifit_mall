@@ -3,11 +3,13 @@ package kr.co.nutrifit.nutrifit.backend.services;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
+import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PaymentRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Shipping;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,8 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final IamportClient iamportClient;
+    private final ShippingService shippingService;
+    private final CouponService couponService;
+    private final PointService pointService;
+    private final CartService cartService;
+    private final ProductService productService;
 
     @Transactional
     public Payment createPayment(User user, PaymentDto paymentDto) {
@@ -34,13 +41,22 @@ public class PaymentService {
             }
             com.siot.IamportRestClient.response.Payment iamportPayment = response.getResponse();
 
-
             validatePaymentAmount(iamportPayment, paymentDto);
-            Order order = orderRepository.findById(paymentDto.getOrderId())
-                    .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+            Order order = orderService.createOrder(user, paymentDto.getOrderItems());
+            if(paymentDto.getCouponId() != null) {
+                couponService.useCoupon(user.getId(), paymentDto.getCouponId(), paymentDto.getAmount());
+            }
+
+            if (paymentDto.getUsedPoints() > 0) {
+                pointService.usePoints(user, paymentDto.getUsedPoints());
+            }
             Payment payment = createPaymentEntity(user, paymentDto, iamportPayment, order);
 
+            Shipping shipping = shippingService.createShipping(paymentDto.getShippingDto(), order);
+            order.setShipping(shipping);
             order.setPayment(payment);
+            cartService.clearCart(user);
+            productService.reduceStock(paymentDto.getOrderItems());
             return paymentRepository.save(payment);
         } catch (IamportResponseException e) {
             throw new RuntimeException("아임포트 API 요청에 실패했습니다: " + e.getMessage(), e);

@@ -31,13 +31,4 @@ public class CouponController {
         couponService.assignCouponToUser(code, userAdapter.getUser().getId());
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/use")
-    public ResponseEntity<String> useCoupon(
-            @AuthenticationPrincipal UserAdapter userAdapter,
-            @RequestParam Long userCouponId,
-            @RequestParam Long orderAmount) {
-        couponService.useCoupon(userAdapter.getUser().getId(), userCouponId, orderAmount);
-        return ResponseEntity.noContent().build();
-    }
 }

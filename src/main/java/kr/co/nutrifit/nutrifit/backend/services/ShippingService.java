@@ -22,9 +22,7 @@ public class ShippingService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public Shipping createShipping(ShippingDto shippingDto) {
-        Order order = orderRepository.findById(shippingDto.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
+    public Shipping createShipping(ShippingDto shippingDto, Order order) {
         Shipping shipping = Shipping
                 .builder()
                 .order(order)
