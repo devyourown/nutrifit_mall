@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
+import kr.co.nutrifit.nutrifit.backend.dto.ReviewDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Review;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.ReviewService;
@@ -18,24 +19,25 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<Review> createReview(
+    public ResponseEntity<String> createReview(
             @AuthenticationPrincipal UserAdapter userAdapter,
-            @RequestParam Long productId,
-            @RequestParam int rating,
-            @RequestParam(required = false) String comment) {
-        Review review = reviewService.createReview(userAdapter.getUser().getId(), productId, rating, comment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(review);
+            @RequestBody ReviewDto reviewDto) {
+        if (!userAdapter.getUsername().equals(reviewDto.getUsername())) {
+            return ResponseEntity.badRequest().body("오류가 발생했습니다. 다시 시도해 주세요.");
+        }
+        reviewService.createReview(reviewDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body("리뷰가 작성되었습니다.");
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<List<Review>> getReviewsByProduct(@PathVariable Long productId) {
-        List<Review> reviews = reviewService.getReviewsByProduct(productId);
+    public ResponseEntity<List<ReviewDto>> getReviewsByProduct(@PathVariable Long productId) {
+        List<ReviewDto> reviews = reviewService.getReviewsByProduct(productId);
         return ResponseEntity.ok(reviews);
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<Review>> getReviewsByUser(@AuthenticationPrincipal UserAdapter userAdapter) {
-        List<Review> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId());
+    public ResponseEntity<List<ReviewDto>> getReviewsByUser(@AuthenticationPrincipal UserAdapter userAdapter) {
+        List<ReviewDto> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId());
         return ResponseEntity.ok(reviews);
     }
 
