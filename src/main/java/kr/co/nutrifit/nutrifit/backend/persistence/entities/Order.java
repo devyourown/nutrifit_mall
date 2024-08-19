@@ -50,6 +50,14 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         if (orderItems == null)
             orderItems = new ArrayList<>();
+        orderItem.setOrder(this);
         orderItems.add(orderItem);
+    }
+
+    public void removeOrderItem(OrderItem orderItem) {
+        if (orderItems != null) {
+            orderItems.remove(orderItem);
+            orderItem.setOrder(null);
+        }
     }
 }

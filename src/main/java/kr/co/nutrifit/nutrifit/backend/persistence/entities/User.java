@@ -59,5 +59,41 @@ public class User {
         if (orders == null)
             orders = new ArrayList<>();
         orders.add(order);
+        order.setUser(this);
+    }
+
+    public void removeOrder(Order order) {
+        if (orders != null) {
+            orders.remove(order);
+            order.setUser(null);
+        }
+    }
+
+    public void addPointTransaction(PointTransaction pointTransaction) {
+        if (transactions == null)
+            transactions = new ArrayList<>();
+        transactions.add(pointTransaction);
+        pointTransaction.setUser(this);
+    }
+
+    public void removePointTransaction(PointTransaction pointTransaction) {
+        if (transactions != null) {
+            transactions.remove(pointTransaction);
+            pointTransaction.setUser(null);
+        }
+    }
+
+    public void addUserCoupon(UserCoupon coupon) {
+        if (coupons == null)
+            coupons = new ArrayList<>();
+        coupons.add(coupon);
+        coupon.setUser(this);
+    }
+
+    public void removeCoupon(UserCoupon coupon) {
+        if (coupons != null) {
+            coupons.remove(coupon);
+            coupon.setUser(null);
+        }
     }
 }
