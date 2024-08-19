@@ -5,6 +5,7 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
+import kr.co.nutrifit.nutrifit.backend.dto.ShippingDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PaymentRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class PaymentService {
     private final ProductService productService;
 
     @Transactional
-    public Payment createPayment(User user, PaymentDto paymentDto) {
+    public PaymentDto createPayment(User user, PaymentDto paymentDto) {
         try {
             IamportResponse<com.siot.IamportRestClient.response.Payment> response = iamportClient.paymentByImpUid(paymentDto.getImpUid());
             if (response.getResponse() == null) {
@@ -57,7 +59,7 @@ public class PaymentService {
             order.setPayment(payment);
             cartService.clearCart(user);
             productService.reduceStock(paymentDto.getOrderItems());
-            return paymentRepository.save(payment);
+            return convertToDto(paymentRepository.save(payment));
         } catch (IamportResponseException e) {
             throw new RuntimeException("아임포트 API 요청에 실패했습니다: " + e.getMessage(), e);
         } catch (IOException e) {
@@ -79,21 +81,49 @@ public class PaymentService {
                 .paymentMethod(iamportPayment.getPayMethod())
                 .paymentStatus(iamportPayment.getStatus())
                 .paymentDate(LocalDateTime.now())
+                .usedPoints(paymentDto.getUsedPoints())
+                .couponId(paymentDto.getCouponId())
                 .user(user)
                 .order(order)
                 .build();
     }
 
-    public Payment getPaymentByIdAndUser(Long id, User user) {
+    public PaymentDto getPaymentByIdAndUser(Long id, User user) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
         if (!payment.getUser().getId().equals(user.getId())) {
             throw new SecurityException("허용되지 않은 접근입니다.");
         }
-        return payment;
+        return convertToDto(payment);
     }
 
-    public List<Payment> getPaymentsByUser(User user) {
-        return paymentRepository.findByUser(user);
+    public List<PaymentDto> getPaymentsByUser(User user) {
+        return paymentRepository.findByUser(user)
+                .stream().map(this::convertToDto)
+                .toList();
     }
+
+    public PaymentDto convertToDto(Payment payment) {
+        return PaymentDto.builder()
+                .orderId(payment.getOrder().getId())
+                .amount(payment.getAmount())
+                .paymentMethod(payment.getPaymentMethod())
+                .impUid(payment.getImpUid())
+                .orderItems(payment.getOrder().getOrderItems().stream().map(orderItem -> OrderItemDto.builder()
+                        .productId(orderItem.getProduct().getId())
+                        .name(orderItem.getProduct().getName())
+                        .quantity(orderItem.getQuantity())
+                        .totalAmount(orderItem.getTotalAmount())
+                        .imageUrl(orderItem.getProduct().getImageUrl())
+                        .build()).collect(Collectors.toList()))
+                .shippingDto(ShippingDto.builder()
+                        .recipientName(payment.getOrder().getShipping().getRecipientName())
+                        .address(payment.getOrder().getShipping().getAddress())
+                        .phoneNumber(payment.getOrder().getShipping().getPhoneNumber())
+                        .build())
+                .couponId(payment.getCouponId())
+                .usedPoints(payment.getUsedPoints())
+                .build();
+    }
+
 }

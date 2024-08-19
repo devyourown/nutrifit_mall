@@ -21,7 +21,7 @@ public class PaymentDto {
     private Long amount;
 
     @NotNull
-    private PaymentMethod paymentMethod;
+    private String paymentMethod;
 
     @NotNull
     private String impUid;

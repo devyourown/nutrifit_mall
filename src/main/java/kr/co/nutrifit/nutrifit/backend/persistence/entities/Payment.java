@@ -42,4 +42,8 @@ public class Payment {
     private String impUid; // PG사로부터 받은 트랜잭션 ID
 
     private String merchantUid; // PG사에서 제공하는 영수증 URL
+
+    private Long couponId;
+
+    private int usedPoints;
 }
