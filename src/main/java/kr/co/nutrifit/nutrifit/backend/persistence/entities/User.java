@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -53,4 +54,10 @@ public class User {
     private String addressDetails;
     @Column
     private String shippingDetails;
+
+    public void addOrder(Order order) {
+        if (orders == null)
+            orders = new ArrayList<>();
+        orders.add(order);
+    }
 }
