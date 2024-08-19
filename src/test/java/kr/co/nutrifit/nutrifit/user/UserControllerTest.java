@@ -129,13 +129,18 @@ public class UserControllerTest {
 
     @Test
     void registerUser_ValidationFailure() throws Exception {
-        // Given
-        SignDto signDto = new SignDto("invalid-email", "", "pass");
-
         // When & Then
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"invalid-email\", \"username\": \"\", \"password\": \"pass\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("이메일은 유효해야 합니다."))
+                .andExpect(jsonPath("$.username").value("닉네임을 채워 주세요."))
+                .andExpect(jsonPath("$.password").value("비밀번호는 8글자 이상으로 영문, 특수문자, 숫자가 포함되어야 합니다."));
+
+        mockMvc.perform(post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\": \"invalid@@email\", \"username\": \"@@!!\", \"password\": \"passWo!\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.email").value("이메일은 유효해야 합니다."))
                 .andExpect(jsonPath("$.username").value("닉네임은 한글, 숫자, 영문만 입력 가능합니다."))

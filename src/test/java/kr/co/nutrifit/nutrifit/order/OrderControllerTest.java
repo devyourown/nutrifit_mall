@@ -2,11 +2,11 @@ package kr.co.nutrifit.nutrifit.order;
 
 
 import kr.co.nutrifit.nutrifit.backend.controllers.OrderController;
+import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
+import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.OrderService;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +62,12 @@ public class OrderControllerTest {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private OrderItemRepository itemRepository;
+
     private User user;
     private UserAdapter userAdapter;
     private Order order;
@@ -77,7 +83,17 @@ public class OrderControllerTest {
                 .build();
 
         user = userRepository.save(user);
-        userAdapter = new UserAdapter(user);
+
+        Product product = Product.builder()
+                .name("Test Product")
+                .description("Test Description")
+                .price(1000L)
+                .stockQuantity(100)
+                .imageUrl("http://example.com/image.png")
+                .category("Test Category")
+                .build();
+
+        product = productRepository.save(product);
 
         order = Order.builder()
                 .user(user)
@@ -87,6 +103,21 @@ public class OrderControllerTest {
 
         order = orderRepository.save(order);
 
+        OrderItem orderItem = OrderItem
+                .builder()
+                .product(product)
+                .price(1000L)
+                .quantity(1)
+                .order(order)
+                .totalAmount(1000L)
+                .build();
+
+        order.addOrderItem(orderItem);
+        itemRepository.save(orderItem);
+
+        user.addOrder(order);
+
+        userAdapter = new UserAdapter(user);
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
