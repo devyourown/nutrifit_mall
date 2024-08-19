@@ -1,12 +1,15 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.ProductDto;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,9 @@ public class ProductController {
     @PostMapping("/admin")
     public ResponseEntity<Void> addProduct(@AuthenticationPrincipal UserAdapter userAdapter,
                                            @RequestBody ProductDto productDto) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         productService.addProduct(productDto);
         return ResponseEntity.status(201).build();
     }
@@ -29,6 +35,9 @@ public class ProductController {
     @PutMapping("/admin")
     public ResponseEntity<Void> updateProduct(@AuthenticationPrincipal UserAdapter userAdapter,
                                               @RequestBody ProductDto productDto) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         productService.updateProduct(productDto);
         return ResponseEntity.ok().build();
     }
@@ -37,6 +46,9 @@ public class ProductController {
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteProduct(@AuthenticationPrincipal UserAdapter userAdapter,
                                               @PathVariable Long id) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
