@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -44,5 +45,11 @@ public class Order {
     @PrePersist
     public void onOrder() {
         this.orderDate = LocalDateTime.now();
+    }
+
+    public void addOrderItem(OrderItem orderItem) {
+        if (orderItems == null)
+            orderItems = new ArrayList<>();
+        orderItems.add(orderItem);
     }
 }

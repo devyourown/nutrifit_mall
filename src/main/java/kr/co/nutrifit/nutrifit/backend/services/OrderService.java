@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
@@ -39,14 +40,36 @@ public class OrderService {
 
             totalAmount += orderItem.getTotalAmount();
 
-            order.getOrderItems().add(orderItem);
+            order.addOrderItem(orderItem);
         }
 
         order.setTotalAmount(totalAmount);
         return orderRepository.save(order);
     }
 
-    public List<Order> getOrdersByUser(User user) {
-        return orderRepository.findByUser(user);
+    public List<OrderDto> getOrdersByUser(User user) {
+        return orderRepository.findAllWithItemsAndProductsByUser(user)
+                .stream().map(this::convertToDto)
+                .toList();
+    }
+
+    private OrderDto convertToDto(Order order) {
+        return OrderDto.builder()
+                .id(order.getId())
+                .orderDate(order.getOrderDate())
+                .totalAmount(order.getTotalAmount())
+                .orderItems(order.getOrderItems().stream().map(this::convertToItemDto).toList())
+                .build();
+    }
+
+    private OrderItemDto convertToItemDto(OrderItem orderItem) {
+        Product product = orderItem.getProduct();
+        return OrderItemDto.builder()
+                .productId(orderItem.getId())
+                .quantity(orderItem.getQuantity())
+                .totalAmount(orderItem.getTotalAmount())
+                .imageUrl(product.getImageUrl())
+                .name(product.getName())
+                .build();
     }
 }

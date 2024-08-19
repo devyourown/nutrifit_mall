@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
@@ -18,8 +19,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<Order>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter) {
-        List<Order> orders = orderService.getOrdersByUser(userAdapter.getUser());
+    public ResponseEntity<List<OrderDto>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter) {
+        List<OrderDto> orders = orderService.getOrdersByUser(userAdapter.getUser());
         return ResponseEntity.ok(orders);
     }
 }
