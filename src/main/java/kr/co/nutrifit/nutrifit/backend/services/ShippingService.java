@@ -37,7 +37,7 @@ public class ShippingService {
     }
 
     @Transactional
-    public Shipping updateShippingStatus(ShippingStatusDto shippingStatusDto) {
+    public ShippingDto updateShippingStatus(ShippingStatusDto shippingStatusDto) {
         Shipping shipping = shippingRepository.findById(shippingStatusDto.getShippingId())
                 .orElseThrow(() -> new IllegalArgumentException("배송 정보가 없습니다."));
         ShippingStatus status = shippingStatusDto.getStatus();
@@ -55,11 +55,11 @@ public class ShippingService {
             shipping.setRefundDate(LocalDateTime.now());
         }
 
-        return shippingRepository.save(shipping);
+        return convertToDto(shippingRepository.save(shipping));
     }
 
     @Transactional
-    public List<Shipping> updateShippingStatusBulk(List<ShippingStatusDto> dtos) {
+    public List<ShippingDto> updateShippingStatusBulk(List<ShippingStatusDto> dtos) {
         List<Long> ids = dtos.stream()
                 .map(ShippingStatusDto::getShippingId)
                 .collect(Collectors.toList());
@@ -88,16 +88,30 @@ public class ShippingService {
             }
         });
 
-        return shippingRepository.saveAll(shippings);
+        return shippingRepository.saveAll(shippings)
+                .stream().map(this::convertToDto)
+                .toList();
     }
 
-    public Shipping getShippingByOrderId(Long orderId, User user) {
+    public ShippingDto getShippingByOrderId(Long orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
-        if (!order.getUser().getId().equals(user.getId())) {
+        if (!order.getUser().equals(user)) {
             throw new SecurityException("해당 주문에 접근할 권한이 없습니다.");
         }
-        return shippingRepository.findByOrderId(orderId)
+        Shipping shipping =  shippingRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 주문에 대한 배송 정보를 찾을 수 없습니다."));
+        return convertToDto(shipping);
+    }
+
+    private ShippingDto convertToDto(Shipping shipping) {
+        return ShippingDto.builder()
+                .id(shipping.getId())
+                .recipientName(shipping.getRecipientName())
+                .address(shipping.getAddress())
+                .currentStatus(shipping.getShippingStatus())
+                .order(shipping.getOrder())
+                .phoneNumber(shipping.getPhoneNumber())
+                .build();
     }
 }
