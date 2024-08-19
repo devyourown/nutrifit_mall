@@ -89,7 +89,7 @@ public class PaymentService {
     }
 
     public PaymentDto getPaymentByIdAndUser(Long id, User user) {
-        Payment payment = paymentRepository.findById(id)
+        Payment payment = paymentRepository.findByIdWithOrderAndItemsAndShipping(user.getId(), id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
         if (!payment.getUser().getId().equals(user.getId())) {
             throw new SecurityException("허용되지 않은 접근입니다.");
@@ -98,7 +98,7 @@ public class PaymentService {
     }
 
     public List<PaymentDto> getPaymentsByUser(User user) {
-        return paymentRepository.findByUser(user)
+        return paymentRepository.findByUserWithOrdersAndItemsAndShipping(user.getId())
                 .stream().map(this::convertToDto)
                 .toList();
     }
