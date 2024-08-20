@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingStatusDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
@@ -43,7 +44,7 @@ public class ShippingService {
         ShippingStatus status = shippingStatusDto.getStatus();
         shipping.setShippingStatus(status);
 
-        if (status == ShippingStatus.CANCELLED) {
+        if (status == ShippingStatus.CANCELED) {
             shipping.setCancelledDate(LocalDateTime.now());
         } else if (status == ShippingStatus.SHIPPED) {
             shipping.setShippedDate(LocalDateTime.now());
@@ -75,7 +76,7 @@ public class ShippingService {
             ShippingStatus status = dto.getStatus();
             shipping.setShippingStatus(status);
 
-            if (status == ShippingStatus.CANCELLED) {
+            if (status == ShippingStatus.CANCELED) {
                 shipping.setCancelledDate(LocalDateTime.now());
             } else if (status == ShippingStatus.SHIPPED) {
                 shipping.setShippedDate(LocalDateTime.now());
@@ -110,7 +111,6 @@ public class ShippingService {
                 .recipientName(shipping.getRecipientName())
                 .address(shipping.getAddress())
                 .currentStatus(shipping.getShippingStatus())
-                .order(shipping.getOrder())
                 .phoneNumber(shipping.getPhoneNumber())
                 .build();
     }
