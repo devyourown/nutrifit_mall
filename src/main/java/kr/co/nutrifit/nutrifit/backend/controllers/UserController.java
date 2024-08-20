@@ -1,8 +1,9 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import jakarta.validation.Valid;
-import kr.co.nutrifit.nutrifit.backend.dto.JwtAuthenticationDto;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
+import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.UserService;
@@ -40,8 +41,15 @@ public class UserController {
                             signDto.getPassword()
                     )
             );
-            String jwt = tokenProvider.generateToken((UserAdapter) authentication.getPrincipal());
-            return ResponseEntity.ok(new JwtAuthenticationDto(jwt));
+            UserAdapter userAdapter = (UserAdapter) authentication.getPrincipal();
+            User user = userAdapter.getUser();
+            String jwt = tokenProvider.generateToken(userAdapter);
+            return ResponseEntity.ok(UserDto.builder()
+                    .id(user.getId())
+                    .token(jwt)
+                    .role(user.getRole())
+                    .username(user.getUsername())
+                    .build());
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).header(HttpHeaders.CONTENT_TYPE,
                             MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)

@@ -17,7 +17,7 @@ public class ShippingDto {
     private Long id;
 
     @NotNull
-    private Order order;
+    private Long orderId;
 
     @NotNull
     private String recipientName;

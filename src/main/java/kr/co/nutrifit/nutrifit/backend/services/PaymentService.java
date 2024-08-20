@@ -109,6 +109,7 @@ public class PaymentService {
                 .amount(payment.getAmount())
                 .paymentMethod(payment.getPaymentMethod())
                 .impUid(payment.getImpUid())
+                .paymentDate(payment.getPaymentDate())
                 .orderItems(payment.getOrder().getOrderItems().stream().map(orderItem -> OrderItemDto.builder()
                         .productId(orderItem.getProduct().getId())
                         .name(orderItem.getProduct().getName())
