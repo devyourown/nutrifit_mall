@@ -11,6 +11,7 @@ DELETE FROM point_transaction;
 DELETE FROM payment;
 DELETE FROM review;
 DELETE FROM notification;
+DELETE FROM options;
 DELETE FROM users;
 
 -- User data
@@ -20,11 +21,27 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 (3, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', '789 Elm St', '', '');
 
 -- Product data
-INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity, low_stock_threshold, image_urls, category, badge_texts)
+INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
+low_stock_threshold, image_urls, category, badge_texts, reviewRating, reviewCount)
 VALUES
-(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', 'image2.jpg', 'image3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인']),
-(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송']),
-(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송']);
+(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', 'image2.jpg', 'image3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
+(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송'], 67513, 15003),
+(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송'], 15, 3);
+
+INSERT INTO options (id, quantity, price, description, product_id)
+VALUES (1, 10, 1000, 'Option 1 Description', 1),
+       (2, 20, 2000, 'Option 2 Description', 1),
+       (3, 15, 1500, 'Option 3 Description', 1);
+
+INSERT INTO options (id, quantity, price, description, product_id)
+VALUES (4, 10, 1000, 'Option 1 Description', 2),
+       (5, 20, 2000, 'Option 2 Description', 2),
+       (6, 15, 1500, 'Option 3 Description', 2);
+
+INSERT INTO options (id, quantity, price, description, product_id)
+VALUES (7, 10, 1000, 'Option 1 Description', 3),
+       (8, 20, 2000, 'Option 2 Description', 3),
+       (9, 15, 1500, 'Option 3 Description', 3);
 
 -- Cart and CartItem data
 INSERT INTO cart (id, user_id) VALUES

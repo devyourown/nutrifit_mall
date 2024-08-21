@@ -1,8 +1,10 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OptionDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ProductDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Options;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,14 @@ public class ProductService {
                 .category(productDto.getCategory())
                 .imageUrls(productDto.getImageUrls())
                 .lowStockThreshold(productDto.getLowStockThreshold())
+                .reviewRating(productDto.getReviewRating())
+                .reviewCount(productDto.getReviewCount())
                 .build();
+        productDto.getOptions().forEach(optionDto -> product.addOption(Options.builder()
+                .quantity(optionDto.getQuantity())
+                .price(optionDto.getPrice())
+                .description(optionDto.getDescription())
+                .build()));
         productRepository.save(product);
     }
 
@@ -47,6 +55,13 @@ public class ProductService {
         product.setStockQuantity(productDto.getStockQuantity());
         product.setCategory(product.getCategory());
         product.setLowStockThreshold(product.getLowStockThreshold());
+        productDto.getOptions().forEach(optionDto -> product.addOption(Options.builder()
+                .quantity(optionDto.getQuantity())
+                .price(optionDto.getPrice())
+                .description(optionDto.getDescription())
+                .build()));
+        product.setReviewCount(productDto.getReviewCount());
+        product.setReviewRating(product.getReviewRating());
         productRepository.save(product);
     }
 
@@ -94,6 +109,9 @@ public class ProductService {
     }
 
     private ProductDto convertToDto(Product product) {
+        List<OptionDto> optionDtos = product.getOptions().stream()
+                .map(this::convertOptionToDto)
+                .toList();
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -105,6 +123,18 @@ public class ProductService {
         .category(product.getCategory())
         .stockQuantity(product.getStockQuantity())
         .lowStockThreshold(product.getLowStockThreshold())
+                .reviewCount(product.getReviewCount())
+                .reviewRating(product.getReviewRating())
+                .options(optionDtos)
+                .build();
+    }
+
+    private OptionDto convertOptionToDto(Options options) {
+        return OptionDto.builder()
+                .id(options.getId())
+                .quantity(options.getQuantity())
+                .price(options.getPrice())
+                .description(options.getDescription())
                 .build();
     }
 }
