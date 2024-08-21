@@ -1,3 +1,18 @@
+DELETE FROM product;
+DELETE FROM cart;
+DELETE FROM cart_item;
+DELETE FROM coupon;
+DELETE FROM user_coupon;
+DELETE FROM orders;
+DELETE FROM order_item;
+DELETE FROM shipping;
+DELETE FROM point;
+DELETE FROM point_transaction;
+DELETE FROM payment;
+DELETE FROM review;
+DELETE FROM notification;
+DELETE FROM users;
+
 -- User data
 INSERT INTO users (id, email, username, password, role, address, address_details, shipping_details) VALUES
 (1, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', '123 Main St', 'Apt 4B', 'Fast Shipping'),
@@ -5,10 +20,11 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 (3, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', '789 Elm St', '', '');
 
 -- Product data
-INSERT INTO product (id, name, description, price, stock_quantity, low_stock_threshold, image_url, category) VALUES
-(1, 'Product 1', 'Description 1', 1000, 100, 10, 'http://example.com/image1.png', 'Category A'),
-(2, 'Product 2', 'Description 2', 2000, 50, 5, 'http://example.com/image2.png', 'Category B'),
-(3, 'Product 3', 'Description 3', 3000, 30, 3, 'http://example.com/image3.png', 'Category C');
+INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity, low_stock_threshold, image_urls, category, badge_texts)
+VALUES
+(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', 'image2.jpg', 'image3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인']),
+(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송']),
+(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송']);
 
 -- Cart and CartItem data
 INSERT INTO cart (id, user_id) VALUES

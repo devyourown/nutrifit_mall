@@ -22,9 +22,13 @@ public class ProductService {
         Product product = Product.builder()
                 .name(productDto.getName())
                 .description(productDto.getDescription())
-                .price(productDto.getPrice())
+                .originalPrice(productDto.getOriginalPrice())
+                .badgeTexts(productDto.getBadgeTexts())
+                .discountedPrice(productDto.getDiscountedPrice())
                 .stockQuantity(productDto.getStockQuantity())
                 .category(productDto.getCategory())
+                .imageUrls(productDto.getImageUrls())
+                .lowStockThreshold(productDto.getLowStockThreshold())
                 .build();
         productRepository.save(product);
     }
@@ -36,9 +40,13 @@ public class ProductService {
 
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
-        product.setPrice(productDto.getPrice());
+        product.setBadgeTexts(productDto.getBadgeTexts());
+        product.setOriginalPrice(productDto.getOriginalPrice());
+        product.setDiscountedPrice(productDto.getDiscountedPrice());
+        product.setImageUrls(productDto.getImageUrls());
         product.setStockQuantity(productDto.getStockQuantity());
         product.setCategory(product.getCategory());
+        product.setLowStockThreshold(product.getLowStockThreshold());
         productRepository.save(product);
     }
 
@@ -86,15 +94,17 @@ public class ProductService {
     }
 
     private ProductDto convertToDto(Product product) {
-        return new ProductDto(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getCategory(),
-                product.getStockQuantity(),
-                product.getLowStockThreshold(),
-                product.getImageUrl()
-        );
+        return ProductDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+        .description(product.getDescription())
+        .imageUrls(product.getImageUrls())
+        .badgeTexts(product.getBadgeTexts())
+        .discountedPrice(product.getDiscountedPrice())
+        .originalPrice(product.getOriginalPrice())
+        .category(product.getCategory())
+        .stockQuantity(product.getStockQuantity())
+        .lowStockThreshold(product.getLowStockThreshold())
+                .build();
     }
 }

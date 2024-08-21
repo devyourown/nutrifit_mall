@@ -37,23 +37,15 @@ class ProductServiceTest {
                 .id(1L)
                 .name("Product 1")
                 .description("Description")
-                .price(1000L)
                 .stockQuantity(10)
                 .category("Category")
                 .lowStockThreshold(5)
-                .imageUrl("imageUrl")
                 .build();
 
-        productDto = new ProductDto(
-                1L,
-                "Product 1",
-                "Description",
-                1000L,
-                "Category",
-                10,
-                5,
-                "imageUrl"
-        );
+        productDto = ProductDto.builder()
+                .id(1L)
+                .name("Product 1")
+                .build();
     }
 
     @Test

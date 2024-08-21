@@ -71,9 +71,8 @@ public class PaymentServiceTest {
         Product product = Product.builder()
                 .name("Test Product")
                 .description("Test Description")
-                .price(1000L)
+                .discountedPrice(1000L)
                 .stockQuantity(100)
-                .imageUrl("http://example.com/image.png")
                 .category("Test Category")
                 .build();
 

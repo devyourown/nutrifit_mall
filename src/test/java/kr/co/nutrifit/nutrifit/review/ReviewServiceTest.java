@@ -57,9 +57,7 @@ public class ReviewServiceTest {
                 .id(1L)
                 .name("Product 1")
                 .description("Description")
-                .price(1000L)
                 .stockQuantity(10)
-                .imageUrl("imageUrl")
                 .build();
 
         review = Review.builder()

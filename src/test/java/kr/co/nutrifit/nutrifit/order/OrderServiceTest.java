@@ -72,9 +72,8 @@ public class OrderServiceTest {
         product = Product.builder()
                 .name("Product 1")
                 .description("Description")
-                .price(1000L)
+                .discountedPrice(1000L)
                 .stockQuantity(10)
-                .imageUrl("imageUrl")
                 .build();
 
         product = productRepository.save(product);
@@ -88,9 +87,9 @@ public class OrderServiceTest {
         OrderItem orderItem = OrderItem.builder()
                 .order(order)
                 .product(product)
-                .price(product.getPrice())
+                .price(product.getDiscountedPrice())
                 .quantity(2)
-                .totalAmount(product.getPrice() * 2)
+                .totalAmount(product.getDiscountedPrice() * 2)
                 .build();
 
         order.setOrderItems(List.of(orderItem));
