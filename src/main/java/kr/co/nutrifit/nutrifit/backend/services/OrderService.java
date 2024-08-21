@@ -34,9 +34,9 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
-            orderItem.setPrice(product.getPrice());
+            orderItem.setPrice(product.getDiscountedPrice());
             orderItem.setQuantity(itemDto.getQuantity());
-            orderItem.setTotalAmount(product.getPrice() * itemDto.getQuantity());
+            orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
 
             totalAmount += orderItem.getTotalAmount();
 
@@ -68,7 +68,7 @@ public class OrderService {
                 .productId(orderItem.getId())
                 .quantity(orderItem.getQuantity())
                 .totalAmount(orderItem.getTotalAmount())
-                .imageUrl(product.getImageUrl())
+                .imageUrl(product.getImageUrls().get(0))
                 .name(product.getName())
                 .build();
     }

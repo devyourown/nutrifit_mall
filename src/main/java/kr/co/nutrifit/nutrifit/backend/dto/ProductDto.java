@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -13,9 +15,11 @@ public class ProductDto {
     private Long id;
     private String name;
     private String description;
-    private Long price;
     private String category;
     private int stockQuantity;
     private int lowStockThreshold;
-    private String imageUrl;
+    private List<String> imageUrls;
+    private List<String> badgeTexts;
+    private Long originalPrice;
+    private Long discountedPrice;
 }

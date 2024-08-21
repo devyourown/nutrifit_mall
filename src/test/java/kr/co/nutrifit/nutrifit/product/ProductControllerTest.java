@@ -94,18 +94,15 @@ public class ProductControllerTest {
         product = Product.builder()
                 .name("Test Product")
                 .description("Test Description")
-                .price(1000L)
                 .stockQuantity(100)
-                .imageUrl("http://example.com/image.png")
                 .category("Test Category")
                 .build();
 
         productDto = ProductDto.builder()
                 .name("Test Product")
                 .description("Test Description")
-                .price(1000L)
                 .stockQuantity(100)
-                .imageUrl("http://example.com/image.png")
+                .discountedPrice(1000L)
                 .category("Test Category")
                 .build();
 
@@ -127,9 +124,7 @@ public class ProductControllerTest {
         ProductDto productDto = ProductDto.builder()
                 .name("Test Product2")
                 .description("Test Description")
-                .price(1000L)
                 .stockQuantity(100)
-                .imageUrl("http://example.com/image.png")
                 .category("Test Category")
                 .build();
         mockMvc.perform(post("/api/products/admin")

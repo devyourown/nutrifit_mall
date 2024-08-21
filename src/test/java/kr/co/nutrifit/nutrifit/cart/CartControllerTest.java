@@ -103,9 +103,9 @@ public class CartControllerTest {
                 .id(1L)
                 .name("Product 1")
                 .description("Description")
-                .price(1000L)
+                .discountedPrice(10000L)
                 .stockQuantity(10)
-                .imageUrl("imageUrl")
+                .imageUrls(new ArrayList<>())
                 .build();
 
         product.setId(productRepository.save(product).getId());

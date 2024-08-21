@@ -115,7 +115,7 @@ public class PaymentService {
                         .name(orderItem.getProduct().getName())
                         .quantity(orderItem.getQuantity())
                         .totalAmount(orderItem.getTotalAmount())
-                        .imageUrl(orderItem.getProduct().getImageUrl())
+                        .imageUrl(orderItem.getProduct().getImageUrls().get(0))
                         .build()).collect(Collectors.toList()))
                 .shippingDto(ShippingDto.builder()
                         .recipientName(payment.getOrder().getShipping().getRecipientName())

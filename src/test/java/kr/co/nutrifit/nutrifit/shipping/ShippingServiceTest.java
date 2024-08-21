@@ -105,6 +105,6 @@ public class ShippingServiceTest {
         ShippingDto result = shippingService.getShippingByOrderId(order.getId(), user);
 
         assertEquals(shipping.getId(), result.getId());
-        assertEquals(order.getId(), result.getOrder().getId());
+        assertEquals(order.getId(), result.getOrderId());
     }
 }

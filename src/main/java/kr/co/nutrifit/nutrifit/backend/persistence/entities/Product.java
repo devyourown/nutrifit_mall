@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,13 +25,18 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private Long price;
+    private Long originalPrice;
+
+    private Long discountedPrice;
 
     @Column(nullable = false)
     private int stockQuantity;
 
     private int lowStockThreshold;
 
-    private String imageUrl;
+    @Column(columnDefinition = "text[]")
+    private List<String> imageUrls;
     private String category;
+    @Column(columnDefinition = "text[]")
+    private List<String> badgeTexts;
 }

@@ -59,8 +59,8 @@ public class CartService {
         return CartItemDto.builder()
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(product.getPrice())
-                .imageUrl(product.getImageUrl())
+                .price(product.getDiscountedPrice())
+                .imageUrl(product.getImageUrls().get(0))
                 .quantity(item.getQuantity())
                 .build();
     }
