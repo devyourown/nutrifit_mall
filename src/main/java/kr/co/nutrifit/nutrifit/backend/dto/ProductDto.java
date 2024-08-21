@@ -22,4 +22,7 @@ public class ProductDto {
     private List<String> badgeTexts;
     private Long originalPrice;
     private Long discountedPrice;
+    private Long reviewRating;
+    private Long reviewCount;
+    private List<OptionDto> options;
 }
