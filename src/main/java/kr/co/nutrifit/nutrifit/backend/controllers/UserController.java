@@ -32,6 +32,13 @@ public class UserController {
     private final JwtTokenProvider tokenProvider;
     private final UserService userService;
 
+    @GetMapping("/{username}")
+    public ResponseEntity<?> existsByUsername(@PathVariable String username) {
+        if (userService.existsByUsername(username))
+            return ResponseEntity.status(409).body("닉네임이 이미 존재합니다.");
+        return ResponseEntity.ok("사용 가능한 닉네임입니다.");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody SignDto signDto) {
         try {

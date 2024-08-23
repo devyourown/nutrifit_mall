@@ -9,14 +9,15 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,13 +32,13 @@ public class OAuthService {
     private String googleClientId;
     @Value("${oauth.google.client-secret}")
     private String googleClientSecret;
-    @Value("${oauth.google.redirect-uri")
+    @Value("${oauth.google.redirect-uri}")
     private String googleRedirectUri;
     @Value("${oauth.naver.client-id}")
     private String naverClientId;
     @Value("${oauth.naver.client-secret}")
     private String naverClientSecret;
-    @Value("${oauth.naver.redirect-uri")
+    @Value("${oauth.naver.redirect-uri}")
     private String naverRedirectUri;
 
     private String getGoogleAccessToken(String code) {
@@ -50,7 +51,7 @@ public class OAuthService {
         params.put("client_id", googleClientId);
         params.put("client_secret", googleClientSecret);
         params.put("redirect_uri", googleRedirectUri);
-        params.put("grant_type", code);
+        params.put("grant_type", "authorization_code");
 
         ResponseEntity<Map> response = restTemplate.postForEntity(url, params, Map.class);
         return (String) response.getBody().get("access_token");
@@ -63,27 +64,26 @@ public class OAuthService {
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GoogleUserDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, GoogleUserDto.class);
-
         return response.getBody();
     }
 
     @Transactional
-    private User createUserFromGoogleUser(GoogleUserDto userDto) throws Exception {
+    private User createUserFromGoogleUser(GoogleUserDto userDto, String username) throws Exception {
         User user = userService.registerUser(SignDto.builder()
                 .email(userDto.getEmail())
-                .username(userDto.getName())
+                .username(username)
                 .password("")
                 .build());
         user.setImageUrl(userDto.getPicture());
         return user;
     }
 
-    public UserDto authenticationGoogleUser(String authorizationCode) throws Exception {
+    public UserDto authenticationGoogleUser(String authorizationCode, String username) throws Exception {
         String accessToken = getGoogleAccessToken(authorizationCode);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
 
         User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUserFromGoogleUser(googleUser));
+                .orElse(createUserFromGoogleUser(googleUser, username));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -103,7 +103,7 @@ public class OAuthService {
         params.put("client_id", naverClientId);
         params.put("client_secret", naverClientSecret);
         params.put("redirect_uri", naverRedirectUri);
-        params.put("grant_type", code);
+        params.put("grant_type", "authorization_code");
 
         ResponseEntity<Map> response = restTemplate.postForEntity(url, params, Map.class);
         return (String) response.getBody().get("access_token");
@@ -121,22 +121,22 @@ public class OAuthService {
     }
 
     @Transactional
-    private User createUserFromNaverUser(NaverUserDto userDto) throws Exception {
+    private User createUserFromNaverUser(NaverUserDto userDto, String username) throws Exception {
         User user = userService.registerUser(SignDto.builder()
                 .email(userDto.getEmail())
-                .username(userDto.getNickname())
+                .username(username)
                 .password("")
                 .build());
         user.setImageUrl(userDto.getProfile_image());
         return user;
     }
 
-    public UserDto authenticationNaverUser(String code) throws Exception {
+    public UserDto authenticationNaverUser(String code, String username) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
 
         User user = userRepository.findByEmail(naverUser.getEmail())
-                .orElse(createUserFromNaverUser(naverUser));
+                .orElse(createUserFromNaverUser(naverUser, username));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
