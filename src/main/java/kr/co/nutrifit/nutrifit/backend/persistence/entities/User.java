@@ -26,8 +26,11 @@ public class User {
     @Column(unique = true,  nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
+
+    @Column(nullable = true)
+    private boolean isOAuth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

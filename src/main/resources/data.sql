@@ -24,9 +24,9 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
 low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
 VALUES
-(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', 'image2.jpg', 'image3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
-(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송'], 67513, 15003),
-(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송'], 15, 3);
+(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
+(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 67513, 15003),
+(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 15, 3);
 
 INSERT INTO options (id, quantity, price, description, product_id)
 VALUES (1, 10, 1000, 'Option 1 Description', 1),

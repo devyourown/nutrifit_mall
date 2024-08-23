@@ -20,7 +20,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.makeGoogleUsername(request.getEmail(), request.getUsername());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 이메일 혹은 닉네임이 겹칩니다.");
         }
     }
@@ -31,7 +30,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.checkAndMakeGoogleUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
@@ -39,7 +37,7 @@ public class OAuthController {
     @PostMapping("/naver")
     public ResponseEntity<?> naverOAuthCallback(@RequestBody OAuthRequest request) {
         try {
-            UserDto userDto = oAuthService.authenticationNaverUser(request.getCode(), request.getUsername());
+            UserDto userDto = oAuthService.checkAndMakeNaverUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 이메일 혹은 닉네임이 겹칩니다.");

@@ -5,12 +5,14 @@ import kr.co.nutrifit.nutrifit.backend.dto.NaverUserDto;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +25,6 @@ import java.util.UUID;
 public class OAuthService {
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final JwtTokenProvider tokenProvider;
     @Value("${oauth.google.client-id}")
     private String googleClientId;
@@ -64,24 +65,27 @@ public class OAuthService {
         return response.getBody();
     }
 
-    @Transactional
-    private User createUserFromGoogleUser(GoogleUserDto userDto) throws Exception {
-        User user = userService.registerUser(SignDto.builder()
+    private User createUserFromGoogleUser(GoogleUserDto userDto) {
+        User user = User.builder()
+                .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
                 .email(userDto.getEmail())
-                .username(userDto.getEmail() + UUID.randomUUID().toString().substring(0, 8))
-                .password("")
-                .build());
+                .isOAuth(true)
+                .role(Role.ROLE_USER)
+                .build();
         user.setImageUrl(userDto.getPicture());
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
-    public UserDto checkAndMakeGoogleUser(String code) throws Exception {
+    @Transactional
+    public UserDto checkAndMakeGoogleUser(String code) {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        System.out.println(googleUser.getEmail());
-        User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUserFromGoogleUser(googleUser));
+        User user = null;
+        if (userRepository.existsByEmail(googleUser.getEmail()))
+            user = userRepository.findByEmail(googleUser.getEmail())
+                    .orElseThrow();
+        else
+            user = createUserFromGoogleUser(googleUser);
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -135,22 +139,22 @@ public class OAuthService {
     }
 
     @Transactional
-    private User createUserFromNaverUser(NaverUserDto userDto, String username) throws Exception {
-        User user = userService.registerUser(SignDto.builder()
+    private User createUserFromNaverUser(NaverUserDto userDto) throws Exception {
+        User user = User.builder()
                 .email(userDto.getEmail())
-                .username(username)
-                .password("")
-                .build());
+                .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
+                .isOAuth(true)
+                .build();
         user.setImageUrl(userDto.getProfile_image());
         return user;
     }
 
-    public UserDto authenticationNaverUser(String code, String username) throws Exception {
+    public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
 
         User user = userRepository.findByEmail(naverUser.getEmail())
-                .orElse(createUserFromNaverUser(naverUser, username));
+                .orElse(createUserFromNaverUser(naverUser));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
