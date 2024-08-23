@@ -12,14 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -68,22 +65,39 @@ public class OAuthService {
     }
 
     @Transactional
-    private User createUserFromGoogleUser(GoogleUserDto userDto, String username) throws Exception {
+    private User createUserFromGoogleUser(GoogleUserDto userDto) throws Exception {
         User user = userService.registerUser(SignDto.builder()
                 .email(userDto.getEmail())
-                .username(username)
+                .username(userDto.getEmail() + UUID.randomUUID().toString().substring(0, 8))
                 .password("")
                 .build());
         user.setImageUrl(userDto.getPicture());
+        userRepository.save(user);
         return user;
     }
 
-    public UserDto authenticationGoogleUser(String authorizationCode, String username) throws Exception {
-        String accessToken = getGoogleAccessToken(authorizationCode);
+    public UserDto checkAndMakeGoogleUser(String code) throws Exception {
+        String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-
+        System.out.println(googleUser.getEmail());
         User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUserFromGoogleUser(googleUser, username));
+                .orElse(createUserFromGoogleUser(googleUser));
+        String jwt = tokenProvider.generateToken(user);
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .token(jwt)
+                .role(user.getRole())
+                .username(user.getUsername())
+                .build();
+    }
+
+    @Transactional
+    public UserDto makeGoogleUsername(String email, String username) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Wrong Email"));
+        user.setUsername(username);
+        userRepository.save(user);
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())

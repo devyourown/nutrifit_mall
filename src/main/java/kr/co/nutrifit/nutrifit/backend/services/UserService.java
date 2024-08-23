@@ -21,7 +21,7 @@ public class UserService {
     public User registerUser(SignDto signDto) throws Exception {
         if (userRepository.existsByUsername(signDto.getUsername()) || userRepository
                 .existsByEmail(signDto.getEmail())) {
-            throw new IllegalArgumentException("이메일 혹은 닉네임이 이미 사용중입니다.");
+            throw new IllegalArgumentException("Email or Nickname is already used.");
         }
 
         User user = User.builder()
