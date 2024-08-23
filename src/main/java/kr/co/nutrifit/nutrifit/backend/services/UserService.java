@@ -57,4 +57,8 @@ public class UserService {
 
         return tempPassword.toString();
     }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }
