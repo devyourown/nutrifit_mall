@@ -43,7 +43,7 @@ public class UserController {
             );
             UserAdapter userAdapter = (UserAdapter) authentication.getPrincipal();
             User user = userAdapter.getUser();
-            String jwt = tokenProvider.generateToken(userAdapter);
+            String jwt = tokenProvider.generateToken(user);
             return ResponseEntity.ok(UserDto.builder()
                     .id(user.getId())
                     .token(jwt)

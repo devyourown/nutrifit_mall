@@ -1,17 +1,17 @@
-DELETE FROM product;
-DELETE FROM cart;
-DELETE FROM cart_item;
-DELETE FROM coupon;
-DELETE FROM user_coupon;
-DELETE FROM orders;
 DELETE FROM order_item;
+DELETE FROM options;
+DELETE FROM product;
+DELETE FROM cart_item;
+DELETE FROM cart;
+DELETE FROM user_coupon;
+DELETE FROM coupon;
+DELETE FROM payment;
 DELETE FROM shipping;
+DELETE FROM orders;
 DELETE FROM point;
 DELETE FROM point_transaction;
-DELETE FROM payment;
 DELETE FROM review;
 DELETE FROM notification;
-DELETE FROM options;
 DELETE FROM users;
 
 -- User data
@@ -22,7 +22,7 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
-low_stock_threshold, image_urls, category, badge_texts, reviewRating, reviewCount)
+low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
 VALUES
 (1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', 'image2.jpg', 'image3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
 (2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', 'image5.jpg'], 'Category B', ARRAY['무료배송'], 67513, 15003),

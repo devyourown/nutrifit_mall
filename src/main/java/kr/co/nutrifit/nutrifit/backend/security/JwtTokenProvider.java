@@ -3,6 +3,7 @@ package kr.co.nutrifit.nutrifit.backend.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,14 +22,14 @@ public class JwtTokenProvider {
         this.userDetailsService = userDetailsService;
     }
 
-    public String generateToken(UserAdapter userAdapter) {
+    public String generateToken(User user) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
 
         String secretKey = Base64.getEncoder().encodeToString(JWT_SECRET.getBytes());
 
         return Jwts.builder()
-                .setSubject(userAdapter.getUsername())
+                .setSubject(user.getUsername())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
