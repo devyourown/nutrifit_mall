@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OAuthRequest {
     String code;
+    String email;
     String username;
 }
