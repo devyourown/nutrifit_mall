@@ -3,6 +3,7 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 import jakarta.validation.Valid;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
@@ -67,7 +68,13 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@RequestBody @Valid SignDto signDto) {
         try {
-            userService.registerUser(signDto);
+            UserDto userDto = UserDto.builder()
+                            .email(signDto.getEmail())
+                                    .isOAuth(false)
+                                            .password(signDto.getPassword())
+                                                    .role(Role.ROLE_USER)
+                                                            .build();
+            userService.registerUser(userDto);
             return ResponseEntity.status(201).header(HttpHeaders.CONTENT_TYPE,
                     MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
                     .body("사용자가 등록 되었습니다.");

@@ -43,9 +43,6 @@ public class User {
     private Point point;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PointTransaction> transactions;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -72,20 +69,6 @@ public class User {
         if (orders != null) {
             orders.remove(order);
             order.setUser(null);
-        }
-    }
-
-    public void addPointTransaction(PointTransaction pointTransaction) {
-        if (transactions == null)
-            transactions = new ArrayList<>();
-        transactions.add(pointTransaction);
-        pointTransaction.setUser(this);
-    }
-
-    public void removePointTransaction(PointTransaction pointTransaction) {
-        if (transactions != null) {
-            transactions.remove(pointTransaction);
-            pointTransaction.setUser(null);
         }
     }
 

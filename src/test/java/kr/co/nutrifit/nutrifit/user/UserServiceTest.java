@@ -6,6 +6,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
+import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.services.UserService;
@@ -54,7 +55,10 @@ class UserServiceTest {
         when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        User user = userService.registerUser(signDto);
+        User user = userService.registerUser(UserDto.builder()
+                .email(signDto.getEmail())
+                .password(signDto.getPassword())
+                .build());
 
         // Then
         assertNotNull(user);
@@ -73,7 +77,10 @@ class UserServiceTest {
 
         // When & Then
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.registerUser(signDto);
+            userService.registerUser(UserDto.builder()
+                    .email(signDto.getEmail())
+                    .password(signDto.getPassword())
+                    .build());
         });
 
         assertEquals("이메일 혹은 닉네임이 이미 사용중입니다.", exception.getMessage());
@@ -89,7 +96,10 @@ class UserServiceTest {
 
         // When & Then
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.registerUser(signDto);
+            userService.registerUser(UserDto.builder()
+                    .email(signDto.getEmail())
+                    .password(signDto.getPassword())
+                    .build());
         });
 
         assertEquals("이메일 혹은 닉네임이 이미 사용중입니다.", exception.getMessage());
