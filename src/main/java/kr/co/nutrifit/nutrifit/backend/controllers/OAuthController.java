@@ -14,17 +14,18 @@ import org.springframework.web.bind.annotation.*;
 public class OAuthController {
     private final OAuthService oAuthService;
 
-    @PostMapping("/google")
-    public ResponseEntity<?> googleOAuthCallback(@RequestBody OAuthRequest request) {
+    @PutMapping("/username")
+    public ResponseEntity<?> changeOAuthUsername(@RequestBody OAuthRequest request) {
         try {
-            UserDto userDto = oAuthService.makeGoogleUsername(request.getEmail(), request.getUsername());
+            UserDto userDto = oAuthService.changeUsername(request.getEmail(), request.getUsername());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 이메일 혹은 닉네임이 겹칩니다.");
         }
     }
 
-    @PostMapping("/google/check")
+    @PostMapping("/google")
     public ResponseEntity<?> googleOAuthCheckRegister(@RequestBody OAuthRequest request) {
         try {
             UserDto userDto = oAuthService.checkAndMakeGoogleUser(request.getCode());
@@ -34,13 +35,26 @@ public class OAuthController {
         }
     }
 
+
     @PostMapping("/naver")
     public ResponseEntity<?> naverOAuthCallback(@RequestBody OAuthRequest request) {
         try {
             UserDto userDto = oAuthService.checkAndMakeNaverUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 이메일 혹은 닉네임이 겹칩니다.");
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("잘못된 요청입니다.");
+        }
+    }
+
+    @PostMapping("/kakao")
+    public ResponseEntity<?> kakaoOAuthCheckRegister(@RequestBody OAuthRequest request) {
+        try {
+            UserDto userDto = oAuthService.checkAndMakeKakaoUser(request.getCode());
+            return ResponseEntity.ok(userDto);
+        } catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
 }

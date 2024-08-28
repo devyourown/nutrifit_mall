@@ -1,9 +1,10 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
-import kr.co.nutrifit.nutrifit.backend.dto.GoogleUserDto;
-import kr.co.nutrifit.nutrifit.backend.dto.NaverUserDto;
-import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
-import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
@@ -12,9 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +27,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
+    @PersistenceContext
+    private EntityManager entityManager;
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
@@ -38,6 +44,12 @@ public class OAuthService {
     private String naverClientSecret;
     @Value("${oauth.naver.redirect-uri}")
     private String naverRedirectUri;
+    @Value("${oauth.kakao.client-id}")
+    private String kakaoClientId;
+    @Value("${oauth.kakao.client-secret}")
+    private String kakaoClientSecret;
+    @Value("${oauth.kakao.redirect-uri}")
+    private String kakaoRedirectUri;
 
     private String getGoogleAccessToken(String code) {
         // Google OAuth 토큰 요청 URL
@@ -97,7 +109,7 @@ public class OAuthService {
     }
 
     @Transactional
-    public UserDto makeGoogleUsername(String email, String username) throws Exception {
+    public UserDto changeUsername(String email, String username) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Wrong Email"));
         user.setUsername(username);
@@ -116,48 +128,143 @@ public class OAuthService {
         String url = "https://nid.naver.com/oauth2.0/token";
 
         // 요청에 필요한 파라미터
-        Map<String, String> params = new HashMap<>();
-        params.put("code", code);
-        params.put("client_id", naverClientId);
-        params.put("client_secret", naverClientSecret);
-        params.put("redirect_uri", naverRedirectUri);
-        params.put("grant_type", "authorization_code");
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("grant_type", "authorization_code")
+                .queryParam("client_id", naverClientId)
+                .queryParam("client_secret", naverClientSecret)
+                .queryParam("redirect_uri", naverRedirectUri)
+                .queryParam("code", code);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, params, Map.class);
+        // Create the complete URI
+        String uri = uriBuilder.toUriString();
+
+        ResponseEntity<Map> response = restTemplate.getForEntity(uri, Map.class);
         return (String) response.getBody().get("access_token");
     }
 
-    private NaverUserDto getNaverUser(String accessToken) {
+    private NaverUserDto getNaverUser(String accessToken) throws Exception {
         String url = "https://openapi.naver.com/v1/nid/me";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<NaverUserDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, NaverUserDto.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String responseBody = response.getBody();
 
-        return response.getBody();
+        // ObjectMapper를 사용하여 JSON 파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+
+        // 필요한 필드 추출
+        String id = rootNode.path("response").path("id").asText();
+        String email = rootNode.path("response").path("email").asText();
+        String profileImage = rootNode.path("response").path("profile_image").asText();
+
+        return NaverUserDto.builder()
+                .id(id)
+                .email(email)
+                .profile_image(profileImage)
+                .build();
     }
 
-    @Transactional
-    private User createUserFromNaverUser(NaverUserDto userDto) throws Exception {
+    private User createUserFromNaverUser(NaverUserDto userDto) {
         User user = User.builder()
                 .email(userDto.getEmail())
                 .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
                 .isOAuth(true)
+                .role(Role.ROLE_USER)
                 .build();
         user.setImageUrl(userDto.getProfile_image());
-        return user;
+        return userRepository.save(user);
     }
 
+    @Transactional
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
-
-        User user = userRepository.findByEmail(naverUser.getEmail())
-                .orElse(createUserFromNaverUser(naverUser));
+        User user = null;
+        if (userRepository.existsByEmail(naverUser.getEmail()))
+            user = userRepository.findByEmail(naverUser.getEmail())
+                    .orElseThrow();
+        else
+            user = createUserFromNaverUser(naverUser);
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
+                .email(user.getEmail())
+                .token(jwt)
+                .role(user.getRole())
+                .username(user.getUsername())
+                .build();
+    }
+
+    private String getKakaoAccessToken(String code) {
+        String url = "https://kauth.kakao.com/oauth/token";
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", code);
+        params.add("client_id", kakaoClientId);
+        params.add("client_secret", kakaoClientSecret);
+        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("grant_type", "authorization_code");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        // 요청 엔티티 생성
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+        System.out.println(response);
+        return (String) response.getBody().get("access_token");
+    }
+
+    private KakaoUserDto getKakaoUser(String accessToken) throws Exception {
+        String url = "https://kapi.kakao.com/v2/user/me";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String responseBody = response.getBody();
+
+        // ObjectMapper를 사용하여 JSON 파싱
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+
+        // 필요한 필드 추출
+        System.out.println(responseBody);
+        String profileImage = rootNode.path("properties").path("profile_image").asText();
+        String email = rootNode.path("kakao_account").path("email").asText();
+        return KakaoUserDto.builder()
+                .email(email)
+                .profile(profileImage)
+                .build();
+    }
+
+    @Transactional
+    private User createUserFromKakaoUser(KakaoUserDto userDto) {
+        User user = User.builder()
+                .email(userDto.getEmail())
+                .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
+                .isOAuth(true)
+                .role(Role.ROLE_USER)
+                .build();
+        user.setImageUrl(userDto.getProfile());
+        return userRepository.save(user);
+    }
+
+    public UserDto checkAndMakeKakaoUser(String code) throws Exception {
+        String accessToken = getKakaoAccessToken(code);
+        KakaoUserDto kakaoUser = getKakaoUser(accessToken);
+        System.out.println(kakaoUser);
+        User user = userRepository.findByEmail(kakaoUser.getEmail())
+                .orElse(createUserFromKakaoUser(kakaoUser));
+        String jwt = tokenProvider.generateToken(user);
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
                 .token(jwt)
                 .role(user.getRole())
                 .username(user.getUsername())
