@@ -5,7 +5,6 @@ import kr.co.nutrifit.nutrifit.backend.persistence.CouponRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserCouponRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Coupon;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.CouponStatus;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.UserCoupon;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -98,5 +98,21 @@ public class CouponService {
         userCoupon.setUsedAt(LocalDateTime.now());
 
         userCouponRepository.save(userCoupon);
+    }
+
+    private CouponDto convertToDto(UserCoupon userCoupon) {
+        Coupon coupon = userCoupon.getCoupon();
+        return CouponDto.builder()
+                .description(coupon.getDescription())
+                .validFrom(coupon.getValidFrom())
+                .validUntil(coupon.getValidUntil())
+                .discountType(coupon.getDiscountType())
+                .discountValue(coupon.getDiscountValue())
+                .build();
+    }
+
+    public List<CouponDto> getUserCoupon(User user) {
+        List<UserCoupon> userCoupons = userCouponRepository.findAllByUser(user);
+        return userCoupons.stream().map(this::convertToDto).toList();
     }
 }
