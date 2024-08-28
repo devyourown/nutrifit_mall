@@ -19,8 +19,8 @@ public class PointTransaction {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "point_id", nullable = false)
+    private Point point;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)

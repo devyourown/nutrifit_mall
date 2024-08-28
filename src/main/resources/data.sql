@@ -9,8 +9,8 @@ DELETE FROM coupon;
 DELETE FROM payment;
 DELETE FROM shipping;
 DELETE FROM orders;
-DELETE FROM point;
 DELETE FROM point_transaction;
+DELETE FROM point;
 DELETE FROM notification;
 DELETE FROM users;
 
@@ -45,13 +45,13 @@ VALUES (7, 10, 1000, 'Option 1 Description', 3),
 
 -- Cart and CartItem data
 INSERT INTO cart (id, user_id) VALUES
-(1, 10000),
-(2, 20000);
+(1000, 10000),
+(2000, 20000);
 
 INSERT INTO cart_item (id, cart_id, product_id, quantity) VALUES
-(1, 1, 1, 2),
-(2, 1, 2, 1),
-(3, 2, 3, 5);
+(1, 1000, 1, 2),
+(2, 1000, 2, 1),
+(3, 2000, 3, 5);
 
 -- Coupon data
 INSERT INTO coupon (id, code, description, discount_type, discount_value, valid_from, valid_until, is_active, minimum_order_amount, max_discount_amount, remaining_quantity) VALUES
@@ -78,13 +78,13 @@ INSERT INTO shipping (id, order_id, recipient_name, address, phone_number, shipp
 (2, 2, 'Jane Smith', '456 Park Ave', '010-8765-4321', 'ORDERED', '2024-06-01 13:00:00', NULL, NULL, NULL, NULL, NULL);
 
 -- Point and PointTransaction data
-INSERT INTO point (id, user_id, points, updated_at) VALUES
-(1, 10000, 500, '2024-06-01 12:00:00'),
-(2, 20000, 1000, '2024-06-01 12:00:00');
+INSERT INTO point (id, user_id, points) VALUES
+(100, 10000, 500),
+(200, 20000, 1000);
 
-INSERT INTO point_transaction (id, user_id, transaction_type, points, description, created_at) VALUES
-(1, 10000, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
-(2, 20000, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
+INSERT INTO point_transaction (id, point_id, transaction_type, points, description, created_at) VALUES
+(1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
+(2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
 -- Payment data
 INSERT INTO payment (id, amount, payment_method, payment_status, payment_date, user_id, order_id, imp_uid, merchant_uid, coupon_id, used_points) VALUES

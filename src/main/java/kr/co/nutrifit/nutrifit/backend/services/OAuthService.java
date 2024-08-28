@@ -27,11 +27,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
-    @PersistenceContext
-    private EntityManager entityManager;
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
+    private final UserService userService;
     @Value("${oauth.google.client-id}")
     private String googleClientId;
     @Value("${oauth.google.client-secret}")
@@ -75,23 +74,24 @@ public class OAuthService {
         return response.getBody();
     }
 
-    private User createUserFromGoogleUser(GoogleUserDto userDto) {
-        User user = User.builder()
+    private User createUser(String email, String imageUrl) throws Exception {
+        UserDto user = UserDto.builder()
                 .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
-                .email(userDto.getEmail())
+                .email(email)
                 .isOAuth(true)
                 .role(Role.ROLE_USER)
+                .password(UUID.randomUUID().toString().substring(0, 8))
+                .profileImage(imageUrl)
                 .build();
-        user.setImageUrl(userDto.getPicture());
-        return userRepository.save(user);
+        return userService.registerUser(user);
     }
 
     @Transactional
-    public UserDto checkAndMakeGoogleUser(String code) {
+    public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
         User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUserFromGoogleUser(googleUser));
+                .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -156,23 +156,12 @@ public class OAuthService {
                 .build();
     }
 
-    private User createUserFromNaverUser(NaverUserDto userDto) {
-        User user = User.builder()
-                .email(userDto.getEmail())
-                .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
-                .isOAuth(true)
-                .role(Role.ROLE_USER)
-                .build();
-        user.setImageUrl(userDto.getProfile_image());
-        return userRepository.save(user);
-    }
-
     @Transactional
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
         User user = userRepository.findByEmail(naverUser.getEmail())
-                .orElse(createUserFromNaverUser(naverUser));
+                .orElse(createUser(naverUser.getEmail(), naverUser.getProfile_image()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -223,23 +212,11 @@ public class OAuthService {
                 .build();
     }
 
-    @Transactional
-    private User createUserFromKakaoUser(KakaoUserDto userDto) {
-        User user = User.builder()
-                .email(userDto.getEmail())
-                .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
-                .isOAuth(true)
-                .role(Role.ROLE_USER)
-                .build();
-        user.setImageUrl(userDto.getProfile());
-        return userRepository.save(user);
-    }
-
     public UserDto checkAndMakeKakaoUser(String code) throws Exception {
         String accessToken = getKakaoAccessToken(code);
         KakaoUserDto kakaoUser = getKakaoUser(accessToken);
         User user = userRepository.findByEmail(kakaoUser.getEmail())
-                .orElse(createUserFromKakaoUser(kakaoUser));
+                .orElse(createUser(kakaoUser.getEmail(), kakaoUser.getProfile()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())

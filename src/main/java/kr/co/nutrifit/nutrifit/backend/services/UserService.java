@@ -1,14 +1,16 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
+import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.lib.EmailService;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -18,18 +20,31 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User registerUser(SignDto signDto) throws Exception {
-        if (userRepository.existsByUsername(signDto.getUsername()) || userRepository
-                .existsByEmail(signDto.getEmail())) {
+    public User registerUser(UserDto userDto) throws Exception {
+        if (userRepository.existsByUsername(userDto.getUsername()) || userRepository
+                .existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email or Nickname is already used.");
         }
 
         User user = User.builder()
-                .username(signDto.getUsername())
-                .email(signDto.getEmail())
-                .password(passwordEncoder.encode(signDto.getPassword()))
+                .username(userDto.getUsername())
+                .email(userDto.getEmail())
+                .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(Role.ROLE_USER)
+                .imageUrl(userDto.getProfileImage())
                 .build();
+        Point point = Point.builder()
+                .points(0L)
+                .user(user)
+                .build();
+        Cart cart = Cart.builder()
+                .user(user)
+                .cartItems(new ArrayList<>())
+                .build();
+        user.setPoint(point);
+        user.setCart(cart);
+        user.setCoupons(new ArrayList<>());
+        user.setOrders(new ArrayList<>());
         return userRepository.save(user);
     }
 

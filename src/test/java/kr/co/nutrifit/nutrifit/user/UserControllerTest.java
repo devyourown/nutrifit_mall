@@ -2,6 +2,7 @@ package kr.co.nutrifit.nutrifit.user;
 
 import kr.co.nutrifit.nutrifit.backend.controllers.UserController;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
+import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
@@ -68,7 +69,7 @@ public class UserControllerTest {
 
         // Mocking: AuthenticationManager와 JwtTokenProvider의 동작을 시뮬레이션
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
-        when(tokenProvider.generateToken(any(UserAdapter.class))).thenReturn("jwt-token");
+        when(tokenProvider.generateToken(any(User.class))).thenReturn("jwt-token");
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
@@ -101,7 +102,7 @@ public class UserControllerTest {
         // Given
         SignDto signDto = new SignDto("test@example.com", "testuser", "password123!");
 
-        when(userService.registerUser(any(SignDto.class))).thenReturn(null);
+        when(userService.registerUser(any(UserDto.class))).thenReturn(null);
 
         // When & Then
         mockMvc.perform(post("/api/auth/signup")
@@ -117,7 +118,7 @@ public class UserControllerTest {
         // Given
         SignDto signDto = new SignDto("test@example.com", "testuser", "password123!");
 
-        when(userService.registerUser(any(SignDto.class))).thenThrow(new IllegalArgumentException("이메일 혹은 닉네임이 이미 사용중입니다."));
+        when(userService.registerUser(any(UserDto.class))).thenThrow(new IllegalArgumentException("이메일 혹은 닉네임이 이미 사용중입니다."));
 
         // When & Then
         mockMvc.perform(post("/api/auth/signup")

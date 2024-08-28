@@ -14,6 +14,9 @@ public class UserDto {
     private Long id;
     private String username;
     private String email;
+    private boolean isOAuth;
+    private String password;
+    private String profileImage;
     private String token;
     private Role role;
 }
