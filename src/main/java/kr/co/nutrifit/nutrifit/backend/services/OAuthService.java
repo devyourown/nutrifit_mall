@@ -52,10 +52,8 @@ public class OAuthService {
     private String kakaoRedirectUri;
 
     private String getGoogleAccessToken(String code) {
-        // Google OAuth 토큰 요청 URL
         String url = "https://oauth2.googleapis.com/token";
 
-        // 요청에 필요한 파라미터
         Map<String, String> params = new HashMap<>();
         params.put("code", code);
         params.put("client_id", googleClientId);
@@ -92,12 +90,8 @@ public class OAuthService {
     public UserDto checkAndMakeGoogleUser(String code) {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user = null;
-        if (userRepository.existsByEmail(googleUser.getEmail()))
-            user = userRepository.findByEmail(googleUser.getEmail())
-                    .orElseThrow();
-        else
-            user = createUserFromGoogleUser(googleUser);
+        User user = userRepository.findByEmail(googleUser.getEmail())
+                .orElse(createUserFromGoogleUser(googleUser));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -124,10 +118,8 @@ public class OAuthService {
     }
 
     private String getNaverAccessToken(String code) {
-        // Google OAuth 토큰 요청 URL
         String url = "https://nid.naver.com/oauth2.0/token";
 
-        // 요청에 필요한 파라미터
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("client_id", naverClientId)
@@ -135,7 +127,6 @@ public class OAuthService {
                 .queryParam("redirect_uri", naverRedirectUri)
                 .queryParam("code", code);
 
-        // Create the complete URI
         String uri = uriBuilder.toUriString();
 
         ResponseEntity<Map> response = restTemplate.getForEntity(uri, Map.class);
@@ -151,11 +142,9 @@ public class OAuthService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String responseBody = response.getBody();
 
-        // ObjectMapper를 사용하여 JSON 파싱
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(responseBody);
 
-        // 필요한 필드 추출
         String id = rootNode.path("response").path("id").asText();
         String email = rootNode.path("response").path("email").asText();
         String profileImage = rootNode.path("response").path("profile_image").asText();
@@ -182,12 +171,8 @@ public class OAuthService {
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
-        User user = null;
-        if (userRepository.existsByEmail(naverUser.getEmail()))
-            user = userRepository.findByEmail(naverUser.getEmail())
-                    .orElseThrow();
-        else
-            user = createUserFromNaverUser(naverUser);
+        User user = userRepository.findByEmail(naverUser.getEmail())
+                .orElse(createUserFromNaverUser(naverUser));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -211,11 +196,9 @@ public class OAuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // 요청 엔티티 생성
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
         ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-        System.out.println(response);
         return (String) response.getBody().get("access_token");
     }
 
@@ -229,12 +212,9 @@ public class OAuthService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String responseBody = response.getBody();
 
-        // ObjectMapper를 사용하여 JSON 파싱
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(responseBody);
 
-        // 필요한 필드 추출
-        System.out.println(responseBody);
         String profileImage = rootNode.path("properties").path("profile_image").asText();
         String email = rootNode.path("kakao_account").path("email").asText();
         return KakaoUserDto.builder()
@@ -258,7 +238,6 @@ public class OAuthService {
     public UserDto checkAndMakeKakaoUser(String code) throws Exception {
         String accessToken = getKakaoAccessToken(code);
         KakaoUserDto kakaoUser = getKakaoUser(accessToken);
-        System.out.println(kakaoUser);
         User user = userRepository.findByEmail(kakaoUser.getEmail())
                 .orElse(createUserFromKakaoUser(kakaoUser));
         String jwt = tokenProvider.generateToken(user);
