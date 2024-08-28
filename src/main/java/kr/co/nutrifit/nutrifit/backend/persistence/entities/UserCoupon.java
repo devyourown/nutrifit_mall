@@ -22,7 +22,7 @@ public class UserCoupon {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 

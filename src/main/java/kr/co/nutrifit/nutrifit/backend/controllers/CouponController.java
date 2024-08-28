@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/coupon")
 @RequiredArgsConstructor
@@ -30,5 +32,11 @@ public class CouponController {
                                                      @AuthenticationPrincipal UserAdapter userAdapter) {
         couponService.assignCouponToUser(code, userAdapter.getUser().getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CouponDto>> getUserCoupon(@AuthenticationPrincipal UserAdapter userAdapter) {
+        List<CouponDto> coupons = couponService.getUserCoupon(userAdapter.getUser());
+        return ResponseEntity.ok(coupons);
     }
 }
