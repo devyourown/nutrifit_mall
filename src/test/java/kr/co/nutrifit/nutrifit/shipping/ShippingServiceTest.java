@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.shipping;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingStatusDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
@@ -49,7 +50,7 @@ public class ShippingServiceTest {
                 .build();
 
         order = Order.builder()
-                .id(1L)
+                .id("1")
                 .user(user)
                 .totalAmount(10000L)
                 .orderDate(LocalDateTime.now())
@@ -60,14 +61,10 @@ public class ShippingServiceTest {
                 .order(order)
                 .recipientName("John Doe")
                 .address("123 Main St")
-                .phoneNumber("010-1234-5678")
-                .shippingStatus(ShippingStatus.ORDERED)
-                .orderDate(LocalDateTime.now())
                 .build();
 
         shippingStatusDto = ShippingStatusDto.builder()
                 .shippingId(shipping.getId())
-                .status(ShippingStatus.SHIPPED)
                 .build();
     }
 
@@ -76,9 +73,8 @@ public class ShippingServiceTest {
         when(shippingRepository.findById(shipping.getId())).thenReturn(Optional.of(shipping));
         when(shippingRepository.save(any(Shipping.class))).thenReturn(shipping);
 
-        ShippingDto updatedShipping = shippingService.updateShippingStatus(shippingStatusDto);
+        OrdererDto updatedShipping = shippingService.updateShippingStatus(shippingStatusDto);
 
-        assertEquals(ShippingStatus.SHIPPED, updatedShipping.getCurrentStatus());
         verify(shippingRepository, times(1)).save(shipping);
     }
 
@@ -90,10 +86,9 @@ public class ShippingServiceTest {
         when(shippingRepository.findAllById(anyList())).thenReturn(shippings);
         when(shippingRepository.saveAll(anyList())).thenReturn(shippings);
 
-        List<ShippingDto> updatedShippings = shippingService.updateShippingStatusBulk(dtos);
+        List<OrdererDto> updatedShippings = shippingService.updateShippingStatusBulk(dtos);
 
         assertEquals(1, updatedShippings.size());
-        assertEquals(ShippingStatus.SHIPPED, updatedShippings.get(0).getCurrentStatus());
         verify(shippingRepository, times(1)).saveAll(shippings);
     }
 
@@ -102,7 +97,7 @@ public class ShippingServiceTest {
         when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
         when(shippingRepository.findByOrderId(order.getId())).thenReturn(Optional.of(shipping));
 
-        ShippingDto result = shippingService.getShippingByOrderId(order.getId(), user);
+        OrdererDto result = shippingService.getShippingByOrderId(order.getId(), user);
 
         assertEquals(shipping.getId(), result.getId());
         assertEquals(order.getId(), result.getOrderId());

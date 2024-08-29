@@ -1,7 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.dto;
 
 import jakarta.validation.constraints.NotNull;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ShippingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,21 +11,24 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShippingDto {
-    @NotNull
-    private Long id;
-
-    @NotNull
-    private Long orderId;
-
+public class OrdererDto {
     @NotNull
     private String recipientName;
+
+    @NotNull
+    private String recipientPhone;
+
+    @NotNull
+    private String ordererName;
+
+    @NotNull
+    private String ordererPhone;
 
     @NotNull
     private String address;
 
     @NotNull
-    private String phoneNumber;
+    private String addressDetail;
 
-    private ShippingStatus currentStatus;
+    private String cautions;
 }

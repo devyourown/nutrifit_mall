@@ -15,11 +15,19 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Column(nullable = false)
-    private Long amount;
+    private Long total;
+
+    @Column(nullable = false)
+    private Long subtotal;
+
+    @Column(nullable = false)
+    private Long discount;
+
+    @Column(nullable = false)
+    private Long shippingFee;
 
     @Column(nullable = false)
     private String paymentMethod;
@@ -37,11 +45,6 @@ public class Payment {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
-
-    @Column(nullable = false)
-    private String impUid; // PG사로부터 받은 트랜잭션 ID
-
-    private String merchantUid; // PG사에서 제공하는 영수증 URL
 
     private Long couponId;
 

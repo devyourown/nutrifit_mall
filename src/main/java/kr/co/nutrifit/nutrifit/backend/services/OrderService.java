@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
@@ -23,14 +24,15 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public Order createOrder(User user, List<OrderItemDto> orderItemsDto) {
+    public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
         Order order = new Order();
         order.setUser(user);
+        order.setId(orderId);
 
         long totalAmount = 0;
 
-        for (OrderItemDto itemDto : orderItemsDto) {
-            Product product = productRepository.findById(itemDto.getProductId()).orElseThrow();
+        for (CartItemDto itemDto : cartItemDto) {
+            Product product = productRepository.findById(Long.parseLong(itemDto.getId())).orElseThrow();
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
