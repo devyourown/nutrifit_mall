@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OptionDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ProductDto;
@@ -73,10 +74,10 @@ public class ProductService {
     }
 
     @Transactional
-    public void reduceStock(List<OrderItemDto> items) {
+    public void reduceStock(List<CartItemDto> items) {
         List<Product> savedProduct = new ArrayList<>();
         items.forEach(item -> {
-            Product product = productRepository.findById(item.getProductId())
+            Product product = productRepository.findById(Long.parseLong(item.getId()))
                     .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
             if (product.getStockQuantity() < item.getQuantity()) {
                 throw new IllegalArgumentException("주문량이 재고를 초과합니다.");

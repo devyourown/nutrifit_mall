@@ -17,18 +17,23 @@ import java.util.List;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    @PostMapping("/create")
-    public ResponseEntity<PaymentDto> createPayment(
+    @PostMapping
+    public ResponseEntity<?> createPayment(
             @AuthenticationPrincipal UserAdapter userAdapter,
             @RequestBody @Valid PaymentDto paymentDto
             ) {
-        PaymentDto result = paymentService.createPayment(userAdapter.getUser(), paymentDto);
-        return ResponseEntity.ok(result);
+        try {
+            paymentService.createPayment(userAdapter.getUser(), paymentDto);
+            return ResponseEntity.ok("결제가 완료되었습니다.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDto> getPayment(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserAdapter userAdapter
     ) {
         PaymentDto paymentDto = paymentService.getPaymentByIdAndUser(id, userAdapter.getUser());

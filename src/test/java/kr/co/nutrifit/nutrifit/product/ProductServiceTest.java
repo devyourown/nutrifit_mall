@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.product;
 
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ProductDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
@@ -93,10 +94,10 @@ class ProductServiceTest {
 
     @Test
     void reduceStock_ShouldReduceStockAndSaveProducts() {
-        OrderItemDto orderItemDto = new OrderItemDto();
+        CartItemDto orderItemDto = new CartItemDto();
         orderItemDto.setProductId(product.getId());
         orderItemDto.setQuantity(5);
-        List<OrderItemDto> orderItems = List.of(orderItemDto);
+        List<CartItemDto> orderItems = List.of(orderItemDto);
 
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
@@ -108,10 +109,10 @@ class ProductServiceTest {
 
     @Test
     void reduceStock_ShouldThrowException_WhenStockInsufficient() {
-        OrderItemDto orderItemDto = new OrderItemDto();
+        CartItemDto orderItemDto = new CartItemDto();
         orderItemDto.setProductId(product.getId());
         orderItemDto.setQuantity(15);
-        List<OrderItemDto> orderItems = List.of(orderItemDto);
+        List<CartItemDto> orderItems = List.of(orderItemDto);
 
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 

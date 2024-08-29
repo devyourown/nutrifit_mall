@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDto {
-    private Long id;
+    private String id;
 
     private Long totalAmount;
 

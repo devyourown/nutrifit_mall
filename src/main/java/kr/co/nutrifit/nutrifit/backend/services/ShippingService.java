@@ -1,7 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
-import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
-import kr.co.nutrifit.nutrifit.backend.dto.ShippingDto;
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingStatusDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ShippingRepository;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,43 +24,39 @@ public class ShippingService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public Shipping createShipping(ShippingDto shippingDto, Order order) {
+    public Shipping createShipping(OrdererDto ordererDto, Order order) {
         Shipping shipping = Shipping
                 .builder()
                 .order(order)
-                .recipientName(shippingDto.getRecipientName())
-                .address(shippingDto.getAddress())
-                .phoneNumber(shippingDto.getPhoneNumber())
-                .shippingStatus(ShippingStatus.ORDERED)
-                .orderDate(LocalDateTime.now())
+                .recipientName(ordererDto.getRecipientName())
+                .recipientPhone(ordererDto.getRecipientPhone())
+                .ordererName(ordererDto.getOrdererName())
+                .ordererPhone(ordererDto.getOrdererPhone())
+                .address(ordererDto.getAddress())
+                .addressDetail(ordererDto.getAddressDetail())
+                .cautions(ordererDto.getCautions())
                 .build();
+        ShippingStatus status = ShippingStatus.builder()
+                .shipping(shipping)
+                .time(LocalDateTime.now())
+                .status("결제 완료")
+                .build();
+        shipping.addStatus(status);
         return shippingRepository.save(shipping);
     }
 
     @Transactional
-    public ShippingDto updateShippingStatus(ShippingStatusDto shippingStatusDto) {
+    public OrdererDto updateShippingStatus(ShippingStatusDto shippingStatusDto) {
         Shipping shipping = shippingRepository.findById(shippingStatusDto.getShippingId())
                 .orElseThrow(() -> new IllegalArgumentException("배송 정보가 없습니다."));
         ShippingStatus status = shippingStatusDto.getStatus();
-        shipping.setShippingStatus(status);
-
-        if (status == ShippingStatus.CANCELED) {
-            shipping.setCancelledDate(LocalDateTime.now());
-        } else if (status == ShippingStatus.SHIPPED) {
-            shipping.setShippedDate(LocalDateTime.now());
-        } else if (status == ShippingStatus.PENDING) {
-            shipping.setPendingDate(LocalDateTime.now());
-        } else if (status == ShippingStatus.DELIVERED) {
-            shipping.setDeliveredDate(LocalDateTime.now());
-        } else if (status == ShippingStatus.REFUNDED) {
-            shipping.setRefundDate(LocalDateTime.now());
-        }
+        shipping.addStatus(status);
 
         return convertToDto(shippingRepository.save(shipping));
     }
 
     @Transactional
-    public List<ShippingDto> updateShippingStatusBulk(List<ShippingStatusDto> dtos) {
+    public List<OrdererDto> updateShippingStatusBulk(List<ShippingStatusDto> dtos) {
         List<Long> ids = dtos.stream()
                 .map(ShippingStatusDto::getShippingId)
                 .collect(Collectors.toList());
@@ -74,19 +70,7 @@ public class ShippingService {
                     .orElseThrow(() -> new IllegalArgumentException("배송 정보가 없습니다."));
 
             ShippingStatus status = dto.getStatus();
-            shipping.setShippingStatus(status);
-
-            if (status == ShippingStatus.CANCELED) {
-                shipping.setCancelledDate(LocalDateTime.now());
-            } else if (status == ShippingStatus.SHIPPED) {
-                shipping.setShippedDate(LocalDateTime.now());
-            } else if (status == ShippingStatus.PENDING) {
-                shipping.setPendingDate(LocalDateTime.now());
-            } else if (status == ShippingStatus.DELIVERED) {
-                shipping.setDeliveredDate(LocalDateTime.now());
-            } else if (status == ShippingStatus.REFUNDED) {
-                shipping.setRefundDate(LocalDateTime.now());
-            }
+            shipping.addStatus(status);
         });
 
         return shippingRepository.saveAll(shippings)
@@ -94,7 +78,7 @@ public class ShippingService {
                 .toList();
     }
 
-    public ShippingDto getShippingByOrderId(Long orderId, User user) {
+    public OrdererDto getShippingByOrderId(String orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
         if (!order.getUser().equals(user)) {
@@ -105,13 +89,13 @@ public class ShippingService {
         return convertToDto(shipping);
     }
 
-    private ShippingDto convertToDto(Shipping shipping) {
-        return ShippingDto.builder()
-                .id(shipping.getId())
+    private OrdererDto convertToDto(Shipping shipping) {
+        return OrdererDto.builder()
                 .recipientName(shipping.getRecipientName())
+                .recipientPhone(shipping.getRecipientPhone())
                 .address(shipping.getAddress())
-                .currentStatus(shipping.getShippingStatus())
-                .phoneNumber(shipping.getPhoneNumber())
+                .addressDetail(shipping.getAddressDetail())
+                .cautions(shipping.getCautions())
                 .build();
     }
 }

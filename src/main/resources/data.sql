@@ -7,6 +7,7 @@ DELETE FROM cart;
 DELETE FROM user_coupon;
 DELETE FROM coupon;
 DELETE FROM payment;
+DELETE FROM shipping_status;
 DELETE FROM shipping;
 DELETE FROM orders;
 DELETE FROM point_transaction;
@@ -24,7 +25,7 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
 low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
 VALUES
-(1, 'Product A', 'Description A', 1000, 900, 100, 10, ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
+(1, 'Product A', 'Description A', 1000, 100, 900, 10, ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
 (2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 67513, 15003),
 (3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 15, 3);
 
@@ -69,13 +70,13 @@ INSERT INTO orders (id, user_id, total_amount, order_date) VALUES
 (2, 20000, 10000, '2024-06-01 13:00:00');
 
 INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount) VALUES
-(1, 1, 1, 1000, 2, 2000),
-(2, 1, 2, 1500, 2, 3000),
-(3, 2, 3, 3000, 3, 9000);
+(1000, 1, 1, 1000, 2, 2000),
+(2000, 1, 2, 1500, 2, 3000),
+(3000, 2, 3, 3000, 3, 9000);
 
-INSERT INTO shipping (id, order_id, recipient_name, address, phone_number, shipping_status, order_date, pending_date, shipped_date, delivered_date, cancelled_date, refund_date) VALUES
-(1, 1, 'John Doe', '123 Main St', '010-1234-5678', 'ORDERED', '2024-06-01 12:30:00', NULL, NULL, NULL, NULL, NULL),
-(2, 2, 'Jane Smith', '456 Park Ave', '010-8765-4321', 'ORDERED', '2024-06-01 13:00:00', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, recipient_phone, orderer_name, orderer_phone) VALUES
+(10000, 1, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
+(20000, 2, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
 
 -- Point and PointTransaction data
 INSERT INTO point (id, user_id, points) VALUES
@@ -86,10 +87,6 @@ INSERT INTO point_transaction (id, point_id, transaction_type, points, descripti
 (1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
 (2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
--- Payment data
-INSERT INTO payment (id, amount, payment_method, payment_status, payment_date, user_id, order_id, imp_uid, merchant_uid, coupon_id, used_points) VALUES
-(1, 5000, 'CREDIT_CARD', 'COMPLETED', '2024-06-01 12:45:00', 10000, 1, 'imp_123456789', 'merchant_123456789', NULL, 500),
-(2, 10000, 'BANK_TRANSFER', 'COMPLETED', '2024-06-01 13:15:00', 20000, 2, 'imp_987654321', 'merchant_987654321', NULL, 1000);
 
 -- Review data
 INSERT INTO review (id, user_id, product_id, rating, comment, created_at) VALUES

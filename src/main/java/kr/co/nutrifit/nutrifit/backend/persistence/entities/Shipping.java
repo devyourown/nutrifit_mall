@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,31 +28,29 @@ public class Shipping {
     private String recipientName;
 
     @Column(nullable = false)
+    private String recipientPhone;
+
+    @Column(nullable = false)
+    private String ordererName;
+
+    @Column(nullable = false)
+    private String ordererPhone;
+
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)
-    private String phoneNumber;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ShippingStatus shippingStatus;
+    private String addressDetail;
 
     @Column
-    private LocalDateTime orderDate;
+    private String cautions;
 
-    @Column
-    private LocalDateTime pendingDate;
+    @OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ShippingStatus> statuses;
 
-    @Column
-    private LocalDateTime shippedDate;
-
-    @Column
-    private LocalDateTime deliveredDate;
-
-    @Column
-    private LocalDateTime cancelledDate;
-
-    @Column
-    private LocalDateTime refundDate;
-
+    public void addStatus(ShippingStatus status) {
+        if (statuses == null)
+            statuses = new ArrayList<>();
+        statuses.add(status);
+    }
 }

@@ -16,24 +16,29 @@ import java.util.List;
 @AllArgsConstructor
 public class PaymentDto {
     @NotNull
-    private Long orderId;
+    private String orderId;
 
     @NotNull
-    private Long amount;
+    private Long total;
+
+    @NotNull
+    private Long subtotal;
+
+    @NotNull
+    private Long discount;
+
+    @NotNull
+    private Long shippingFee;
 
     @NotNull
     private String paymentMethod;
 
     @NotNull
-    private String impUid;
+    private List<CartItemDto> cartItems;
 
     @NotNull
-    private List<OrderItemDto> orderItems;
+    private OrdererDto ordererDto;
 
-    @NotNull
-    private ShippingDto shippingDto;
-
-    @NotNull
     private LocalDateTime paymentDate;
 
     private Long couponId;

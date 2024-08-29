@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.order;
 
 import kr.co.nutrifit.nutrifit.backend.controllers.OrderController;
+import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
@@ -100,13 +101,13 @@ public class OrderServiceTest {
     @Test
     void createOrder_ShouldReturnCreatedOrder() {
         // Given
-        OrderItemDto orderItemDto = OrderItemDto.builder()
+        CartItemDto orderItemDto = CartItemDto.builder()
                 .productId(product.getId())
                 .quantity(2)
                 .build();
 
         // When
-        Order createdOrder = orderService.createOrder(user, List.of(orderItemDto));
+        Order createdOrder = orderService.createOrder(user, "1", List.of(orderItemDto));
 
         // Then
         assertNotNull(createdOrder);
@@ -117,11 +118,11 @@ public class OrderServiceTest {
 
     @Test
     void getOrdersByUser_ShouldReturnListOfOrders() {
-        OrderItemDto orderItemDto = OrderItemDto.builder()
+        CartItemDto orderItemDto = CartItemDto.builder()
                 .productId(product.getId())
                 .quantity(2)
                 .build();
-        Order createdOrder = orderService.createOrder(user, List.of(orderItemDto));
+        Order createdOrder = orderService.createOrder(user,"1", List.of(orderItemDto));
         // When
         List<OrderDto> orders = orderService.getOrdersByUser(user);
 
@@ -134,14 +135,14 @@ public class OrderServiceTest {
     @Test
     void createOrder_ShouldThrowException_WhenProductNotFound() {
         // Given
-        OrderItemDto orderItemDto = OrderItemDto.builder()
-                .productId(3000L)// non-existing product ID
+        CartItemDto orderItemDto = CartItemDto.builder()
+                .productId(product.getId())
                 .quantity(2)
                 .build();
 
         // When & Then
         assertThrows(NoSuchElementException.class, () -> {
-            orderService.createOrder(user, List.of(orderItemDto));
+            orderService.createOrder(user, "1", List.of(orderItemDto));
         });
     }
 }
