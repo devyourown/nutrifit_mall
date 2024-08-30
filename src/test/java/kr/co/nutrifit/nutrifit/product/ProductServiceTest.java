@@ -95,7 +95,6 @@ class ProductServiceTest {
     @Test
     void reduceStock_ShouldReduceStockAndSaveProducts() {
         CartItemDto orderItemDto = new CartItemDto();
-        orderItemDto.setProductId(product.getId());
         orderItemDto.setQuantity(5);
         List<CartItemDto> orderItems = List.of(orderItemDto);
 
@@ -110,7 +109,6 @@ class ProductServiceTest {
     @Test
     void reduceStock_ShouldThrowException_WhenStockInsufficient() {
         CartItemDto orderItemDto = new CartItemDto();
-        orderItemDto.setProductId(product.getId());
         orderItemDto.setQuantity(15);
         List<CartItemDto> orderItems = List.of(orderItemDto);
 

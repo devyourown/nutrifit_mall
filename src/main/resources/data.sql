@@ -6,10 +6,10 @@ DELETE FROM product;
 DELETE FROM cart;
 DELETE FROM user_coupon;
 DELETE FROM coupon;
-DELETE FROM payment;
 DELETE FROM shipping_status;
 DELETE FROM shipping;
 DELETE FROM orders;
+DELETE FROM payment;
 DELETE FROM point_transaction;
 DELETE FROM point;
 DELETE FROM notification;
@@ -65,9 +65,9 @@ INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) 
 (2, 20000, 2, false, '2024-06-01 12:00:00', NULL);
 
 -- Order, OrderItem, and Shipping data
-INSERT INTO orders (id, user_id, total_amount, order_date) VALUES
-(1, 10000, 5000, '2024-06-01 12:30:00'),
-(2, 20000, 10000, '2024-06-01 13:00:00');
+INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id) VALUES
+(1, 10000, 5000, '2024-06-01 12:30:00', '12213421'),
+(2, 20000, 10000, '2024-06-01 13:00:00', '12312423');
 
 INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount) VALUES
 (1000, 1, 1, 1000, 2, 2000),
@@ -87,6 +87,8 @@ INSERT INTO point_transaction (id, point_id, transaction_type, points, descripti
 (1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
 (2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
+INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, used_points, coupon_id) VALUES
+(1000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 10000, 10000, 1);
 
 -- Review data
 INSERT INTO review (id, user_id, product_id, rating, comment, created_at) VALUES

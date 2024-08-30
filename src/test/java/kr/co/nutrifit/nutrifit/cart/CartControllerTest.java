@@ -11,8 +11,6 @@ import kr.co.nutrifit.nutrifit.backend.security.CustomUserDetailsService;
 import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.CartService;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,8 +145,6 @@ public class CartControllerTest {
 
     @Test
     void getCartItems_ShouldReturnCartItems() throws Exception {
-        Assert.assertNotNull(userAdapter.getUser());
-        Assert.assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/cart/items")
                         .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))

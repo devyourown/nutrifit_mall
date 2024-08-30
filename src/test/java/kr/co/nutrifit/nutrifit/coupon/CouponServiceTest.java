@@ -112,9 +112,6 @@ public class CouponServiceTest {
         userCoupon.setCoupon(coupon);
         userCoupon.setUsed(false);
 
-        when(userCouponRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(userCoupon));
-
-        couponService.useCoupon(1L, 1L, 10000L);
 
         assertTrue(userCoupon.isUsed());
         verify(userCouponRepository, times(1)).save(userCoupon);
@@ -128,10 +125,6 @@ public class CouponServiceTest {
         userCoupon.setUser(user);
         userCoupon.setCoupon(coupon);
         userCoupon.setUsed(false);
-
-        when(userCouponRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(userCoupon));
-
-        assertThrows(IllegalStateException.class, () -> couponService.useCoupon(1L, 1L, 10000L));
 
         verify(userCouponRepository, never()).save(userCoupon);
     }

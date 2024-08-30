@@ -27,12 +27,12 @@ public class OrderService {
     public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
         Order order = new Order();
         order.setUser(user);
-        order.setId(orderId);
+        order.setOrderPaymentId(orderId);
 
         long totalAmount = 0;
 
         for (CartItemDto itemDto : cartItemDto) {
-            Product product = productRepository.findById(Long.parseLong(itemDto.getId())).orElseThrow();
+            Product product = productRepository.findById(itemDto.getId()).orElseThrow();
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -57,7 +57,7 @@ public class OrderService {
 
     private OrderDto convertToDto(Order order) {
         return OrderDto.builder()
-                .id(order.getId())
+                .id(order.getOrderPaymentId())
                 .orderDate(order.getOrderDate())
                 .totalAmount(order.getTotalAmount())
                 .orderItems(order.getOrderItems().stream().map(this::convertToItemDto).toList())

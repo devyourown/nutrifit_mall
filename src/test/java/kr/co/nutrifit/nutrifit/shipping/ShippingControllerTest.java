@@ -111,16 +111,12 @@ public class ShippingControllerTest {
                 .order(order)
                 .recipientName("John Doe")
                 .address("123 Main St")
-                .phoneNumber("010-1234-5678")
-                .shippingStatus(ShippingStatus.ORDERED)
-                .orderDate(LocalDateTime.now())
                 .build();
 
         shipping = shippingRepository.save(shipping);
 
         shippingStatusDto = ShippingStatusDto.builder()
                 .shippingId(shipping.getId())
-                .status(ShippingStatus.SHIPPED)
                 .build();
 
         MockitoAnnotations.openMocks(this);

@@ -9,8 +9,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o JOIN FETCH o.orderItems oi JOIN FETCH oi.product WHERE o.user = :user")
     List<Order> findAllWithItemsAndProductsByUser(@Param("user") User user);
 
+    @Query("SELECT o FROM Order o WHERE o.orderPaymentId = :paymentId")
+    Optional<Order> findByOrderPaymentId(@Param("paymentId") String paymentId);
 }
