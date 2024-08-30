@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
-    Optional<UserCoupon> findByIdAndUserId(Long id, Long userId);
+    Optional<UserCoupon> findByIdAndUser(Long id, User user);
     boolean existsByUserAndCoupon(User user, Coupon coupon);
     List<UserCoupon> findAllByUser(User user);
 }

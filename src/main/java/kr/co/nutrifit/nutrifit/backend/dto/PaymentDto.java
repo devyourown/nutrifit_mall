@@ -34,7 +34,7 @@ public class PaymentDto {
     private String paymentMethod;
 
     @NotNull
-    private List<CartItemDto> cartItems;
+    private List<CartItemDto> orderItems;
 
     @NotNull
     private OrdererDto ordererDto;

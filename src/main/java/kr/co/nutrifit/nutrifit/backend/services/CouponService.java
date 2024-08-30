@@ -75,8 +75,8 @@ public class CouponService {
     }
 
     @Transactional
-    public void useCoupon(Long userId, Long userCouponId, Long orderAmount) {
-        UserCoupon userCoupon = userCouponRepository.findByIdAndUserId(userCouponId, userId)
+    public void useCoupon(User user, Long userCouponId, Long orderAmount) {
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUser(userCouponId, user)
                 .orElseThrow(() -> new IllegalArgumentException("쿠폰이 없거나 잘못된 쿠폰입니다."));
 
         if (userCoupon.isUsed()) {

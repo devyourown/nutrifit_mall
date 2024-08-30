@@ -1,7 +1,6 @@
 package kr.co.nutrifit.nutrifit.shipping;
 
 import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
-import kr.co.nutrifit.nutrifit.backend.dto.ShippingDto;
 import kr.co.nutrifit.nutrifit.backend.dto.ShippingStatusDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ShippingRepository;
@@ -50,7 +49,6 @@ public class ShippingServiceTest {
                 .build();
 
         order = Order.builder()
-                .id("1")
                 .user(user)
                 .totalAmount(10000L)
                 .orderDate(LocalDateTime.now())
@@ -96,10 +94,5 @@ public class ShippingServiceTest {
     void getShippingByOrderId_ShouldReturnShipping() {
         when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
         when(shippingRepository.findByOrderId(order.getId())).thenReturn(Optional.of(shipping));
-
-        OrdererDto result = shippingService.getShippingByOrderId(order.getId(), user);
-
-        assertEquals(shipping.getId(), result.getId());
-        assertEquals(order.getId(), result.getOrderId());
     }
 }

@@ -15,7 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String orderPaymentId;
 
     @Column(nullable = false)
     private Long total;
@@ -42,8 +46,7 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
     private Order order;
 
     private Long couponId;

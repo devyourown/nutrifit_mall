@@ -102,7 +102,6 @@ public class OrderServiceTest {
     void createOrder_ShouldReturnCreatedOrder() {
         // Given
         CartItemDto orderItemDto = CartItemDto.builder()
-                .productId(product.getId())
                 .quantity(2)
                 .build();
 
@@ -119,7 +118,6 @@ public class OrderServiceTest {
     @Test
     void getOrdersByUser_ShouldReturnListOfOrders() {
         CartItemDto orderItemDto = CartItemDto.builder()
-                .productId(product.getId())
                 .quantity(2)
                 .build();
         Order createdOrder = orderService.createOrder(user,"1", List.of(orderItemDto));
@@ -136,7 +134,6 @@ public class OrderServiceTest {
     void createOrder_ShouldThrowException_WhenProductNotFound() {
         // Given
         CartItemDto orderItemDto = CartItemDto.builder()
-                .productId(product.getId())
                 .quantity(2)
                 .build();
 

@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ShippingRepository extends JpaRepository<Shipping, Long> {
-    Optional<Shipping> findByOrderId(String orderId);
+    Optional<Shipping> findByOrderId(Long orderId);
 
 }
