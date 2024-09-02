@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,7 @@ public class CartService {
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
+        cart.addCartItem(cartItem);
         cartItemRepository.save(cartItem);
     }
 
@@ -76,6 +79,7 @@ public class CartService {
                     .orElseThrow(() -> new IllegalArgumentException("장바구니에 해당 상품이 존재하지 않습니다."));
 
             cartItemRepository.delete(cartItem);
+            cart.removeCartItem(cartItem);
         } else {
             throw new IllegalArgumentException("장바구니가 존재하지 않습니다.");
         }
@@ -87,6 +91,7 @@ public class CartService {
 
         if (cart != null && !cart.getCartItems().isEmpty()) {
             cartItemRepository.deleteAll(cart.getCartItems());
+            cart.getCartItems().clear();
         } else {
             throw new IllegalArgumentException("장바구니가 존재하지 않습니다.");
         }
@@ -102,8 +107,39 @@ public class CartService {
         if (quantity <= 0) {
             cartItemRepository.delete(cartItem);
         } else {
+            cart.removeCartItem(cartItem);
             cartItem.setQuantity(quantity);
+            cart.addCartItem(cartItem);
             cartItemRepository.save(cartItem);
         }
+    }
+
+    @Transactional
+    public void updateCart(User user, List<CartItemDto> items) {
+        Cart cart = user.getCart();
+        cart.getCartItems().clear();
+
+        List<Long> productIds = items.stream().map(CartItemDto::getId).toList();
+
+        List<Product> products = productRepository.findByIdIn(productIds);
+
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
+
+        for (CartItemDto itemDto : items) {
+            Product product = productMap.get(itemDto.getId());
+            if (product == null) {
+                throw new IllegalArgumentException("상품을 찾을 수 없습니다: " + itemDto.getId());
+            }
+            CartItem cartItem = CartItem.builder()
+                    .product(product)
+                    .quantity(itemDto.getQuantity())
+                    .cart(cart)
+                    .build();
+
+            cart.addCartItem(cartItem);
+        }
+
+        cartRepository.save(cart);
     }
 }
