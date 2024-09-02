@@ -51,6 +51,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserCoupon> coupons; // 사용자가 소유한 쿠폰 목록
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductQnA> qnaList;
+
     @Column
     private String address;
     @Column

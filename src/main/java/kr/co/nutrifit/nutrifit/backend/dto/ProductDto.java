@@ -25,4 +25,5 @@ public class ProductDto {
     private Long reviewRating;
     private Long reviewCount;
     private List<OptionDto> options;
+    private ProductDetailDto productDetailDto;
 }
