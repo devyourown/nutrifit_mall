@@ -64,10 +64,14 @@ INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) 
 (1, 10000, 1, false, '2024-06-01 12:00:00', NULL),
 (2, 20000, 2, false, '2024-06-01 12:00:00', NULL);
 
+INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, used_points, coupon_id) VALUES
+(1000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 10000, 10000, 1),
+(2000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2);
+
 -- Order, OrderItem, and Shipping data
-INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id) VALUES
-(1, 10000, 5000, '2024-06-01 12:30:00', '12213421'),
-(2, 20000, 10000, '2024-06-01 13:00:00', '12312423');
+INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id, payment_id) VALUES
+(1, 10000, 5000, '2024-06-01 12:30:00', '12213421', 1000),
+(2, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000);
 
 INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount) VALUES
 (1000, 1, 1, 1000, 2, 2000),
@@ -78,6 +82,12 @@ INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, rec
 (10000, 1, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
 (20000, 2, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
 
+INSERT INTO shipping_status (id, shipping_id, status, status_time) VALUES
+(1, 10000, '출고완료','2024-06-01 12:00:00'),
+(2, 10000, '배송완료','2024-06-03 12:00:00'),
+(3, 20000, '출고완료','2024-06-01 12:00:00'),
+(4, 20000, '배송완료','2024-06-03 12:00:00');
+
 -- Point and PointTransaction data
 INSERT INTO point (id, user_id, points) VALUES
 (100, 10000, 500),
@@ -86,9 +96,6 @@ INSERT INTO point (id, user_id, points) VALUES
 INSERT INTO point_transaction (id, point_id, transaction_type, points, description, created_at) VALUES
 (1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
 (2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
-
-INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, used_points, coupon_id) VALUES
-(1000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 10000, 10000, 1);
 
 -- Review data
 INSERT INTO review (id, user_id, product_id, rating, comment, created_at) VALUES

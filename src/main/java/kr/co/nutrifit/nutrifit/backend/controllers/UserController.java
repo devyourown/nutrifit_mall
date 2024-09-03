@@ -13,10 +13,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +62,7 @@ public class UserController {
                     .username(user.getUsername())
                     .build());
         } catch (AuthenticationException e) {
+            System.out.println(e);
             return ResponseEntity.status(401).header(HttpHeaders.CONTENT_TYPE,
                             MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
                     .body("이메일과 비밀번호가 일치하지 않습니다.");
@@ -69,16 +73,18 @@ public class UserController {
     public ResponseEntity<String> registerUser(@RequestBody @Valid SignDto signDto) {
         try {
             UserDto userDto = UserDto.builder()
-                            .email(signDto.getEmail())
-                                    .isOAuth(false)
-                                            .password(signDto.getPassword())
-                                                    .role(Role.ROLE_USER)
-                                                            .build();
+                    .username(signDto.getUsername())
+                    .email(signDto.getEmail())
+                    .isOAuth(false)
+                    .password(signDto.getPassword())
+                    .role(Role.ROLE_USER)
+                    .build();
             userService.registerUser(userDto);
             return ResponseEntity.status(201).header(HttpHeaders.CONTENT_TYPE,
                     MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
                     .body("사용자가 등록 되었습니다.");
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.status(400).header(HttpHeaders.CONTENT_TYPE,
                     MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
                     .body(e.getMessage());
@@ -93,6 +99,15 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/check")
+    public ResponseEntity<?> checkAdmin(@AuthenticationPrincipal UserAdapter userAdapter) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
