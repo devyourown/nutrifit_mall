@@ -26,5 +26,5 @@ public class ShippingStatus {
     private String status;
 
     @Column(nullable = false)
-    private LocalDateTime time;
+    private LocalDateTime statusTime;
 }

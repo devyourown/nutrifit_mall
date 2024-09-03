@@ -3,15 +3,15 @@ package kr.co.nutrifit.nutrifit.backend.services;
 import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.OrderItem;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,5 +73,17 @@ public class OrderService {
                 .imageUrl(product.getImageUrls().get(0))
                 .name(product.getName())
                 .build();
+    }
+
+    public Page<OrderDto> getOrders(Pageable pageable) {
+        return orderRepository.findAllOrders(pageable);
+    }
+
+    public Page<OrderDto> getOrdersByFilter(String status, Pageable pageable) {
+        return orderRepository.findAllByShippingStatusAndPage(status, pageable);
+    }
+
+    public List<OrderDto> getOrdersForExcelByFilter(String status) {
+        return orderRepository.findAllByShippingStatus(status);
     }
 }

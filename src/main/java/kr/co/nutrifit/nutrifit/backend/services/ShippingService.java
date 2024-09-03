@@ -38,7 +38,7 @@ public class ShippingService {
                 .build();
         ShippingStatus status = ShippingStatus.builder()
                 .shipping(shipping)
-                .time(LocalDateTime.now())
+                .statusTime(LocalDateTime.now())
                 .status("결제 완료")
                 .build();
         shipping.addStatus(status);
