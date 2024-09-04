@@ -2,6 +2,7 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
+import kr.co.nutrifit.nutrifit.backend.dto.OrderItemExcelDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
@@ -55,12 +56,12 @@ public class OrderController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/excel/filter")
-    public ResponseEntity<List<OrderDto>> getOrdersForExcelByFilter(@AuthenticationPrincipal UserAdapter userAdapter,
+    public ResponseEntity<List<OrderItemExcelDto>> getOrdersForExcelByFilter(@AuthenticationPrincipal UserAdapter userAdapter,
                                                                     @RequestParam String status) {
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<OrderDto> orders = orderService.getOrdersForExcelByFilter(status);
+        List<OrderItemExcelDto> orders = orderService.getOrdersForExcelByFilter(status);
         return ResponseEntity.ok(orders);
     }
 }
