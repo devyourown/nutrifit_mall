@@ -1,9 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
-import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
-import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
-import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
-import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
+import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
@@ -61,11 +58,11 @@ public class OrderService {
                 .id(order.getOrderPaymentId())
                 .orderDate(order.getOrderDate())
                 .totalAmount(order.getTotalAmount())
-                .orderItems(order.getOrderItems().stream().map(this::convertToItemDto).toList())
+                .orderItems(order.getOrderItems().stream().map(this::convertToItemDtoWithImage).toList())
                 .build();
     }
 
-    private OrderItemDto convertToItemDto(OrderItem orderItem) {
+    private OrderItemDto convertToItemDtoWithImage(OrderItem orderItem) {
         Product product = orderItem.getProduct();
         return OrderItemDto.builder()
                 .productId(orderItem.getId())
@@ -84,13 +81,7 @@ public class OrderService {
         return orderRepository.findAllByShippingStatusAndPage(status, pageable);
     }
 
-    public List<OrderDto> getOrdersForExcelByFilter(String status) {
-        List<OrderDto> orders = orderRepository.findAllByShippingStatus(status);
-
-        for (OrderDto order : orders) {
-            List<OrderItemDto> items = orderItemRepository.findAllByOrderPaymentId(order.getId());
-            order.setOrderItems(items);
-        }
-        return orders;
+    public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status) {
+        return orderItemRepository.findOrderItemsByStatus(status);
     }
 }

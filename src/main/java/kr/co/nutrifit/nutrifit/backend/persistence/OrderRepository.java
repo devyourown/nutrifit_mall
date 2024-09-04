@@ -49,14 +49,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "WHERE ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.shipping = s)")
     Page<OrderDto> findAllOrders(Pageable pageable);
 
-    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
-            "o.orderPaymentId, " +
-            "new kr.co.nutrifit.nutrifit.backend.dto.OrdererDto(s.recipientName, s.recipientPhone, s.ordererName, s.ordererPhone, s.address, s.addressDetail, s.cautions))" +
-            "FROM Order o " +
-            "JOIN o.shipping s " +
-            "JOIN o.orderItems oi " +
-            "JOIN oi.product p " +
-            "JOIN s.statuses ss " +
+    @Query("SELECT o FROM Order o " +
+            "JOIN FETCH o.shipping s " +
+            "JOIN FETCH o.orderItems oi " +
+            "JOIN FETCH s.statuses ss " +
             "WHERE ss.status = :status")
-    List<OrderDto> findAllByShippingStatus(@Param("status") String status);
+    List<Order> findAllByShippingStatus(@Param("status") String status);
 }
