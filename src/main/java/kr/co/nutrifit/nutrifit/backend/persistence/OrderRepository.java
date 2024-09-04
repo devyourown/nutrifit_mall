@@ -51,8 +51,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "o.orderPaymentId, " +
-            "new kr.co.nutrifit.nutrifit.backend.dto.OrdererDto(s.recipientName, s.recipientPhone, s.ordererName, s.ordererPhone, s.address, s.addressDetail, s.cautions), " +
-            "o.orderItems.stream().map(oi -> new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(oi.product.id, oi.quantity, oi.totalAmount, oi.product.name, oi.product.imageUrl)).toList()) " +
+            "new kr.co.nutrifit.nutrifit.backend.dto.OrdererDto(s.recipientName, s.recipientPhone, s.ordererName, s.ordererPhone, s.address, s.addressDetail, s.cautions))" +
             "FROM Order o " +
             "JOIN o.shipping s " +
             "JOIN o.orderItems oi " +
