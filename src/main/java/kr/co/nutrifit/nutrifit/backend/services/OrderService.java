@@ -12,7 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,12 +24,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private static final int BATCH_SIZE = 1000;
 
     @Transactional
     public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
         Order order = new Order();
         order.setUser(user);
         order.setOrderPaymentId(orderId);
+        LocalDateTime now = LocalDateTime.now();
 
         long totalAmount = 0;
 
@@ -37,6 +43,11 @@ public class OrderService {
             orderItem.setPrice(product.getDiscountedPrice());
             orderItem.setQuantity(itemDto.getQuantity());
             orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
+            orderItem.addStatus(ShippingStatus.builder()
+                    .orderItem(orderItem)
+                    .statusTime(now)
+                    .status("주문완료")
+                    .build());
 
             totalAmount += orderItem.getTotalAmount();
 
@@ -74,14 +85,75 @@ public class OrderService {
     }
 
     public Page<OrderDto> getOrders(Pageable pageable) {
-        return orderRepository.findAllOrders(pageable);
+        return orderItemRepository.findAllOrders(pageable);
     }
 
     public Page<OrderDto> getOrdersByFilter(String status, Pageable pageable) {
-        return orderRepository.findAllByShippingStatusAndPage(status, pageable);
+        return orderItemRepository.findAllByShippingStatusAndPage(status, pageable);
     }
 
     public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status) {
         return orderItemRepository.findOrderItemsByStatus(status);
+    }
+
+    @Transactional
+    public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems) {
+        List<OrderItem> itemsToSave = new ArrayList<>();
+        List<String> orderIds = orderItems.stream().map(OrderItemExcelDto::getOrderId).toList();
+        List<String> productNames = orderItems.stream().map(OrderItemExcelDto::getProductName).toList();
+        LocalDateTime now = LocalDateTime.now();
+
+        List<OrderItem> foundItems = orderItemRepository.findAllByOrderIdInAndProductNameIn(orderIds, productNames);
+        Map<String, OrderItem> orderItemMap = foundItems.stream()
+                .collect(Collectors.toMap(
+                        item -> item.getOrder().getOrderPaymentId() + "_" + item.getProduct().getName(),
+                        item -> item
+                ));
+
+        for (OrderItemExcelDto dto : orderItems) {
+            String key = dto.getOrderId() + "_" + dto.getProductName();
+            OrderItem orderItem = orderItemMap.get(key);
+
+            if (orderItem != null) {
+                // Step 5: quantity를 기반으로 기존 OrderItem을 나누어 처리
+                int remainingQuantity = dto.getQuantity();
+                int availableQuantity = orderItem.getQuantity();
+
+                if (availableQuantity == remainingQuantity) {
+                    // Case 1: 전체 수량이 동일하면 바로 운송장 번호 설정
+                    orderItem.setTrackingNumber(dto.getTrackingNumber());
+                } else if (availableQuantity > remainingQuantity) {
+                    // Case 2: 수량이 나누어졌을 경우
+                    // 기존 OrderItem의 수량을 남은 부분으로 줄이고, 새로운 OrderItem 생성
+                    orderItem.setQuantity(availableQuantity - remainingQuantity);
+
+                    // 새로운 OrderItem 생성 및 운송장 번호 설정
+                    OrderItem newOrderItem = new OrderItem();
+                    newOrderItem.setOrder(orderItem.getOrder());
+                    newOrderItem.setProduct(orderItem.getProduct());
+                    newOrderItem.setQuantity(remainingQuantity);
+                    newOrderItem.setTrackingNumber(dto.getTrackingNumber());
+
+                    newOrderItem.addStatus(ShippingStatus.builder()
+                            .orderItem(newOrderItem)
+                            .statusTime(now)
+                            .status("출고완료").build());
+                    itemsToSave.add(newOrderItem);
+                }
+                orderItem.addStatus(ShippingStatus.builder()
+                        .orderItem(orderItem)
+                        .statusTime(now)
+                        .status("출고완료").build());
+                itemsToSave.add(orderItem);
+                System.out.println("completed");
+                if (itemsToSave.size() >= BATCH_SIZE) {
+                    orderItemRepository.saveAll(itemsToSave);
+                    itemsToSave.clear();
+                }
+            }
+        }
+        if (!itemsToSave.isEmpty()) {
+            orderItemRepository.saveAll(itemsToSave);
+        }
     }
 }

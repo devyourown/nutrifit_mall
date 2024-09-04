@@ -20,7 +20,8 @@ public class OrderItemExcelDto {
             String addressDetail,
             String cautions,
             String productName,
-            int quantity) {
+            int quantity,
+            String trackingNumber) {
         this.orderId = orderId;
         this.ordererName = ordererName;
         this.ordererPhone = ordererPhone;
@@ -30,6 +31,7 @@ public class OrderItemExcelDto {
         this.cautions = cautions;
         this.productName = productName;
         this.quantity = quantity;
+        this.trackingNumber = trackingNumber;
     }
     private String orderId;
     private String productName;
@@ -40,4 +42,5 @@ public class OrderItemExcelDto {
     private String recipientPhone;
     private String address;
     private String cautions;
+    private String trackingNumber;
 }

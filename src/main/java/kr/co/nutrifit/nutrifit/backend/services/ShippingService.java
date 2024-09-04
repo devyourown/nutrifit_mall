@@ -36,46 +36,7 @@ public class ShippingService {
                 .addressDetail(ordererDto.getAddressDetail())
                 .cautions(ordererDto.getCautions())
                 .build();
-        ShippingStatus status = ShippingStatus.builder()
-                .shipping(shipping)
-                .statusTime(LocalDateTime.now())
-                .status("결제 완료")
-                .build();
-        shipping.addStatus(status);
         return shippingRepository.save(shipping);
-    }
-
-    @Transactional
-    public OrdererDto updateShippingStatus(ShippingStatusDto shippingStatusDto) {
-        Shipping shipping = shippingRepository.findById(shippingStatusDto.getShippingId())
-                .orElseThrow(() -> new IllegalArgumentException("배송 정보가 없습니다."));
-        ShippingStatus status = shippingStatusDto.getStatus();
-        shipping.addStatus(status);
-
-        return convertToDto(shippingRepository.save(shipping));
-    }
-
-    @Transactional
-    public List<OrdererDto> updateShippingStatusBulk(List<ShippingStatusDto> dtos) {
-        List<Long> ids = dtos.stream()
-                .map(ShippingStatusDto::getShippingId)
-                .collect(Collectors.toList());
-
-        List<Shipping> shippings = shippingRepository.findAllById(ids);
-
-        shippings.forEach(shipping -> {
-            ShippingStatusDto dto = dtos.stream()
-                    .filter(d -> d.getShippingId().equals(shipping.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("배송 정보가 없습니다."));
-
-            ShippingStatus status = dto.getStatus();
-            shipping.addStatus(status);
-        });
-
-        return shippingRepository.saveAll(shippings)
-                .stream().map(this::convertToDto)
-                .toList();
     }
 
     public OrdererDto getShippingByOrderId(String orderId, User user) {

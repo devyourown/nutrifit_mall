@@ -19,40 +19,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.orderPaymentId = :paymentId")
     Optional<Order> findByOrderPaymentId(@Param("paymentId") String paymentId);
 
-    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
-            "o.orderPaymentId, " +
-            "o.orderDate, " +
-            "p.paymentStatus, " +
-            "ss.status, " +
-            "o.totalAmount, " +
-            "u.username) " +
-            "FROM Order o " +
-            "JOIN o.user u " +
-            "JOIN o.payment p " +
-            "JOIN o.shipping s " +
-            "JOIN s.statuses ss " +
-            "WHERE ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.shipping = s) and ss.status = :status")
-    Page<OrderDto> findAllByShippingStatusAndPage(@Param("status") String status, Pageable pageable);
-
-    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
-            "o.orderPaymentId, " +
-            "o.orderDate, " +
-            "p.paymentStatus, " +
-            "ss.status, " +
-            "o.totalAmount, " +
-            "u.username) " +
-            "FROM Order o " +
-            "JOIN o.user u " +
-            "JOIN o.payment p " +
-            "JOIN o.shipping s " +
-            "JOIN s.statuses ss " +
-            "WHERE ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.shipping = s)")
-    Page<OrderDto> findAllOrders(Pageable pageable);
-
     @Query("SELECT o FROM Order o " +
             "JOIN FETCH o.shipping s " +
             "JOIN FETCH o.orderItems oi " +
-            "JOIN FETCH s.statuses ss " +
+            "JOIN FETCH oi.statuses ss " +
             "WHERE ss.status = :status")
     List<Order> findAllByShippingStatus(@Param("status") String status);
 }

@@ -22,28 +22,6 @@ import java.util.List;
 public class ShippingController {
     private final ShippingService shippingService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping
-    public ResponseEntity<OrdererDto> updateShippingStatus(@AuthenticationPrincipal UserAdapter userAdapter,
-                                                           @RequestBody ShippingStatusDto statusDto) {
-        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        OrdererDto updatedShipping = shippingService.updateShippingStatus(statusDto);
-        return ResponseEntity.ok(updatedShipping);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/bulk")
-    public ResponseEntity<List<OrdererDto>> updateShippingStatusBulk(@AuthenticationPrincipal UserAdapter userAdapter,
-                                                                      @RequestBody List<ShippingStatusDto> statusDtos) {
-        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        List<OrdererDto> updatedShippings = shippingService.updateShippingStatusBulk(statusDtos);
-        return ResponseEntity.ok(updatedShippings);
-    }
-
     @GetMapping("/{orderId}")
     public ResponseEntity<OrdererDto> getOrderShipping(@NotNull @AuthenticationPrincipal UserAdapter userAdapter,
                                                         @PathVariable String orderId) {

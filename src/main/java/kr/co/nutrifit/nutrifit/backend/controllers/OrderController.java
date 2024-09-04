@@ -64,4 +64,16 @@ public class OrderController {
         List<OrderItemExcelDto> orders = orderService.getOrdersForExcelByFilter(status);
         return ResponseEntity.ok(orders);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/tracking")
+    public ResponseEntity<?> updateTrackingNumber(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                  @RequestBody List<OrderItemExcelDto> dto) {
+        try {
+            orderService.updateTrackingNumbers(dto);
+            return ResponseEntity.ok("성공적으로 운송장번호가 업데이트 되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("운송장번호 업데이트에 실패했습니다.");
+        }
+    }
 }
