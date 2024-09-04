@@ -1,3 +1,4 @@
+DELETE FROM shipping_status;
 DELETE FROM order_item;
 DELETE FROM options;
 DELETE FROM cart_item;
@@ -6,7 +7,6 @@ DELETE FROM product;
 DELETE FROM cart;
 DELETE FROM user_coupon;
 DELETE FROM coupon;
-DELETE FROM shipping_status;
 DELETE FROM shipping;
 DELETE FROM orders;
 DELETE FROM payment;
@@ -82,11 +82,11 @@ INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, rec
 (10000, 1, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
 (20000, 2, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
 
-INSERT INTO shipping_status (id, shipping_id, status, status_time) VALUES
-(1, 10000, '출고완료','2024-06-01 12:00:00'),
-(2, 10000, '배송완료','2024-06-03 12:00:00'),
-(3, 20000, '출고완료','2024-06-01 12:00:00'),
-(4, 20000, '배송완료','2024-06-03 12:00:00');
+INSERT INTO shipping_status (id, order_item_id, status, status_time) VALUES
+(12122, 1000, '출고완료','2024-06-01 12:00:00'),
+(22121, 1000, '배송완료','2024-06-03 12:00:00'),
+(31212, 2000, '출고완료','2024-06-01 12:00:00'),
+(41212, 2000, '배송완료','2024-06-03 12:00:00');
 
 -- Point and PointTransaction data
 INSERT INTO point (id, user_id, points) VALUES

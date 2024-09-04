@@ -14,25 +14,18 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderDto {
 
-    public OrderDto(String id, LocalDateTime orderDate, String paymentStatus, String fulfillment, Long totalAmount, String username) {
+    public OrderDto(String id, LocalDateTime orderDate, String fulfillment, String username, String trackingNumber, String productName) {
         this.id = id;
         this.orderDate = orderDate;
-        this.paymentStatus = paymentStatus;
         this.fulfillment = fulfillment;
-        this.totalAmount = totalAmount;
         this.username = username;
-    }
-
-    public OrderDto(String id, OrdererDto orderer) {
-        this.id = id;
-        this.ordererDto = orderer;
+        this.trackingNumber = trackingNumber;
+        this.productName = productName;
     }
 
     private String id;
 
     private Long totalAmount;
-
-    private String paymentStatus;
 
     private String fulfillment;
 
@@ -42,7 +35,9 @@ public class OrderDto {
 
     private List<OrderItemDto> orderItems;
 
-    private OrdererDto ordererDto;
+    private String trackingNumber;
+
+    private String productName;
 
 
 }

@@ -44,13 +44,4 @@ public class Shipping {
 
     @Column
     private String cautions;
-
-    @OneToMany(mappedBy = "shipping", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ShippingStatus> statuses;
-
-    public void addStatus(ShippingStatus status) {
-        if (statuses == null)
-            statuses = new ArrayList<>();
-        statuses.add(status);
-    }
 }

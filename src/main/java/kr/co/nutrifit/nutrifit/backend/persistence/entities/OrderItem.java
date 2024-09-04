@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -32,4 +35,16 @@ public class OrderItem {
 
     @Column(nullable = false)
     private Long totalAmount;
+
+    @Column
+    private String trackingNumber;
+
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ShippingStatus> statuses;
+
+    public void addStatus(ShippingStatus status) {
+        if (statuses == null)
+            statuses = new ArrayList<>();
+        statuses.add(status);
+    }
 }

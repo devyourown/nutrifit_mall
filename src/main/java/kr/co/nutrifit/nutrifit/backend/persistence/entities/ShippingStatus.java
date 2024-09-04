@@ -19,8 +19,8 @@ public class ShippingStatus {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_id", nullable = false)
-    private Shipping shipping;
+    @JoinColumn(name = "order_item_id", nullable = false)
+    private OrderItem orderItem;
 
     @Column(nullable = false)
     private String status;
