@@ -22,6 +22,7 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
@@ -84,6 +85,12 @@ public class OrderService {
     }
 
     public List<OrderDto> getOrdersForExcelByFilter(String status) {
-        return orderRepository.findAllByShippingStatus(status);
+        List<OrderDto> orders = orderRepository.findAllByShippingStatus(status);
+
+        for (OrderDto order : orders) {
+            List<OrderItemDto> items = orderItemRepository.findAllByOrderPaymentId(order.getId());
+            order.setOrderItems(items);
+        }
+        return orders;
     }
 }

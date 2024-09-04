@@ -23,6 +23,11 @@ public class OrderDto {
         this.username = username;
     }
 
+    public OrderDto(String id, OrdererDto orderer) {
+        this.id = id;
+        this.ordererDto = orderer;
+    }
+
     private String id;
 
     private Long totalAmount;

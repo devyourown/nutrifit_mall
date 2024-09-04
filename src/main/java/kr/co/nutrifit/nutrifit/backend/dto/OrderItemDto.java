@@ -10,6 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemDto {
+    public OrderItemDto(Long productId, int quantity, Long totalAmount, String name) {
+        this.productId = productId;
+        this.quantity = quantity;
+        this.totalAmount = totalAmount;
+        this.name = name;
+    }
+
     private Long productId;
     private int quantity;
     private Long totalAmount;
