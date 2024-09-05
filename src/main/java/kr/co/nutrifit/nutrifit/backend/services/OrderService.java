@@ -113,7 +113,6 @@ public class OrderService {
         for (OrderItemExcelDto dto : orderItems) {
             String key = dto.getOrderId() + "_" + dto.getProductName();
             OrderItem orderItem = orderItemMap.get(key);
-
             if (orderItem != null) {
                 // Step 5: quantity를 기반으로 기존 OrderItem을 나누어 처리
                 int remainingQuantity = dto.getQuantity();
@@ -145,7 +144,6 @@ public class OrderService {
                         .statusTime(now)
                         .status("출고완료").build());
                 itemsToSave.add(orderItem);
-                System.out.println("completed");
                 if (itemsToSave.size() >= BATCH_SIZE) {
                     orderItemRepository.saveAll(itemsToSave);
                     itemsToSave.clear();

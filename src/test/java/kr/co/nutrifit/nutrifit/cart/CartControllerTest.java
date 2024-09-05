@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.cart;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.nutrifit.nutrifit.backend.controllers.CartController;
 import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.CartItemRepository;
@@ -33,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,141 +45,106 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
-public class CartControllerTest {
+class CartControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ProductRepository productRepository;
+    @MockBean
+    private CartService cartService;
 
-    @Mock
-    private CartService cartService;  // CartService를 Mocking
-
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @InjectMocks
-    private CartController cartController;
-
-    private User user;
-    private Product product;
-    private Cart cart;
-    private CartItem cartItem;
+    @MockBean
     private UserAdapter userAdapter;
 
-    @BeforeEach
-    public void setUp() {
-        // Mock User, Cart, Product, CartItem 생성
-        user = User.builder()
-                .username("testuser")
-                .email("testuser@example.com")
-                .password("encodedPassword")
-                .role(Role.ROLE_USER)
-                .build();
-
-        userRepository.save(user);
-
-        product = Product.builder()
-                .id(1L)
-                .name("Product 1")
-                .description("Description")
-                .discountedPrice(10000L)
-                .stockQuantity(10)
-                .imageUrls(new ArrayList<>())
-                .build();
-
-        product.setId(productRepository.save(product).getId());
-
-        cart = Cart.builder()
-                .user(user)
-                .cartItems(new ArrayList<>())
-                .build();
-
-        cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .quantity(2)
-                .build();
-
-        cart.addCartItem(cartItem);
-        cartRepository.save(cart);
-        cartItemRepository.save(cartItem);
-        user.setCart(cart);
-
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(SecurityMockMvcConfigurers.springSecurity()).build();
-        userAdapter = new UserAdapter(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userAdapter, null, userAdapter.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
     @Test
-    void addItemToCart_ShouldReturn201Status() throws Exception {
-        mockMvc.perform(post("/api/cart/items")  // Mock JWT 토큰을 헤더에 포함
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                        .param("productId", String.valueOf(product.getId()))  // 임의의 Product ID 사용
-                        .param("quantity", "2")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void addItemToCart_whenValidRequest_shouldReturn201() throws Exception {
+        Long productId = 1L;
+        int quantity = 2;
+
+        mockMvc.perform(post("/api/cart/items")
+                        .param("productId", String.valueOf(productId))
+                        .param("quantity", String.valueOf(quantity))
+                        .with(user(userAdapter)))
                 .andExpect(status().isCreated())
                 .andExpect(content().string("상품이 장바구니에 추가되었습니다."));
     }
 
     @Test
-    void getCartItems_ShouldReturnCartItems() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.get("/api/cart/items")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                                .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Product 1"));
+    void addItemToCart_whenInvalidQuantity_shouldReturn400() throws Exception {
+        Long productId = 1L;
+        int quantity = 0;
+
+        mockMvc.perform(post("/api/cart/items")
+                        .param("productId", String.valueOf(productId))
+                        .param("quantity", String.valueOf(quantity))
+                        .with(user(userAdapter)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("수량은 1 이상이어야 합니다."));
     }
 
     @Test
-    void updateCartItemQuantity_ShouldReturn200Status() throws Exception {
-        mockMvc.perform(put("/api/cart/items") // Mock JWT 토큰을 헤더에 포함
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                        .param("productId", String.valueOf(product.getId()))  // 임의의 Product ID 사용
-                        .param("quantity", "3")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getCartItems_shouldReturnListOfItems() throws Exception {
+        List<CartItemDto> cartItems = List.of(
+                new CartItemDto(100L, "Product1", "Description1", 1000L, "image1.jpg", 2),
+                new CartItemDto(100L, "Product2", "Description2", 2000L, "image2.jpg", 1)
+        );
+        given(cartService.getCartItems(any())).willReturn(cartItems);
+
+        mockMvc.perform(get("/api/cart/items")
+                        .with(user(userAdapter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Product1"))
+                .andExpect(jsonPath("$[1].name").value("Product2"));
+    }
+
+    @Test
+    void updateCartItemQuantity_whenValidRequest_shouldReturn200() throws Exception {
+        Long productId = 1L;
+        int quantity = 3;
+
+        mockMvc.perform(put("/api/cart/items")
+                        .param("productId", String.valueOf(productId))
+                        .param("quantity", String.valueOf(quantity))
+                        .with(user(userAdapter)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("아이템 수량이 변경되었습니다."));
     }
 
     @Test
-    void removeItemFromCart_ShouldReturn204Status() throws Exception {
-        mockMvc.perform(delete("/api/cart/items/{productId}", product.getId())  // Mock JWT 토큰을 헤더에 포함
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                        .contentType(MediaType.APPLICATION_JSON))
+    void removeItemFromCart_shouldReturn204() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(delete("/api/cart/items/{productId}", productId)
+                        .with(user(userAdapter)))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void clearCart_ShouldReturn204Status() throws Exception {
-        mockMvc.perform(delete("/api/cart/items")  // Mock JWT 토큰을 헤더에 포함
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                        .contentType(MediaType.APPLICATION_JSON))
+    void clearCart_shouldReturn204() throws Exception {
+        mockMvc.perform(delete("/api/cart/items")
+                        .with(user(userAdapter)))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void changeCart_whenValidRequest_shouldReturn200() throws Exception {
+        List<CartItemDto> cartItems = List.of(
+                new CartItemDto(1L, "Product1", "Description1", 1000L, "image1.jpg", 2)
+        );
+
+        mockMvc.perform(post("/api/cart")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(cartItems))
+                        .with(user(userAdapter)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("장바구니가 성공적으로 변경되었습니다."));
     }
 }

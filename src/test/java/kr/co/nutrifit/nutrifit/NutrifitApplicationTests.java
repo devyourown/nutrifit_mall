@@ -6,8 +6,4 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class NutrifitApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
 }
