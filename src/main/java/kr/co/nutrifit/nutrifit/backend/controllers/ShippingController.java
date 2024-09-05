@@ -25,6 +25,9 @@ public class ShippingController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrdererDto> getOrderShipping(@NotNull @AuthenticationPrincipal UserAdapter userAdapter,
                                                         @PathVariable String orderId) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         OrdererDto shippingDto = shippingService.getShippingByOrderId(orderId, userAdapter.getUser());
         return ResponseEntity.ok(shippingDto);
     }

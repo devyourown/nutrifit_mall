@@ -5,6 +5,7 @@ import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.PaymentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,13 @@ public class PaymentController {
             @AuthenticationPrincipal UserAdapter userAdapter,
             @RequestBody @Valid PaymentDto paymentDto
             ) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         try {
             paymentService.createPayment(userAdapter.getUser(), paymentDto);
             return ResponseEntity.ok("결제가 완료되었습니다.");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -36,12 +39,18 @@ public class PaymentController {
             @PathVariable String id,
             @AuthenticationPrincipal UserAdapter userAdapter
     ) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         PaymentDto paymentDto = paymentService.getPaymentByIdAndUser(id, userAdapter.getUser());
         return ResponseEntity.ok(paymentDto);
     }
 
     @GetMapping("/user")
     public ResponseEntity<List<PaymentDto>> getUserPayments(@AuthenticationPrincipal UserAdapter userAdapter) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<PaymentDto> payments = paymentService.getPaymentsByUser(userAdapter.getUser());
         return ResponseEntity.ok(payments);
     }

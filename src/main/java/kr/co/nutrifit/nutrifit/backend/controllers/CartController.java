@@ -2,6 +2,7 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.CartItem;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.CartService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,9 @@ public class CartController {
             @RequestParam Long productId,
             @RequestParam int quantity
     ) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (quantity <= 0) {
             return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE,
                     MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
@@ -41,6 +46,9 @@ public class CartController {
     @PostMapping
     public ResponseEntity<String> changeCart(@AuthenticationPrincipal UserAdapter user,
                                              @RequestBody List<CartItemDto> items) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         try {
             cartService.updateCart(user.getUser(), items);
             return ResponseEntity.ok("장바구니가 성공적으로 변경되었습니다.");
@@ -53,6 +61,9 @@ public class CartController {
 
     @GetMapping("/items")
     public ResponseEntity<List<CartItemDto>> getCartItems(@AuthenticationPrincipal UserAdapter user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<CartItemDto> cartItems = cartService.getCartItems(user.getUser());
         return ResponseEntity.ok(cartItems);
     }
@@ -63,6 +74,9 @@ public class CartController {
             @RequestParam Long productId,
             @RequestParam int quantity
     ) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (quantity <= 0) {
             return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE,
                     MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
@@ -79,6 +93,9 @@ public class CartController {
             @AuthenticationPrincipal UserAdapter user,
             @PathVariable Long productId
     ) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         cartService.removeItemFromCart(user.getUser(), productId);
         return ResponseEntity.noContent().build();
     }
@@ -86,6 +103,9 @@ public class CartController {
 
     @DeleteMapping("/items")
     public ResponseEntity<String> clearCart(@AuthenticationPrincipal UserAdapter user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         cartService.clearCart(user.getUser());
         return ResponseEntity.noContent().build();
     }
