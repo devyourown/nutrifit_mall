@@ -88,7 +88,6 @@ public class PaymentService {
     }
 
     public PaymentDto getPaymentByIdAndUser(String id, User user) {
-        System.out.println(id);
         Payment payment = paymentRepository.findByOrderPaymentId(id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
         if (!payment.getUser().getId().equals(user.getId())) {

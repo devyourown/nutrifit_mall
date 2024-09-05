@@ -18,7 +18,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,106 +34,83 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
-public class CouponControllerTest {
+class CouponControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockBean
     private CouponService couponService;
 
-    @InjectMocks
-    private CouponController couponController;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CouponRepository couponRepository;
-
-    private User user;
+    @MockBean
     private UserAdapter userAdapter;
-    private CouponDto couponDto;
-
-    @BeforeEach
-    public void setUp() {
-
-        user = User.builder()
-                .username("testuser")
-                .email("testuser@example.com")
-                .password("encodedPassword")
-                .role(Role.ROLE_USER)
-                .build();
-
-        userRepository.save(user);
-
-        userAdapter = new UserAdapter(user);
-
-        couponDto = CouponDto.builder()
-                .code("TESTCOUPON2")
-                .description("Test Coupon")
-                .discountType(DiscountType.PERCENTAGE)
-                .discountValue(10)
-                .validFrom(LocalDateTime.now().minusDays(1))
-                .validUntil(LocalDateTime.now().plusDays(7))
-                .minimumOrderAmount(5000)
-                .maxDiscountAmount(1000)
-                .remainingQuantity(100)
-                .build();
-
-        Coupon coupon = Coupon.builder()
-                .code("TESTCOUPON")
-                .description("Test Coupon")
-                .discountType(DiscountType.PERCENTAGE)
-                .discountValue(10)
-                .validFrom(LocalDateTime.now().minusDays(1))
-                .validUntil(LocalDateTime.now().plusDays(7))
-                .minimumOrderAmount(5000)
-                .maxDiscountAmount(1000)
-                .remainingQuantity(100)
-                .isActive(true)
-                        .build();
-
-        couponRepository.save(coupon);
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(SecurityMockMvcConfigurers.springSecurity()).build();
-        userAdapter = new UserAdapter(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userAdapter, null, userAdapter.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createCoupon_ShouldReturn201Status() throws Exception {
+    void createCoupon_whenAdmin_shouldReturnCreated() throws Exception {
+        CouponDto couponDto = new CouponDto();
+        couponDto.setCode("TEST123");
+
         mockMvc.perform(post("/api/coupon/create")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(couponDto)))
+                        .content(new ObjectMapper().writeValueAsString(couponDto)))
                 .andExpect(status().isCreated());
+
+        verify(couponService, times(1)).createCoupon(any(CouponDto.class));
     }
 
     @Test
-    void assignCouponToUser_ShouldReturn204Status() throws Exception {
+    @WithMockUser
+    void createCoupon_whenNotAdmin_shouldReturnForbidden() throws Exception {
+        CouponDto couponDto = new CouponDto();
+        couponDto.setCode("TEST123");
+
+        mockMvc.perform(post("/api/coupon/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(couponDto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void assignCouponToUser_shouldReturnNoContent() throws Exception {
+        String couponCode = "TEST123";
+        when(userAdapter.getUser()).thenReturn(new User());
+
         mockMvc.perform(post("/api/coupon/assign")
-                        .param("code", "TESTCOUPON")
-                        .with(SecurityMockMvcRequestPostProcessors.user(userAdapter))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .param("code", couponCode)
+                        .with(user(userAdapter)))
                 .andExpect(status().isNoContent());
+
+        verify(couponService, times(1)).assignCouponToUser(eq(couponCode), anyLong());
+    }
+
+    @Test
+    void getUserCoupon_shouldReturnCoupons() throws Exception {
+        List<CouponDto> coupons = List.of(
+                new CouponDto("TEST123", "Discount 10%", 10, DiscountType.PERCENTAGE, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1),10, 10, 10)
+        );
+        when(couponService.getUserCoupon(any(User.class))).thenReturn(coupons);
+        when(userAdapter.getUser()).thenReturn(new User());
+
+        mockMvc.perform(get("/api/coupon")
+                        .with(user(userAdapter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code").value("TEST123"));
+
+        verify(couponService, times(1)).getUserCoupon(any(User.class));
     }
 }
+
