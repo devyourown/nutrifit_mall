@@ -4,6 +4,7 @@ import kr.co.nutrifit.nutrifit.backend.dto.PointDto;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.PointService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,9 @@ public class PointController {
 
     @GetMapping
     public ResponseEntity<PointDto> getUserPoints(@AuthenticationPrincipal UserAdapter userAdapter) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         PointDto point = pointService.getUserPoints(userAdapter.getUser());
         return ResponseEntity.ok(point);
     }

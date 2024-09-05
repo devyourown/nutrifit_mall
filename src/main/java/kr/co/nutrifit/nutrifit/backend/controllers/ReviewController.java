@@ -37,6 +37,9 @@ public class ReviewController {
 
     @GetMapping("/user")
     public ResponseEntity<List<ReviewDto>> getReviewsByUser(@AuthenticationPrincipal UserAdapter userAdapter) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<ReviewDto> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId());
         return ResponseEntity.ok(reviews);
     }
@@ -45,6 +48,9 @@ public class ReviewController {
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long reviewId,
             @AuthenticationPrincipal UserAdapter userAdapter) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         reviewService.deleteReview(reviewId, userAdapter.getUser().getId());
         return ResponseEntity.noContent().build();
     }
