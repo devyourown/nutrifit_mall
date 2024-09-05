@@ -1,0 +1,48 @@
+name: Nutrifit Mall CI/CD PIPELINE
+
+# 이 워크플로우는 main 브랜치에 코드가 푸시될 때 실행됩니다.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Upload JAR to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp build/libs/nutrifit-0.0.1-SNAPSHOT.jar s3://elasticbeanstalk-ap-northeast-2-025066269685/myapp.jar
+
+      - name: Deploy to Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name mall_backend \
+            --version-label ${{ github.sha }} \
+            --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-025066269685",S3Key="myapp.jar"
+          aws elasticbeanstalk update-environment \
+            --environment-name Mallbackend-env \
+            --version-label ${{ github.sha }}
