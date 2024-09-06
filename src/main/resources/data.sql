@@ -29,6 +29,18 @@ VALUES
 (2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 67513, 15003),
 (3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 15, 3);
 
+-- ProductDetail 더미 데이터 1
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
+VALUES (1, 1, ARRAY['/image1_1.jpg', '/image1_2.jpg'], '택배', '가능', '3000원', '2~3일', '교환 및 반품 가능', '5000원', '구매 후 7일 이내');
+
+-- ProductDetail 더미 데이터 2
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
+VALUES (2, 2, ARRAY['/image2_1.jpg', '/.jpg'], '퀵서비스', '불가', '5000원', '1~2일', '교환 및 반품 불가', '7000원', '구매 후 5일 이내');
+
+-- ProductDetail 더미 데이터 3
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
+VALUES (3, 3, ARRAY['/image3_1.jpg', '/image3_2.jpg'], '우체국 택배', '가능', '무료', '3~5일', '교환 가능, 반품 불가', '무료', '구매 후 10일 이내');
+
 INSERT INTO options (id, quantity, price, description, product_id)
 VALUES (1, 10, 1000, 'Option 1 Description', 1),
        (2, 20, 2000, 'Option 2 Description', 1),
