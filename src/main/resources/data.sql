@@ -3,6 +3,7 @@ DELETE FROM order_item;
 DELETE FROM options;
 DELETE FROM cart_item;
 DELETE FROM review;
+DELETE FROM product_detail
 DELETE FROM product;
 DELETE FROM cart;
 DELETE FROM user_coupon;
