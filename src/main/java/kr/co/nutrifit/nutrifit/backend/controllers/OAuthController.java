@@ -20,7 +20,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.changeUsername(request.getEmail(), request.getUsername());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.badRequest().body("다시 시도해 주세요.");
         }
     }
