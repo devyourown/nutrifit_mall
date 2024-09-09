@@ -16,7 +16,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final EmailService emailService;
+    //private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
