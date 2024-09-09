@@ -34,6 +34,18 @@ public class PaymentController {
         }
     }
 
+    @PostMapping
+    public ResponseEntity<?> createPayment(
+            @RequestBody @Valid PaymentDto paymentDto
+    ) {
+        try {
+            paymentService.createPaymentWithoutUser(paymentDto);
+            return ResponseEntity.ok("결제가 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDto> getPayment(
             @PathVariable String id,

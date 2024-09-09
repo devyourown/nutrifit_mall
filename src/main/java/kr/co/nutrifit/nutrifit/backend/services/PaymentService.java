@@ -10,7 +10,6 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Shipping;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,18 +27,28 @@ public class PaymentService {
     private final PointService pointService;
     private final ProductService productService;
     private final PaymentApiClient paymentApiClient;
-    @Value("${iamport.apiSecret}")
-    private String apiSecret;
 
 
     @Transactional
     public void createPayment(User user, PaymentDto paymentDto) {
         try {
-            productService.reduceStock(paymentDto.getOrderItems());
             validateCouponAndPoints(paymentDto.getCouponId(),paymentDto.getUsedPoints(), user, paymentDto.getTotal());
             PaymentApiResponse paymentApiResponse = paymentApiClient.getPayment(paymentDto.getOrderId());
             validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
+            productService.reduceStock(paymentDto.getOrderItems());
             createOrderAndPaymentAndShipping(user, paymentDto, paymentApiResponse.getStatus());
+        } catch (Exception e) {
+            throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void createPaymentWithoutUser(PaymentDto paymentDto) {
+        try {
+            PaymentApiResponse paymentApiResponse = paymentApiClient.getPayment(paymentDto.getOrderId());
+            validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
+            productService.reduceStock(paymentDto.getOrderItems());
+            createOrderAndPaymentAndShippingWithoutUser(paymentDto, paymentApiResponse.getStatus());
         } catch (Exception e) {
             throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
@@ -51,7 +60,32 @@ public class PaymentService {
         }
     }
 
-    public void createOrderAndPaymentAndShipping(User user, PaymentDto paymentDto, String status) {
+    private void createOrderAndPaymentAndShippingWithoutUser(PaymentDto paymentDto, String status) {
+        Order order = orderService.createOrderWithoutUser(paymentDto.getPhoneNumber(), paymentDto.getOrderId(), paymentDto.getOrderItems());
+        Payment payment = createPaymentEntityWithoutUser(paymentDto, status, order);
+        Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);
+        order.setPayment(payment);
+        order.setShipping(shipping);
+    }
+
+    private Payment createPaymentEntityWithoutUser(PaymentDto paymentDto, String status, Order order) {
+        Payment payment = Payment.builder()
+                .orderPaymentId(paymentDto.getOrderId())
+                .order(order)
+                .total(paymentDto.getTotal())
+                .shippingFee(paymentDto.getShippingFee())
+                .discount(paymentDto.getDiscount())
+                .subtotal(paymentDto.getSubtotal())
+                .paymentMethod(paymentDto.getPaymentMethod())
+                .paymentStatus(status)
+                .paymentDate(LocalDateTime.now())
+                .usedPoints(paymentDto.getUsedPoints())
+                .couponId(paymentDto.getCouponId())
+                .build();
+        return paymentRepository.save(payment);
+    }
+
+    private void createOrderAndPaymentAndShipping(User user, PaymentDto paymentDto, String status) {
         Order order = orderService.createOrder(user, paymentDto.getOrderId(), paymentDto.getOrderItems());
         Payment payment = createPaymentEntity(user, paymentDto, status, order);
         Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);

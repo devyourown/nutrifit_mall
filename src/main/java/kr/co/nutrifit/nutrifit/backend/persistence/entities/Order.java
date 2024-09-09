@@ -25,8 +25,11 @@ public class Order {
     private String orderPaymentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
+
+    @Column(nullable = true)
+    private String userPhone;
 
     @Column(nullable = false)
     private Long totalAmount;
