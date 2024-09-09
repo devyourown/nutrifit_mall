@@ -57,7 +57,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(tempPassword));
         userRepository.save(user);
 
-        emailService.sendEmail(user.getEmail(), "[뉴트리핏] 비밀번호 재설정", "임시 비밀번호: "+ tempPassword);
+        //emailService.sendEmail(user.getEmail(), "[뉴트리핏] 비밀번호 재설정", "임시 비밀번호: "+ tempPassword);
     }
 
     private String generateTempPassword() {
