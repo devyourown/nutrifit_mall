@@ -44,4 +44,6 @@ public class PaymentDto {
     private Long couponId;
 
     private int usedPoints;
+
+    private String phoneNumber;
 }

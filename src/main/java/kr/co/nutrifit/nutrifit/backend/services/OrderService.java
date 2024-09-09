@@ -58,6 +58,38 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
+    public Order createOrderWithoutUser(String phone, String orderId, List<CartItemDto> cartItemDto) {
+        Order order = new Order();
+        order.setUserPhone(phone);
+        order.setOrderPaymentId(orderId);
+        LocalDateTime now = LocalDateTime.now();
+
+        long totalAmount = 0;
+
+        for (CartItemDto itemDto : cartItemDto) {
+            Product product = productRepository.findById(itemDto.getId()).orElseThrow();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(product);
+            orderItem.setPrice(product.getDiscountedPrice());
+            orderItem.setQuantity(itemDto.getQuantity());
+            orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
+            orderItem.addStatus(ShippingStatus.builder()
+                    .orderItem(orderItem)
+                    .statusTime(now)
+                    .status("주문완료")
+                    .build());
+
+            totalAmount += orderItem.getTotalAmount();
+
+            order.addOrderItem(orderItem);
+        }
+
+        order.setTotalAmount(totalAmount);
+        return orderRepository.save(order);
+    }
+
     public List<OrderDto> getOrdersByUser(User user) {
         return orderRepository.findAllWithItemsAndProductsByUser(user)
                 .stream().map(this::convertToDto)

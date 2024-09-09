@@ -43,7 +43,7 @@ public class Payment {
     private LocalDateTime paymentDate;
 
     @ManyToOne(fetch =  FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
