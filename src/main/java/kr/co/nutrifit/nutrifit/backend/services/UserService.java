@@ -1,8 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
-import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
-import kr.co.nutrifit.nutrifit.backend.lib.EmailService;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +27,7 @@ public class UserService {
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
+                .oAuth(userDto.isOAuth())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(Role.ROLE_USER)
                 .imageUrl(userDto.getProfileImage())

@@ -30,7 +30,7 @@ public class User {
     private String password;
 
     @Column(nullable = true)
-    private boolean isOAuth;
+    private Boolean oAuth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

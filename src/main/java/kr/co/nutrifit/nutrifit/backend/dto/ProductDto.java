@@ -12,6 +12,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDto {
+    public ProductDto(Long id, String name, String description, String category, int stockQuantity, int lowStockThreshold,
+                      List<String> imageUrls, List<String> badgeTexts, Long originalPrice, Long discountedPrice,
+                      Long reviewRating, Long reviewCount) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.stockQuantity = stockQuantity;
+        this.lowStockThreshold = lowStockThreshold;
+        this.imageUrls = imageUrls;
+        this.badgeTexts = badgeTexts;
+        this.originalPrice = originalPrice;
+        this.discountedPrice = discountedPrice;
+        this.reviewRating = reviewRating;
+        this.reviewCount = reviewCount;
+    }
     private Long id;
     private String name;
     private String description;
