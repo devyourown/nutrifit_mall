@@ -3,6 +3,7 @@ DELETE FROM order_item;
 DELETE FROM options;
 DELETE FROM cart_item;
 DELETE FROM review;
+DELETE FROM product_qna;
 DELETE FROM product_detail;
 DELETE FROM product;
 DELETE FROM cart;
@@ -41,6 +42,15 @@ VALUES (2, 2, ARRAY['/image2_1.jpg', '/.jpg'], '퀵서비스', '불가', '5000�
 -- ProductDetail 더미 데이터 3
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
 VALUES (3, 3, ARRAY['/image3_1.jpg', '/image3_2.jpg'], '우체국 택배', '가능', '무료', '3~5일', '교환 가능, 반품 불가', '무료', '구매 후 10일 이내');
+
+-- 샘플 ProductQnA 데이터
+INSERT INTO product_qna (id, user_id, product_detail_id, question, answer, question_date, answer_date) VALUES
+(1, 10000, 1, 'Is this product available in blue color?', 'Yes, it is available in blue.', '2023-09-01 12:34:56', '2023-09-02 10:00:00'),
+(2, 10000, 1, 'What is the warranty period for this product?', 'The warranty period is 2 years.', '2023-09-05 15:20:10', '2023-09-06 09:30:00'),
+(3, 20000, 2, 'Does the product include batteries?', 'No, batteries are not included.', '2023-09-07 09:00:00', '2023-09-07 14:00:00'),
+(4, 20000, 2, 'Is there a discount for bulk purchases?', NULL, '2023-09-08 11:30:00', NULL),
+(5, 30000, 3, 'What is the delivery time to California?', 'Delivery takes approximately 5-7 business days.', '2023-09-09 13:15:30', '2023-09-10 08:45:00');
+
 
 INSERT INTO options (id, quantity, price, description, product_id)
 VALUES (1, 10, 1000, 'Option 1 Description', 1),
