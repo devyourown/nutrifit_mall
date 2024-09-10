@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Builder
@@ -31,6 +32,9 @@ public class Review {
 
     @Column
     private String comment;
+
+    @Column(columnDefinition = "text[]")
+    private List<String> imageUrls;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
