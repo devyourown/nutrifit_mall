@@ -8,11 +8,12 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Review;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,21 +51,15 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<ReviewDto> getReviewsByProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다."));
-        return reviewRepository.findByProduct(product)
-                .stream().map(this::convertToDto)
-                .toList();
+    public Page<ReviewDto> getReviewsByProduct(Long productId, Pageable pageable) {
+        return reviewRepository.findByProductId(productId, pageable)
+                .map(this::convertToDto);
     }
 
-    public List<ReviewDto> getReviewsByUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    public Page<ReviewDto> getReviewsByUser(Long userId, Pageable pageable) {
 
-        return reviewRepository.findByUser(user)
-                .stream().map(this::convertToDto)
-                .toList();
+        return reviewRepository.findByUserId(userId, pageable)
+                .map(this::convertToDto);
     }
 
     private ReviewDto convertToDto(Review review) {

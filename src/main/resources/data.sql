@@ -17,10 +17,10 @@ DELETE FROM notification;
 DELETE FROM users;
 
 -- User data
-INSERT INTO users (id, email, username, password, role, address, address_details, shipping_details) VALUES
-(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', '123 Main St', 'Apt 4B', 'Fast Shipping'),
-(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', '456 Park Ave', 'Apt 12C', 'Standard Shipping'),
-(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', '789 Elm St', '', '');
+INSERT INTO users (id, email, username, password, role, address, address_details, shipping_details, o_auth) VALUES
+(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', '123 Main St', 'Apt 4B', 'Fast Shipping', false),
+(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', '456 Park Ave', 'Apt 12C', 'Standard Shipping', false),
+(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', '789 Elm St', '', '', false);
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,

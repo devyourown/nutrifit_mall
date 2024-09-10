@@ -7,6 +7,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductDetail;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductQnA;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,14 +120,12 @@ public class ProductService {
         productRepository.saveAll(savedProduct);
     }
 
-    public List<ProductDto> getAllProduct() {
-        return productRepository.findAll().stream()
-                .map(this::convertToDto)
-                .toList();
+    public Page<ProductDto> getAllProduct(Pageable pageable) {
+        return productRepository.findAllToDto(pageable);
     }
 
     public ProductDto getProductById(Long productId) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdWithOptionsAndDetail(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         ProductDetail productDetail = product.getProductDetail();
         ProductDto productDto = convertToDto(product);

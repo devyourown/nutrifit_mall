@@ -5,6 +5,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Review;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,17 +32,19 @@ public class ReviewController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<List<ReviewDto>> getReviewsByProduct(@PathVariable Long productId) {
-        List<ReviewDto> reviews = reviewService.getReviewsByProduct(productId);
+    public ResponseEntity<Page<ReviewDto>> getReviewsByProduct(@PathVariable Long productId,
+                                                               Pageable pageable) {
+        Page<ReviewDto> reviews = reviewService.getReviewsByProduct(productId, pageable);
         return ResponseEntity.ok(reviews);
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<ReviewDto>> getReviewsByUser(@AuthenticationPrincipal UserAdapter userAdapter) {
+    public ResponseEntity<Page<ReviewDto>> getReviewsByUser(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                            Pageable pageable) {
         if (userAdapter == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<ReviewDto> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId());
+        Page<ReviewDto> reviews = reviewService.getReviewsByUser(userAdapter.getUser().getId(), pageable);
         return ResponseEntity.ok(reviews);
     }
 

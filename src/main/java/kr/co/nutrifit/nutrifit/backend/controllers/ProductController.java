@@ -5,6 +5,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,8 +57,8 @@ public class ProductController {
 
     // 상품 목록 조회 (사용자용)
     @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
-        List<ProductDto> products = productService.getAllProduct();
+    public ResponseEntity<Page<ProductDto>> getAllProducts(Pageable pageable) {
+        Page<ProductDto> products = productService.getAllProduct(pageable);
         return ResponseEntity.ok(products);
     }
 

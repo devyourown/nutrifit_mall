@@ -34,8 +34,8 @@ public class PaymentController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> createPayment(
+    @PostMapping("/nonmember")
+    public ResponseEntity<?> createPaymentWithoutUser(
             @RequestBody @Valid PaymentDto paymentDto
     ) {
         try {
