@@ -52,23 +52,10 @@ public class ReviewService {
     }
 
     public Page<ReviewDto> getReviewsByProduct(Long productId, Pageable pageable) {
-        return reviewRepository.findByProductId(productId, pageable)
-                .map(this::convertToDto);
+        return reviewRepository.findByProductIdWithUsername(productId, pageable);
     }
 
     public Page<ReviewDto> getReviewsByUser(Long userId, Pageable pageable) {
-
-        return reviewRepository.findByUserId(userId, pageable)
-                .map(this::convertToDto);
-    }
-
-    private ReviewDto convertToDto(Review review) {
-        return ReviewDto.builder()
-                .id(review.getId())
-                .username(review.getUser().getUsername())
-                .comment(review.getComment())
-                .createdAt(review.getCreatedAt())
-                .rating(review.getRating())
-                .build();
+        return reviewRepository.findByUserIdWithDto(userId, pageable);
     }
 }

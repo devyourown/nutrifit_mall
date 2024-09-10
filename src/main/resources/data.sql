@@ -111,9 +111,17 @@ INSERT INTO point_transaction (id, point_id, transaction_type, points, descripti
 (2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
 -- Review data
-INSERT INTO review (id, user_id, product_id, rating, comment, created_at) VALUES
-(1, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00'),
-(2, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00');
+INSERT INTO review (id, user_id, product_id, rating, comment, created_at, image_urls) VALUES
+(1, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(13, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(14, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(1234, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(5468, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(4568, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(123, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(4963, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(1324, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(2, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']);
 
 -- Notification data
 INSERT INTO notification (id, user_id, message, is_read, created_at) VALUES
