@@ -27,13 +27,13 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
 low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
 VALUES
-(1, 'Product A', 'Description A', 1000, 100, 900, 10, ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
-(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/sample2.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 67513, 15003),
-(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 15, 3);
+(1, 'Product A', 'Description A', 1000, 100, 900, 10,ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
+(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category B', ARRAY['무료배송'], 67513, 15003),
+(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category B', ARRAY['무료배송'], 15, 3);
 
 -- ProductDetail 더미 데이터 1
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
-VALUES (1, 1, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+VALUES (1, 1, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'],
 ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
 'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
 ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
@@ -41,7 +41,7 @@ ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
 
 -- ProductDetail 더미 데이터 2
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
-VALUES (2, 2, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+VALUES (2, 2, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'],
 ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
 'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
 ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
@@ -49,7 +49,7 @@ ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
 
 -- ProductDetail 더미 데이터 3
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
-VALUES (3, 3, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+VALUES (3, 3, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'],
 ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
 'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
 ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
