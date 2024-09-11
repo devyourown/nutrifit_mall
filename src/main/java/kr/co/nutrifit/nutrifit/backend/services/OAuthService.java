@@ -90,6 +90,9 @@ public class OAuthService {
     public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
+        System.out.println(googleUser.getEmail());
+        System.out.println(userRepository.existsByEmail(googleUser.getEmail()));
+        System.out.println(userRepository.findByEmail(googleUser.getEmail()));
         User user = userRepository.findByEmail(googleUser.getEmail())
                 .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
         String jwt = tokenProvider.generateToken(user);
