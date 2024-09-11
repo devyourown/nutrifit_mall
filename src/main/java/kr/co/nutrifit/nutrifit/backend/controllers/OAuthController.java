@@ -30,7 +30,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.checkAndMakeGoogleUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
@@ -42,7 +41,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.checkAndMakeNaverUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
@@ -53,7 +51,6 @@ public class OAuthController {
             UserDto userDto = oAuthService.checkAndMakeKakaoUser(request.getCode());
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
