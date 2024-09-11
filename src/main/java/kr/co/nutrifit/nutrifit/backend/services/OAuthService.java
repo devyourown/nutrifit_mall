@@ -90,7 +90,7 @@ public class OAuthService {
     public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user = userRepository.findByEmail(googleUser.getEmail())
+        User user = userRepository.findSimpleUserByEmail(googleUser.getEmail())
                 .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
@@ -104,7 +104,7 @@ public class OAuthService {
 
     @Transactional
     public UserDto changeUsername(String email, String username) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findSimpleUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Wrong Email"));
         user.setUsername(username);
         userRepository.save(user);
@@ -160,7 +160,7 @@ public class OAuthService {
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
-        User user = userRepository.findByEmail(naverUser.getEmail())
+        User user = userRepository.findSimpleUserByEmail(naverUser.getEmail())
                 .orElse(createUser(naverUser.getEmail(), naverUser.getProfile_image()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
@@ -215,7 +215,7 @@ public class OAuthService {
     public UserDto checkAndMakeKakaoUser(String code) throws Exception {
         String accessToken = getKakaoAccessToken(code);
         KakaoUserDto kakaoUser = getKakaoUser(accessToken);
-        User user = userRepository.findByEmail(kakaoUser.getEmail())
+        User user = userRepository.findSimpleUserByEmail(kakaoUser.getEmail())
                 .orElse(createUser(kakaoUser.getEmail(), kakaoUser.getProfile()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
