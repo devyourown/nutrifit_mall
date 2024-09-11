@@ -29,26 +29,11 @@ public class ProductDetail {
     @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ProductQnA> qnas;
 
-    @Column(columnDefinition = "text")
-    private String shippingMethod; // 배송방법
+    @Column(columnDefinition = "text[]")
+    private List<String> shippingDetails;
 
-    @Column(columnDefinition = "text")
-    private String bundleShippingAvailability; // 묶음배송 여부
-
-    @Column(columnDefinition = "text")
-    private String shippingFee; // 배송비
-
-    @Column(columnDefinition = "text")
-    private String shippingDuration; // 배송기간
-
-    @Column(columnDefinition = "text")
-    private String exchangeAndReturnPolicy; // 교환/반품 안내
-
-    @Column(columnDefinition = "text")
-    private String exchangeAndReturnFee; // 교환/반품 비용
-
-    @Column(columnDefinition = "text")
-    private String exchangeAndReturnPeriod; // 교환/반품 신청 기준일
+    @Column(columnDefinition = "text[]")
+    private List<String> exchangeAndReturns;
 
     public void addQna(ProductQnA qna) {
         if (qnas == null) {
