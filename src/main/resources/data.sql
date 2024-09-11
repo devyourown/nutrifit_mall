@@ -32,16 +32,28 @@ VALUES
 (3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/sample3.jfif', '/sample2.jfif'], 'Category B', ARRAY['무료배송'], 15, 3);
 
 -- ProductDetail 더미 데이터 1
-INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
-VALUES (1, 1, ARRAY['/image1_1.jpg', '/image1_2.jpg'], '택배', '가능', '3000원', '2~3일', '교환 및 반품 가능', '5000원', '구매 후 7일 이내');
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
+VALUES (1, 1, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
+'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
+ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
+'변심 반품의 경우 왕복배송비를 차감한 금액이 환불되며, 제품 및 포장 상태가 재판매 가능하여야 합니다.']);
 
 -- ProductDetail 더미 데이터 2
-INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
-VALUES (2, 2, ARRAY['/image2_1.jpg', '/.jpg'], '퀵서비스', '불가', '5000원', '1~2일', '교환 및 반품 불가', '7000원', '구매 후 5일 이내');
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
+VALUES (2, 2, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
+'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
+ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
+'변심 반품의 경우 왕복배송비를 차감한 금액이 환불되며, 제품 및 포장 상태가 재판매 가능하여야 합니다.']);
 
 -- ProductDetail 더미 데이터 3
-INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_method, bundle_shipping_availability, shipping_fee, shipping_duration, exchange_and_return_policy, exchange_and_return_fee, exchange_and_return_period)
-VALUES (3, 3, ARRAY['/image3_1.jpg', '/image3_2.jpg'], '우체국 택배', '가능', '무료', '3~5일', '교환 가능, 반품 불가', '무료', '구매 후 10일 이내');
+INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
+VALUES (3, 3, ARRAY['/image1_1.jpg', '/image1_2.jpg'],
+ARRAY['Delivery 브랜드 업체발송은 상품설명에 별도로 기입된 브랜드 알림 배송공지 기준으로 출고되고 브랜드마다 개별 배송비가 부여됩니다.',
+'SPECIAL ORDER, PT 등 예약주문은 상세설명의 출고일정을 확인하시기 바랍니다.'],
+ARRAY['상품 수령일로부터 7일 이내 반품 / 환불 가능합니다.',
+'변심 반품의 경우 왕복배송비를 차감한 금액이 환불되며, 제품 및 포장 상태가 재판매 가능하여야 합니다.']);
 
 -- 샘플 ProductQnA 데이터
 INSERT INTO product_qna (id, user_id, product_detail_id, question, answer, question_date, answer_date) VALUES

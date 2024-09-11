@@ -25,13 +25,8 @@ public class ProductService {
         ProductDetailDto detailDto = productDto.getProductDetailDto();
         ProductDetail productDetail = ProductDetail.builder()
                 .detailImageUrls(detailDto.getDetailImageUrls())
-                .shippingFee(detailDto.getShippingFee())
-                .shippingMethod(detailDto.getShippingMethod())
-                .shippingDuration(detailDto.getShippingDuration())
-                .bundleShippingAvailability(detailDto.getBundleShippingAvailability())
-                .exchangeAndReturnFee(detailDto.getExchangeAndReturnFee())
-                .exchangeAndReturnPeriod(detailDto.getExchangeAndReturnPeriod())
-                .exchangeAndReturnPolicy(detailDto.getExchangeAndReturnPolicy())
+                .shippingDetails(detailDto.getShippingDetails())
+                .exchangeAndReturns(detailDto.getExchangeAndReturns())
                 .qnas(new ArrayList<>())
                 .build();
         Product product = Product.builder()
@@ -65,13 +60,8 @@ public class ProductService {
             ProductDetailDto detailDto = productDto.getProductDetailDto();
             ProductDetail productDetail = ProductDetail.builder()
                     .detailImageUrls(detailDto.getDetailImageUrls())
-                    .shippingFee(detailDto.getShippingFee())
-                    .shippingMethod(detailDto.getShippingMethod())
-                    .shippingDuration(detailDto.getShippingDuration())
-                    .bundleShippingAvailability(detailDto.getBundleShippingAvailability())
-                    .exchangeAndReturnFee(detailDto.getExchangeAndReturnFee())
-                    .exchangeAndReturnPeriod(detailDto.getExchangeAndReturnPeriod())
-                    .exchangeAndReturnPolicy(detailDto.getExchangeAndReturnPolicy())
+                    .exchangeAndReturns(detailDto.getExchangeAndReturns())
+                    .shippingDetails(detailDto.getShippingDetails())
                     .qnas(new ArrayList<>())
                     .build();
             product.setProductDetail(productDetail);
@@ -132,13 +122,8 @@ public class ProductService {
         productDto.setProductDetailDto(ProductDetailDto.builder()
                 .detailImageUrls(productDetail.getDetailImageUrls())
                 .qnas(productDetail.getQnas().stream().map(this::convertToQnADto).toList())
-                .shippingFee(productDetail.getShippingFee())
-                .shippingDuration(productDetail.getShippingDuration())
-                .exchangeAndReturnFee(productDetail.getExchangeAndReturnFee())
-                .exchangeAndReturnPeriod(productDetail.getExchangeAndReturnPeriod())
-                .exchangeAndReturnPolicy(productDetail.getExchangeAndReturnPolicy())
-                .shippingMethod(productDetail.getShippingMethod())
-                .bundleShippingAvailability(productDetail.getBundleShippingAvailability())
+                .shippingDetails(productDetail.getShippingDetails())
+                .exchangeAndReturns(productDetail.getExchangeAndReturns())
                 .build());
         return productDto;
     }

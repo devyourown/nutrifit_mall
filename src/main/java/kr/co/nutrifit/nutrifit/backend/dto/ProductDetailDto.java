@@ -15,11 +15,6 @@ import java.util.List;
 public class ProductDetailDto {
     private List<String> detailImageUrls;
     private List<ProductQnADto> qnas;
-    private String shippingMethod;
-    private String bundleShippingAvailability;
-    private String shippingFee;
-    private String shippingDuration;
-    private String exchangeAndReturnPolicy;
-    private String exchangeAndReturnFee;
-    private String exchangeAndReturnPeriod;
+    private List<String> shippingDetails;
+    private List<String> exchangeAndReturns;
 }
