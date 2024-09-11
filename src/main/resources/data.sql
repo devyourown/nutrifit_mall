@@ -27,9 +27,9 @@ INSERT INTO users (id, email, username, password, role, address, address_details
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
 low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
 VALUES
-(1, 'Product A', 'Description A', 1000, 100, 900, 10,ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category A', ARRAY['신상품', '첫판매할인'], 5985, 1247),
-(2, 'Product B', 'Description B', 2000, 1800, 50, 5, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category B', ARRAY['무료배송'], 67513, 15003),
-(3, 'Product C', 'Description C', 2000, 1800, 50, 5, ARRAY['/breast.jpg', '/breast2.jpg', '/breast3.jpg'], 'Category B', ARRAY['무료배송'], 15, 3);
+(1, '허브 마리네이드 닭가슴살', '천연 허브로 마리네이드한 촉촉한 닭가슴살. 건강과 맛을 동시에 잡았습니다.', 1000, 900, 900, 10, ARRAY['/herb_chicken1.jpg', '/herb_chicken2.jpg', '/herb_chicken3.jpg'], '건강식', ARRAY['신상품', '첫판매할인'], 5985, 1247),
+(2, '훈제 닭가슴살', '훈제 향이 은은하게 배인 촉촉하고 부드러운 닭가슴살. 간편한 식사로 제격입니다.', 2000, 1800, 50, 5, ARRAY['/smoked_chicken1.webp', '/smoked_chicken2.jpg', '/smoked_chicken3.webp'], '건강식', ARRAY['무료배송'], 67513, 15003),
+(3, '칠리 닭가슴살', '매콤달콤한 칠리 소스로 양념된 닭가슴살로 색다른 맛을 즐겨보세요.', 2000, 1800, 50, 5, ARRAY['/chili_chicken1.jpg', '/chili_chicken2.webp', '/chili_chicken3.jpg'], '건강식', ARRAY['무료배송'], 15, 3);
 
 -- ProductDetail 더미 데이터 1
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
@@ -65,19 +65,22 @@ INSERT INTO product_qna (id, user_id, product_detail_id, question, answer, quest
 
 
 INSERT INTO options (id, quantity, price, description, product_id)
-VALUES (1, 10, 1000, 'Option 1 Description', 1),
-       (2, 20, 2000, 'Option 2 Description', 1),
-       (3, 15, 1500, 'Option 3 Description', 1);
+VALUES
+(1, 10, 1000, '10팩 구매 시 정가', 1),
+(2, 15, 1350, '15팩 구매 시 10% 할인', 1),
+(3, 20, 1800, '20팩 구매 시 15% 할인', 1);
 
 INSERT INTO options (id, quantity, price, description, product_id)
-VALUES (4, 10, 1000, 'Option 1 Description', 2),
-       (5, 20, 2000, 'Option 2 Description', 2),
-       (6, 15, 1500, 'Option 3 Description', 2);
+VALUES
+(4, 10, 1000, '10팩 구매 시 정가', 2),
+(5, 15, 1350, '15팩 구매 시 10% 할인', 2),
+(6, 20, 1800, '20팩 구매 시 15% 할인', 2);
 
 INSERT INTO options (id, quantity, price, description, product_id)
-VALUES (7, 10, 1000, 'Option 1 Description', 3),
-       (8, 20, 2000, 'Option 2 Description', 3),
-       (9, 15, 1500, 'Option 3 Description', 3);
+VALUES
+(7, 10, 1000, '10팩 구매 시 정가', 3),
+(8, 15, 1350, '15팩 구매 시 10% 할인', 3),
+(9, 20, 1800, '20팩 구매 시 15% 할인', 3);
 
 -- Cart and CartItem data
 INSERT INTO cart (id, user_id) VALUES
