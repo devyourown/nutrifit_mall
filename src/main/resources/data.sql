@@ -109,17 +109,17 @@ INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_f
 
 -- Order, OrderItem, and Shipping data
 INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id, payment_id) VALUES
-(1, 10000, 5000, '2024-06-01 12:30:00', '12213421', 1000),
-(2, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000);
+(10000000, 10000, 5000, '2024-06-01 12:30:00', '12213421', 1000),
+(20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000);
 
 INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount) VALUES
-(1000, 1, 1, 1000, 2, 2000),
-(2000, 1, 2, 1500, 2, 3000),
-(3000, 2, 3, 3000, 3, 9000);
+(1000, 10000000, 1, 1000, 2, 2000),
+(2000, 10000000, 2, 1500, 2, 3000),
+(3000, 20000000, 3, 3000, 3, 9000);
 
 INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, recipient_phone, orderer_name, orderer_phone) VALUES
-(10000, 1, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
-(20000, 2, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
+(10000,10000000, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
+(20000, 20000000, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
 
 INSERT INTO shipping_status (id, order_item_id, status, status_time) VALUES
 (12122, 1000, '출고완료','2024-06-01 12:00:00'),
