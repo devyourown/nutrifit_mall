@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -75,6 +76,7 @@ public class OAuthService {
         return response.getBody();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private User createUser(String email, String imageUrl) {
         UserDto user = UserDto.builder()
                 .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
