@@ -48,13 +48,9 @@ public class PaymentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDto> getPayment(
-            @PathVariable String id,
-            @AuthenticationPrincipal UserAdapter userAdapter
+            @PathVariable String id
     ) {
-        if (userAdapter == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        PaymentDto paymentDto = paymentService.getPaymentByIdAndUser(id, userAdapter.getUser());
+        PaymentDto paymentDto = paymentService.getPaymentByIdAndUser(id);
         return ResponseEntity.ok(paymentDto);
     }
 

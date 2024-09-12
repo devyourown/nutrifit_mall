@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -50,7 +51,7 @@ public class OAuthService {
     @Value("${oauth.kakao.redirect-uri}")
     private String kakaoRedirectUri;
 
-    private String getGoogleAccessToken(String code) throws Exception {
+    private String getGoogleAccessToken(String code) {
         String url = "https://oauth2.googleapis.com/token";
 
         Map<String, String> params = new HashMap<>();
@@ -64,7 +65,7 @@ public class OAuthService {
         return (String) response.getBody().get("access_token");
     }
 
-    private GoogleUserDto getGoogleUser(String accessToken) throws Exception {
+    private GoogleUserDto getGoogleUser(String accessToken){
         String url = "https://www.googleapis.com/oauth2/v2/userinfo";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -90,8 +91,12 @@ public class OAuthService {
     public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
+        User user;
+        if (userRepository.existsByEmail(googleUser.getEmail())) {
+            user = userRepository.findByEmail(googleUser.getEmail()).get();
+        } else {
+            user = createUser(googleUser.getEmail(), googleUser.getPicture());
+        }
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())

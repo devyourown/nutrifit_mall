@@ -121,12 +121,9 @@ public class PaymentService {
         }
     }
 
-    public PaymentDto getPaymentByIdAndUser(String id, User user) {
+    public PaymentDto getPaymentByIdAndUser(String id) {
         Payment payment = paymentRepository.findByOrderPaymentId(id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
-        if (!payment.getUser().getId().equals(user.getId())) {
-            throw new SecurityException("허용되지 않은 접근입니다.");
-        }
         return convertToDto(payment);
     }
 
