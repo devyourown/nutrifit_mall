@@ -75,7 +75,7 @@ public class OAuthService {
         return response.getBody();
     }
 
-    private User createUser(String email, String imageUrl) throws Exception {
+    private User createUser(String email, String imageUrl) {
         UserDto user = UserDto.builder()
                 .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
                 .email(email)
@@ -84,19 +84,19 @@ public class OAuthService {
                 .password(UUID.randomUUID().toString().substring(0, 8))
                 .profileImage(imageUrl)
                 .build();
-        return userService.registerUser(user);
+        try {
+            return userService.registerUser(user);
+        } catch (Exception e) {
+            return userRepository.findByEmail(user.getEmail()).get();
+        }
     }
 
     @Transactional
-    public UserDto checkAndMakeGoogleUser(String code) throws Exception {
+    public UserDto checkAndMakeGoogleUser(String code) {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user;
-        if (userRepository.existsByEmail(googleUser.getEmail())) {
-            user = userRepository.findByEmail(googleUser.getEmail()).get();
-        } else {
-            user = createUser(googleUser.getEmail(), googleUser.getPicture());
-        }
+        User user = userRepository.findByEmail(googleUser.getEmail())
+                .orElseGet(() -> createUser(googleUser.getEmail(), googleUser.getPicture()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
