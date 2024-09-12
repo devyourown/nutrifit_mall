@@ -2,8 +2,6 @@ package kr.co.nutrifit.nutrifit.backend.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -76,8 +73,7 @@ public class OAuthService {
         return response.getBody();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private User createUser(String email, String imageUrl) {
+    private User createUser(String email, String imageUrl) throws Exception {
         UserDto user = UserDto.builder()
                 .username("temporary" + UUID.randomUUID().toString().substring(0, 8))
                 .email(email)
@@ -86,19 +82,20 @@ public class OAuthService {
                 .password(UUID.randomUUID().toString().substring(0, 8))
                 .profileImage(imageUrl)
                 .build();
-        try {
-            return userService.registerUser(user);
-        } catch (Exception e) {
-            return userRepository.findByEmail(user.getEmail()).get();
-        }
+        return userService.registerUser(user);
     }
 
     @Transactional
-    public UserDto checkAndMakeGoogleUser(String code) {
+    public UserDto checkAndMakeGoogleUser(String code) throws Exception{
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElseGet(() -> createUser(googleUser.getEmail(), googleUser.getPicture()));
+        User user;
+        Optional<User> optionalUser = userRepository.findByEmail(googleUser.getEmail());
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+            user = createUser(googleUser.getEmail(), googleUser.getPicture());
+        }
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
