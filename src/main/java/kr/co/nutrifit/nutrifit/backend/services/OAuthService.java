@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,6 +47,21 @@ public class OAuthService {
     private String kakaoClientSecret;
     @Value("${oauth.kakao.redirect-uri}")
     private String kakaoRedirectUri;
+
+    @Transactional
+    public UserDto changeUsername(String email, String username) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Wrong Email"));
+        user.setUsername(username);
+        userRepository.save(user);
+        String jwt = tokenProvider.generateToken(user);
+        return UserDto.builder()
+                .id(user.getId())
+                .token(jwt)
+                .role(user.getRole())
+                .username(user.getUsername())
+                .build();
+    }
 
     private String getGoogleAccessToken(String code) {
         String url = "https://oauth2.googleapis.com/token";
@@ -86,35 +100,15 @@ public class OAuthService {
     }
 
     @Transactional
-    public UserDto checkAndMakeGoogleUser(String code) throws Exception{
+    public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
-        User user;
-        Optional<User> optionalUser = userRepository.findByEmail(googleUser.getEmail());
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-        } else {
-            user = createUser(googleUser.getEmail(), googleUser.getPicture());
-        }
+        User user = userRepository.findByEmail(googleUser.getEmail())
+                .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .token(jwt)
-                .role(user.getRole())
-                .username(user.getUsername())
-                .build();
-    }
-
-    @Transactional
-    public UserDto changeUsername(String email, String username) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Wrong Email"));
-        user.setUsername(username);
-        userRepository.save(user);
-        String jwt = tokenProvider.generateToken(user);
-        return UserDto.builder()
-                .id(user.getId())
                 .token(jwt)
                 .role(user.getRole())
                 .username(user.getUsername())
