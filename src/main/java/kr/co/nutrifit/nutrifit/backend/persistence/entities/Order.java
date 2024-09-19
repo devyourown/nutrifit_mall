@@ -47,11 +47,6 @@ public class Order {
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Shipping shipping;
 
-    @PrePersist
-    public void onOrder() {
-        this.orderDate = LocalDateTime.now();
-    }
-
     public void addOrderItem(OrderItem orderItem) {
         if (orderItems == null)
             orderItems = new ArrayList<>();
