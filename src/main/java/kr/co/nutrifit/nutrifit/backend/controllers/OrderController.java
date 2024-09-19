@@ -26,8 +26,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter) {
-        List<OrderDto> orders = orderService.getOrdersByUser(userAdapter.getUser());
+    public ResponseEntity<Page<OrderDto>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                        Pageable pageable) {
+        Page<OrderDto> orders = orderService.getOrdersByUser(userAdapter.getUser(), pageable);
         return ResponseEntity.ok(orders);
     }
 

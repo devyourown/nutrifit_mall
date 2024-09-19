@@ -5,5 +5,4 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PointRepository extends JpaRepository<Point, Long> {
-    Point findByUser(User user);
 }

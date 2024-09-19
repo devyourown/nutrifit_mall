@@ -13,8 +13,22 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    @Query("SELECT o FROM Order o JOIN FETCH o.orderItems oi JOIN FETCH oi.product WHERE o.user = :user")
-    List<Order> findAllWithItemsAndProductsByUser(@Param("user") User user);
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
+            "o.orderPaymentId, " +
+            "o.orderDate, " +
+            "ss.status, " +
+            "u.username, " +
+            "oi.trackingNumber, " +
+            "p.name) " +
+            "FROM OrderItem oi " +
+            "JOIN oi.order o " +
+            "JOIN o.user u " +
+            "JOIN oi.statuses ss " +
+            "JOIN oi.product p " +
+            "WHERE o.user = :user " +
+            "AND ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.orderItem = oi)")
+    Page<OrderDto> findAllWithItemsAndProductsByUser(@Param("user") User user, Pageable pageable);
+
 
     @Query("SELECT o FROM Order o WHERE o.orderPaymentId = :paymentId")
     Optional<Order> findByOrderPaymentId(@Param("paymentId") String paymentId);

@@ -90,30 +90,8 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public List<OrderDto> getOrdersByUser(User user) {
-        return orderRepository.findAllWithItemsAndProductsByUser(user)
-                .stream().map(this::convertToDto)
-                .toList();
-    }
-
-    private OrderDto convertToDto(Order order) {
-        return OrderDto.builder()
-                .id(order.getOrderPaymentId())
-                .orderDate(order.getOrderDate())
-                .totalAmount(order.getTotalAmount())
-                .orderItems(order.getOrderItems().stream().map(this::convertToItemDtoWithImage).toList())
-                .build();
-    }
-
-    private OrderItemDto convertToItemDtoWithImage(OrderItem orderItem) {
-        Product product = orderItem.getProduct();
-        return OrderItemDto.builder()
-                .productId(orderItem.getId())
-                .quantity(orderItem.getQuantity())
-                .totalAmount(orderItem.getTotalAmount())
-                .imageUrl(product.getImageUrls().get(0))
-                .name(product.getName())
-                .build();
+    public Page<OrderDto> getOrdersByUser(User user, Pageable pageable) {
+        return orderRepository.findAllWithItemsAndProductsByUser(user, pageable);
     }
 
     public Page<OrderDto> getOrders(Pageable pageable) {

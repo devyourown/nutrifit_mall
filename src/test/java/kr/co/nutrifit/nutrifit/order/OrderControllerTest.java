@@ -57,7 +57,6 @@ class OrderControllerTest {
         User user = new User();
         when(userAdapter.getUser()).thenReturn(user);
         List<OrderDto> orderList = List.of(new OrderDto());
-        when(orderService.getOrdersByUser(user)).thenReturn(orderList);
 
         // When & Then
         mockMvc.perform(get("/api/orders")

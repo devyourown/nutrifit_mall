@@ -31,7 +31,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "JOIN o.shipping s " +
             "JOIN oi.product p " +
             "JOIN oi.statuses ss " +
-            "WHERE ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.orderItem = oi)")
+            "WHERE ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.orderItem = oi) " +
+            "AND ss.status = :status")
     List<OrderItemExcelDto> findOrderItemsByStatus(@Param("status") String status);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
