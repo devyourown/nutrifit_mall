@@ -39,7 +39,7 @@ public class User {
     @Column
     private String imageUrl;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Point point;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -54,12 +54,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductQnA> qnaList;
 
-    @Column
-    private String address;
-    @Column
-    private String addressDetails;
-    @Column
-    private String shippingDetails;
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Orderer orderer;
 
     public void addOrder(Order order) {
         if (orders == null)

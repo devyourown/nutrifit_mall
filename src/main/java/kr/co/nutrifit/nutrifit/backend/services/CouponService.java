@@ -72,6 +72,7 @@ public class CouponService {
         userCoupon.setUsed(false);
 
         userCouponRepository.save(userCoupon);
+        user.addUserCoupon(userCoupon);
     }
 
     @Transactional
@@ -97,6 +98,7 @@ public class CouponService {
         userCoupon.setUsed(true);
         userCoupon.setUsedAt(LocalDateTime.now());
 
+        user.removeCoupon(userCoupon);
         userCouponRepository.save(userCoupon);
     }
 
