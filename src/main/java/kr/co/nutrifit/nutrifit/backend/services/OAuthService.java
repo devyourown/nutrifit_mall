@@ -110,7 +110,13 @@ public class OAuthService {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
         User user = userRepository.findByEmail(googleUser.getEmail())
-                .orElse(createUser(googleUser.getEmail(), googleUser.getPicture()));
+                .orElseGet(() -> {
+                    try {
+                        return createUser(googleUser.getEmail(), googleUser.getPicture());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -168,12 +174,14 @@ public class OAuthService {
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
-        User user;
-        if (userRepository.existsByEmail(naverUser.getEmail())) {
-            user = userRepository.findByEmail(naverUser.getEmail()).get();
-        } else {
-            user = createUser(naverUser.getEmail(), naverUser.getProfile_image());
-        }
+        User user = userRepository.findByEmail(naverUser.getEmail())
+                .orElseGet(() -> {
+                    try {
+                        return createUser(naverUser.getEmail(), naverUser.getProfile_image());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -233,7 +241,13 @@ public class OAuthService {
         String accessToken = getKakaoAccessToken(code);
         KakaoUserDto kakaoUser = getKakaoUser(accessToken);
         User user = userRepository.findByEmail(kakaoUser.getEmail())
-                .orElse(createUser(kakaoUser.getEmail(), kakaoUser.getProfile()));
+                .orElseGet(() -> {
+                    try {
+                        return createUser(kakaoUser.getEmail(), kakaoUser.getProfile());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
