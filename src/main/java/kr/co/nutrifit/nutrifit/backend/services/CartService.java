@@ -29,8 +29,7 @@ public class CartService {
         Cart cart = user.getCart();
 
         if (cart == null) {
-            cart = Cart.builder()
-                    .user(user).build();
+            cart = Cart.builder().build();
             cartRepository.save(cart);
         }
 
@@ -49,10 +48,11 @@ public class CartService {
 
     public List<CartItemDto> getCartItems(User user) {
         Cart cart = user.getCart();
-        if (cart == null || cart.getCartItems().isEmpty()) {
+        List<CartItem> cartItems = cartItemRepository.findByCart(cart);
+        if (cartItems.isEmpty()) {
             return List.of(); // 빈 리스트 반환
         }
-        return cart.getCartItems().stream()
+        return cartItems.stream()
                 .map(this::convertToDto)
                 .toList();
     }

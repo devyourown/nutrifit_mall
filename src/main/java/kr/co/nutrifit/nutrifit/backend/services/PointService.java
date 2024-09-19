@@ -27,7 +27,7 @@ public class PointService {
 
     @Transactional
     public void addPoints(User user, long amount) {
-        Point point = pointsRepository.findByUser(user);
+        Point point = user.getPoint();
 
         point.setPoints(point.getPoints() + amount);
         pointsRepository.save(point);
@@ -43,7 +43,7 @@ public class PointService {
 
     @Transactional
     public void usePoints(User user, long amount) {
-        Point point = pointsRepository.findByUser(user);
+        Point point = user.getPoint();
 
         if (point == null || point.getPoints() < amount) {
             throw new IllegalArgumentException("포인트가 부족합니다.");
@@ -71,7 +71,7 @@ public class PointService {
     }
 
     public PointDto getUserPoints(User user) {
-        Point point = pointsRepository.findByUser(user);
+        Point point = user.getPoint();
         List<PointTransaction> transactions = transactionRepository.findByPoint(point);
         return PointDto.builder()
                 .points(point.getPoints())

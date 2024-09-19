@@ -10,10 +10,13 @@ import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -63,7 +66,7 @@ public class OAuthService {
                 .build();
     }
 
-    private String getGoogleAccessToken(String code) {
+    private String getGoogleAccessToken(String code) throws Exception {
         String url = "https://oauth2.googleapis.com/token";
 
         Map<String, String> params = new HashMap<>();
@@ -73,8 +76,12 @@ public class OAuthService {
         params.put("redirect_uri", googleRedirectUri);
         params.put("grant_type", "authorization_code");
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, params, Map.class);
-        return (String) response.getBody().get("access_token");
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, params, Map.class);
+            return (String) response.getBody().get("access_token");
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            throw new Exception("Failed to retrieve access token" + ex.getMessage());
+        }
     }
 
     private GoogleUserDto getGoogleUser(String accessToken){
@@ -99,7 +106,6 @@ public class OAuthService {
         return userService.registerUser(user);
     }
 
-    @Transactional
     public UserDto checkAndMakeGoogleUser(String code) throws Exception {
         String accessToken = getGoogleAccessToken(code);
         GoogleUserDto googleUser = getGoogleUser(accessToken);
@@ -115,7 +121,7 @@ public class OAuthService {
                 .build();
     }
 
-    private String getNaverAccessToken(String code) {
+    private String getNaverAccessToken(String code) throws Exception {
         String url = "https://nid.naver.com/oauth2.0/token";
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
@@ -127,8 +133,13 @@ public class OAuthService {
 
         String uri = uriBuilder.toUriString();
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(uri, Map.class);
-        return (String) response.getBody().get("access_token");
+
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(uri, Map.class);
+            return (String) response.getBody().get("access_token");
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            throw new Exception("Failed to retrieve access token" + ex.getMessage());
+        }
     }
 
     private NaverUserDto getNaverUser(String accessToken) throws Exception {
@@ -154,12 +165,15 @@ public class OAuthService {
                 .build();
     }
 
-    @Transactional
     public UserDto checkAndMakeNaverUser(String code) throws Exception {
         String accessToken = getNaverAccessToken(code);
         NaverUserDto naverUser = getNaverUser(accessToken);
-        User user = userRepository.findByEmail(naverUser.getEmail())
-                .orElse(createUser(naverUser.getEmail(), naverUser.getProfile_image()));
+        User user;
+        if (userRepository.existsByEmail(naverUser.getEmail())) {
+            user = userRepository.findByEmail(naverUser.getEmail()).get();
+        } else {
+            user = createUser(naverUser.getEmail(), naverUser.getProfile_image());
+        }
         String jwt = tokenProvider.generateToken(user);
         return UserDto.builder()
                 .id(user.getId())
@@ -170,7 +184,7 @@ public class OAuthService {
                 .build();
     }
 
-    private String getKakaoAccessToken(String code) {
+    private String getKakaoAccessToken(String code) throws Exception {
         String url = "https://kauth.kakao.com/oauth/token";
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -185,8 +199,13 @@ public class OAuthService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-        return (String) response.getBody().get("access_token");
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            return (String) response.getBody().get("access_token");
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            throw new Exception("Failed to retrieve access token" + ex.getMessage());
+        }
     }
 
     private KakaoUserDto getKakaoUser(String accessToken) throws Exception {

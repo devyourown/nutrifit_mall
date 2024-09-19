@@ -39,13 +39,13 @@ public class User {
     @Column
     private String imageUrl;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Point point;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)

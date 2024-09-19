@@ -34,10 +34,8 @@ public class UserService {
                 .build();
         Point point = Point.builder()
                 .points(0L)
-                .user(user)
                 .build();
         Cart cart = Cart.builder()
-                .user(user)
                 .cartItems(new ArrayList<>())
                 .build();
         user.setPoint(point);
