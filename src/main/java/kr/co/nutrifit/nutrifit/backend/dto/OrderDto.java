@@ -23,6 +23,15 @@ public class OrderDto {
         this.productName = productName;
     }
 
+    public OrderDto(String id, LocalDateTime orderDate, String fulfillment, String trackingNumber, Long totalAmount, String productName) {
+        this.id = id;
+        this.orderDate = orderDate;
+        this.fulfillment = fulfillment;
+        this.trackingNumber = trackingNumber;
+        this.totalAmount = totalAmount;
+        this.productName = productName;
+    }
+
     private String id;
 
     private Long totalAmount;

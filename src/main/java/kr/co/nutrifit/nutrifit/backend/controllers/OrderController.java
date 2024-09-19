@@ -32,6 +32,11 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/{orderPaymentId}")
+    public ResponseEntity<List<OrderDto>> getNonMemberOrder(@PathVariable String orderPaymentId) {
+        return ResponseEntity.ok(orderService.getNonMemberOrder(orderPaymentId));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public ResponseEntity<Page<OrderDto>> getOrders(@AuthenticationPrincipal UserAdapter userAdapter,

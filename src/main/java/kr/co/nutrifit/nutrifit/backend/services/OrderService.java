@@ -165,4 +165,8 @@ public class OrderService {
             orderItemRepository.saveAll(itemsToSave);
         }
     }
+
+    public List<OrderDto> getNonMemberOrder(String id) {
+        return orderRepository.findByOrderPaymentId(id);
+    }
 }

@@ -6,16 +6,16 @@ DELETE FROM review;
 DELETE FROM product_qna;
 DELETE FROM product_detail;
 DELETE FROM product;
-DELETE FROM cart;
 DELETE FROM user_coupon;
 DELETE FROM coupon;
 DELETE FROM shipping;
 DELETE FROM orders;
 DELETE FROM payment;
 DELETE FROM point_transaction;
-DELETE FROM point;
 DELETE FROM notification;
 DELETE FROM users;
+DELETE FROM cart;
+DELETE FROM point;
 
 -- User data
 INSERT INTO users (id, email, username, password, role, address, address_details, shipping_details, o_auth) VALUES
