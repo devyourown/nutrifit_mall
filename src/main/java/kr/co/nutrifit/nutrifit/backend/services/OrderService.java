@@ -29,6 +29,7 @@ public class OrderService {
     @Transactional
     public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
         Order order = new Order();
+        user.addOrder(order);
         order.setUser(user);
         order.setOrderPaymentId(orderId);
         LocalDateTime now = LocalDateTime.now();

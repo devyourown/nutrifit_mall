@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import jakarta.validation.Valid;
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.SignDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
@@ -108,6 +109,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/address")
+    public ResponseEntity<OrdererDto> getUserAddress(@AuthenticationPrincipal UserAdapter userAdapter) {
+        return ResponseEntity.ok(userService.getUserAddress(userAdapter.getUser()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

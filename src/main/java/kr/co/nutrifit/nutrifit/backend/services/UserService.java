@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
@@ -43,6 +44,10 @@ public class UserService {
         user.setCoupons(new ArrayList<>());
         user.setOrders(new ArrayList<>());
         return userRepository.save(user);
+    }
+
+    public OrdererDto getUserAddress(User user) {
+        return userRepository.findOrdererDtoByUser(user).orElseGet(() -> null);
     }
 
     public void resetPassword(String email) {

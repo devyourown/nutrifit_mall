@@ -1,5 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.persistence;
 
+import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -14,4 +15,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrdererDto( " +
+            "u.orderer.recipientName, " +
+            "u.orderer.recipientPhone, " +
+            "u.orderer.ordererName, " +
+            "u.orderer.ordererPhone, " +
+            "u.orderer.address, " +
+            "u.orderer.addressDetail, " +
+            "u.orderer.cautions) " +
+            "FROM User u WHERE u = :user")
+    Optional<OrdererDto> findOrdererDtoByUser(@Param("user") User user);
 }
