@@ -18,10 +18,11 @@ DELETE FROM cart;
 DELETE FROM point;
 
 -- User data
-INSERT INTO users (id, email, username, password, role, address, address_details, shipping_details, o_auth) VALUES
-(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', '123 Main St', 'Apt 4B', 'Fast Shipping', false),
-(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', '456 Park Ave', 'Apt 12C', 'Standard Shipping', false),
-(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', '789 Elm St', '', '', false);
+INSERT INTO users (id, email, username, password, role, o_auth) VALUES
+(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false),
+(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false),
+(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false),
+(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true);
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
@@ -105,17 +106,21 @@ INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) 
 
 INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, used_points, coupon_id) VALUES
 (1000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 10000, 10000, 1),
-(2000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2);
+(2000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2),
+(3000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2);
 
 -- Order, OrderItem, and Shipping data
 INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id, payment_id) VALUES
 (10000000, 10000, 5000, '2024-06-01 12:30:00', '12213421', 1000),
-(20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000);
+(20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000),
+(30000000, 40000, 10000, '2024-06-01 13:00:00', '11345678', 3000);
 
-INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount) VALUES
-(1000, 10000000, 1, 1000, 2, 2000),
-(2000, 10000000, 2, 1500, 2, 3000),
-(3000, 20000000, 3, 3000, 3, 9000);
+INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount, image_url) VALUES
+(1000, 10000000, 1, 1000, 2, 2000, '/herb_chicken1.jpg'),
+(2000, 10000000, 2, 1500, 2, 3000, '/herb_chicken1.jpg'),
+(3000, 20000000, 3, 3000, 3, 9000, '/herb_chicken1.jpg'),
+(4000, 30000000, 3, 3000, 3, 9000, '/herb_chicken1.jpg'),
+(5000, 30000000, 3, 3000, 3, 9000, '/herb_chicken1.jpg');
 
 INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, recipient_phone, orderer_name, orderer_phone) VALUES
 (10000,10000000, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
@@ -125,7 +130,10 @@ INSERT INTO shipping_status (id, order_item_id, status, status_time) VALUES
 (12122, 1000, '출고완료','2024-06-01 12:00:00'),
 (22121, 1000, '배송완료','2024-06-03 12:00:00'),
 (31212, 2000, '출고완료','2024-06-01 12:00:00'),
-(41212, 2000, '배송완료','2024-06-03 12:00:00');
+(41212, 2000, '배송완료','2024-06-03 12:00:00'),
+(3121232, 4000, '출고완료','2024-06-01 12:00:00'),
+(4121232, 5000, '배송완료','2024-06-03 12:00:00');
+
 
 -- Point and PointTransaction data
 INSERT INTO point (id, points) VALUES
@@ -138,16 +146,16 @@ INSERT INTO point_transaction (id, point_id, transaction_type, points, descripti
 
 -- Review data
 INSERT INTO review (id, user_id, product_id, rating, comment, created_at, image_urls) VALUES
-(1, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(13, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(14, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(1234, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(5468, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(4568, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(123, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(4963, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(1324, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(2, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']);
+(1465456, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(1365465, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(146548465, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(123412341, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(5468465484, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(45685465, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(12346845, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(49636545465, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(1324454845, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(246848476, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']);
 
 -- Notification data
 INSERT INTO notification (id, user_id, message, is_read, created_at) VALUES

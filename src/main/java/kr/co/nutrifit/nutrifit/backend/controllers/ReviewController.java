@@ -24,10 +24,7 @@ public class ReviewController {
     public ResponseEntity<String> createReview(
             @AuthenticationPrincipal UserAdapter userAdapter,
             @RequestBody ReviewDto reviewDto) {
-        if (!userAdapter.getUsername().equals(reviewDto.getUsername())) {
-            return ResponseEntity.badRequest().body("오류가 발생했습니다. 다시 시도해 주세요.");
-        }
-        reviewService.createReview(reviewDto);
+        reviewService.createReview(userAdapter.getUser(), reviewDto);
         return ResponseEntity.status(HttpStatus.CREATED).body("리뷰가 작성되었습니다.");
     }
 

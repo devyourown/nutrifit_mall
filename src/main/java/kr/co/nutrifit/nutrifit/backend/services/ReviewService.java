@@ -23,9 +23,7 @@ public class ReviewService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Review createReview(ReviewDto reviewDto) {
-        User user = userRepository.findByUsername(reviewDto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    public Review createReview(User user, ReviewDto reviewDto) {
         Product product = productRepository.findById(reviewDto.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다."));
 
@@ -35,6 +33,7 @@ public class ReviewService {
                 .rating(reviewDto.getRating())
                 .comment(reviewDto.getComment())
                 .createdAt(LocalDateTime.now())
+                .imageUrls(reviewDto.getImageUrls())
                 .build();
         return reviewRepository.save(review);
     }
