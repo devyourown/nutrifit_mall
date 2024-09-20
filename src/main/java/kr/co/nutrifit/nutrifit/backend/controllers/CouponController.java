@@ -34,13 +34,17 @@ public class CouponController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<String> assignCouponToUser(@RequestParam String code,
+    public ResponseEntity<String> assignCouponToUser(@RequestBody String code,
                                                      @AuthenticationPrincipal UserAdapter userAdapter) {
         if (userAdapter == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        couponService.assignCouponToUser(code, userAdapter.getUser().getId());
-        return ResponseEntity.noContent().build();
+        try {
+            couponService.assignCouponToUser(code, userAdapter.getUser().getId());
+            return ResponseEntity.ok("쿠폰이 정상적으로 할당 되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping
