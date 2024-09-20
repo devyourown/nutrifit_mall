@@ -34,6 +34,9 @@ public class OrderItem {
     private int quantity;
 
     @Column(nullable = false)
+    private String imageUrl;
+
+    @Column(nullable = false)
     private Long totalAmount;
 
     @Column

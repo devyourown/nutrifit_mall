@@ -14,10 +14,14 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "o.orderPaymentId, " +
+            "p.id, " +
             "o.orderDate, " +
             "ss.status, " +
             "u.username, " +
             "oi.trackingNumber, " +
+            "oi.totalAmount, " +
+            "oi.imageUrl, " +
+            "oi.quantity, " +
             "p.name) " +
             "FROM OrderItem oi " +
             "JOIN oi.order o " +
@@ -31,10 +35,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "o.orderPaymentId, " +
+            "p.id, " +
             "o.orderDate, " +
             "ss.status, " +
             "oi.trackingNumber, " +
-            "o.totalAmount, " +
+            "oi.totalAmount, " +
+            "oi.imageUrl, " +
+            "oi.quantity, " +
             "p.name) " +
             "FROM OrderItem oi " +
             "JOIN oi.order o " +

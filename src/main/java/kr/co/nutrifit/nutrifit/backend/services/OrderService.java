@@ -40,6 +40,7 @@ public class OrderService {
             Product product = productRepository.findById(itemDto.getId()).orElseThrow();
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
+            orderItem.setImageUrl(product.getImageUrls().get(0));
             orderItem.setProduct(product);
             orderItem.setPrice(product.getDiscountedPrice());
             orderItem.setQuantity(itemDto.getQuantity());
@@ -72,6 +73,7 @@ public class OrderService {
             Product product = productRepository.findById(itemDto.getId()).orElseThrow();
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
+            orderItem.setImageUrl(product.getImageUrls().get(0));
             orderItem.setProduct(product);
             orderItem.setPrice(product.getDiscountedPrice());
             orderItem.setQuantity(itemDto.getQuantity());
