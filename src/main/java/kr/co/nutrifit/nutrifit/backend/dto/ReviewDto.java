@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDto {
-    public ReviewDto(Long id, String username, String comment, LocalDateTime createdAt, int rating, List<String> imageUrls) {
+    public ReviewDto(Long id, String username, String comment, LocalDateTime createdAt, double rating, List<String> imageUrls) {
         this.id = id;
         this.username = username;
         this.comment = comment;
@@ -31,7 +31,7 @@ public class ReviewDto {
     private String username;
 
     @NotNull
-    private int rating;
+    private double rating;
 
     private String comment;
 

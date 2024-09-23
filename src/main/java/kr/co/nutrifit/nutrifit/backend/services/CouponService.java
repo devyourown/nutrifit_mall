@@ -39,6 +39,7 @@ public class CouponService {
     }
 
     public Optional<Coupon> findCouponByCode(String code) {
+        System.out.println("coupon: " + couponRepository.findByCode(code));
         return couponRepository.findByCode(code)
                 .filter(coupon -> coupon.isActive()
                         && coupon.getRemainingQuantity() > 0
@@ -47,10 +48,8 @@ public class CouponService {
     }
 
     @Transactional
-    public void assignCouponToUser(String code, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
-
+    public void assignCouponToUser(String code, User user) {
+        System.out.println("code: " + code);
         Coupon coupon = findCouponByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 쿠폰입니다."));
 
@@ -72,7 +71,6 @@ public class CouponService {
         userCoupon.setUsed(false);
 
         userCouponRepository.save(userCoupon);
-        user.addUserCoupon(userCoupon);
     }
 
     @Transactional
@@ -98,7 +96,6 @@ public class CouponService {
         userCoupon.setUsed(true);
         userCoupon.setUsedAt(LocalDateTime.now());
 
-        user.removeCoupon(userCoupon);
         userCouponRepository.save(userCoupon);
     }
 

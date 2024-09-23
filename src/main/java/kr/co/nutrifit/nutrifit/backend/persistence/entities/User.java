@@ -39,20 +39,11 @@ public class User {
     @Column
     private String imageUrl;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Point point;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Cart cart;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<UserCoupon> coupons; // 사용자가 소유한 쿠폰 목록
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ProductQnA> qnaList;
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Orderer orderer;
@@ -68,20 +59,6 @@ public class User {
         if (orders != null) {
             orders.remove(order);
             order.setUser(null);
-        }
-    }
-
-    public void addUserCoupon(UserCoupon coupon) {
-        if (coupons == null)
-            coupons = new ArrayList<>();
-        coupons.add(coupon);
-        coupon.setUser(this);
-    }
-
-    public void removeCoupon(UserCoupon coupon) {
-        if (coupons != null) {
-            coupons.remove(coupon);
-            coupon.setUser(null);
         }
     }
 }
