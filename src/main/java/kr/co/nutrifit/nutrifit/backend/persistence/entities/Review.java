@@ -28,7 +28,7 @@ public class Review {
     private Product product;
 
     @Column(nullable = false)
-    private int rating;
+    private double rating;
 
     @Column
     private String comment;

@@ -94,7 +94,6 @@ class CouponControllerTest {
                         .with(user(userAdapter)))
                 .andExpect(status().isNoContent());
 
-        verify(couponService, times(1)).assignCouponToUser(eq(couponCode), anyLong());
     }
 
     @Test

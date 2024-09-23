@@ -17,17 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class PointService {
     private final PointRepository pointsRepository;
     private final PointTransactionRepository transactionRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public void addPoints(User user, long amount) {
-        Point point = user.getPoint();
+        Point point = pointsRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("사용자의 포인트가 없습니다."));
 
         point.setPoints(point.getPoints() + amount);
         pointsRepository.save(point);
@@ -43,7 +44,8 @@ public class PointService {
 
     @Transactional
     public void usePoints(User user, long amount) {
-        Point point = user.getPoint();
+        Point point = pointsRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("사용자의 포인트가 없습니다."));
 
         if (point == null || point.getPoints() < amount) {
             throw new IllegalArgumentException("포인트가 부족합니다.");
@@ -61,21 +63,13 @@ public class PointService {
         transactionRepository.save(transaction);
     }
 
-    private PointTransactionDto convertToDto(PointTransaction transaction) {
-        return PointTransactionDto.builder()
-                .type(transaction.getTransactionType())
-                .point(transaction.getPoints())
-                .description(transaction.getDescription())
-                .whenToBurn(transaction.getCreatedAt().plusMinutes(3L).toLocalDate())
-                .build();
-    }
-
     public PointDto getUserPoints(User user) {
-        Point point = user.getPoint();
-        List<PointTransaction> transactions = transactionRepository.findByPoint(point);
+        Point point = pointsRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("사용자의 포인트가 없습니다."));
+        List<PointTransactionDto> transactions = transactionRepository.findByPoint(point);
         return PointDto.builder()
                 .points(point.getPoints())
-                .transactions(transactions.stream().map(this::convertToDto).toList())
+                .transactions(transactions)
                 .build();
     }
 }

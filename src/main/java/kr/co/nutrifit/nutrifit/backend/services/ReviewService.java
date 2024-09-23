@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class ReviewService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Review createReview(User user, ReviewDto reviewDto) {
+    public void createReview(User user, ReviewDto reviewDto) {
         Product product = productRepository.findById(reviewDto.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다."));
 
@@ -35,19 +36,20 @@ public class ReviewService {
                 .createdAt(LocalDateTime.now())
                 .imageUrls(reviewDto.getImageUrls())
                 .build();
-        return reviewRepository.save(review);
+        reviewRepository.save(review);
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, Long userId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+    public boolean deleteReview(Long reviewId, User user) {
+        Review review = reviewRepository.findByIdWithUser(reviewId)
+                .orElseThrow(() -> new NoSuchElementException("리뷰를 찾을 수 없습니다."));
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new SecurityException("리뷰를 삭제할 권한이 없습니다.");
+        if (!review.getUser().getId().equals(user.getId())) {
+            return false;
         }
 
         reviewRepository.delete(review);
+        return true;
     }
 
     public Page<ReviewDto> getReviewsByProduct(Long productId, Pageable pageable) {

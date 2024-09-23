@@ -17,19 +17,6 @@ DELETE FROM users;
 DELETE FROM cart;
 DELETE FROM point;
 
--- Point and PointTransaction data
-INSERT INTO point (id, points) VALUES
-(100, 500),
-(200, 1000),
-(300, 1000),
-(400, 1000);
-
-INSERT INTO point_transaction (id, point_id, transaction_type, points, description, created_at) VALUES
-(1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
-(2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
-(3, 300, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
-(4, 400, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
-
 -- Cart and CartItem data
 INSERT INTO cart (id) VALUES
 (1000),
@@ -38,11 +25,24 @@ INSERT INTO cart (id) VALUES
 (4000);
 
 -- User data
-INSERT INTO users (id, email, username, password, role, o_auth, point_id, cart_id) VALUES
-(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false, 100, 1000),
-(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false, 200, 2000),
-(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false, 300, 3000),
-(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true, 400, 4000);
+INSERT INTO users (id, email, username, password, role, o_auth, cart_id) VALUES
+(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false, 1000),
+(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false, 2000),
+(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false, 3000),
+(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true, 4000);
+
+-- Point and PointTransaction data
+INSERT INTO point (id, points, user_id) VALUES
+(100, 500, 10000),
+(200, 1000, 20000),
+(300, 1000, 30000),
+(400, 1000, 40000);
+
+INSERT INTO point_transaction (id, point_id, transaction_type, points, description, created_at) VALUES
+(1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
+(2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
+(3, 300, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
+(4, 400, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
@@ -87,7 +87,10 @@ INSERT INTO product_qna (id, user_id, product_detail_id, question, answer, quest
 (2, 10000, 1, 'What is the warranty period for this product?', 'The warranty period is 2 years.', '2023-09-05 15:20:10', '2023-09-06 09:30:00'),
 (3, 20000, 2, 'Does the product include batteries?', 'No, batteries are not included.', '2023-09-07 09:00:00', '2023-09-07 14:00:00'),
 (4, 20000, 2, 'Is there a discount for bulk purchases?', NULL, '2023-09-08 11:30:00', NULL),
-(5, 30000, 3, 'What is the delivery time to California?', 'Delivery takes approximately 5-7 business days.', '2023-09-09 13:15:30', '2023-09-10 08:45:00');
+(5, 30000, 3, 'What is the delivery time to California?', 'Delivery takes approximately 5-7 business days.', '2023-09-09 13:15:30', '2023-09-10 08:45:00'),
+(6, 40000, 1, '이 제품의 크기가 어느 정도인가요?', '이 제품의 크기는 30cm x 20cm입니다.', '2024-09-01 11:22:33', '2024-09-02 14:30:00'),
+(7, 40000, 2, '세탁이 가능한가요?', '네, 세탁이 가능합니다.', '2024-09-05 09:12:45', '2024-09-06 10:10:00'),
+(8, 40000, 3, '배송은 얼마나 걸리나요?', '평균적으로 3일 이내에 배송됩니다.', '2024-09-08 08:40:00', '2024-09-08 16:50:00');
 
 
 INSERT INTO options (id, quantity, price, description, product_id)
@@ -160,7 +163,11 @@ INSERT INTO review (id, user_id, product_id, rating, comment, created_at, image_
 (12346845, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
 (49636545465, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
 (1324454845, 10000, 1, 5, 'Great product!', '2024-06-01 12:50:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
-(246848476, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']);
+(246848476, 20000, 2, 4, 'Very good, but could be cheaper.', '2024-06-01 13:20:00', ARRAY['/sample1.jfif', '/sample2.jfif', '/sample3.jfif']),
+(154, 40000, 1, 4.5, '이 제품은 정말 마음에 듭니다!', '2024-09-01 12:34:56', ARRAY['herb_chicken1.jpg', 'herb_chicken2.jpg']),
+(28487, 40000, 2, 3.0, '생각보다는 괜찮지만, 개선의 여지가 있습니다.', '2024-09-05 15:20:00', ARRAY['herb_chicken3.jpg']),
+(38987, 40000, 3, 5.0, '완벽한 제품입니다! 추천합니다.', '2024-09-10 09:45:30', ARRAY['herb_chicken1.jpg', 'herb_chicken2.jpg', 'herb_chicken3.jpg']);
+
 
 -- Notification data
 INSERT INTO notification (id, user_id, message, is_read, created_at) VALUES

@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -46,13 +47,21 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Void> deleteReview(
+    public ResponseEntity<String> deleteReview(
             @PathVariable Long reviewId,
             @AuthenticationPrincipal UserAdapter userAdapter) {
-        if (userAdapter == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        try {
+            boolean deleted = reviewService.deleteReview(reviewId, userAdapter.getUser());
+
+            if (deleted) {
+                return ResponseEntity.ok("리뷰가 성공적으로 삭제되었습니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("리뷰 삭제 권한이 없습니다.");
+            }
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 리뷰를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("리뷰 삭제 중 오류가 발생했습니다.");
         }
-        reviewService.deleteReview(reviewId, userAdapter.getUser().getId());
-        return ResponseEntity.noContent().build();
     }
 }

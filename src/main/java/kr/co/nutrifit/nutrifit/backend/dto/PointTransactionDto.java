@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,6 +15,6 @@ import java.time.LocalDate;
 public class PointTransactionDto {
     private PointTransactionType type;
     private String description;
-    private LocalDate whenToBurn;
+    private LocalDateTime whenToBurn;
     private Long point;
 }

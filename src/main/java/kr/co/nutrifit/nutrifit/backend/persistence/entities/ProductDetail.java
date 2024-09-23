@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,7 +25,7 @@ public class ProductDetail {
     @Column(columnDefinition = "text[]")
     private List<String> detailImageUrls;
 
-    @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductQnA> qnas;
 
     @Column(columnDefinition = "text[]")
@@ -34,19 +33,4 @@ public class ProductDetail {
 
     @Column(columnDefinition = "text[]")
     private List<String> exchangeAndReturns;
-
-    public void addQna(ProductQnA qna) {
-        if (qnas == null) {
-            qnas = new ArrayList<>();
-        }
-        qna.setProductDetail(this);
-        qnas.add(qna);
-    }
-
-    public void removeQna(ProductQnA qna) {
-        if (qnas != null) {
-            qnas.remove(qna);
-            qna.setProductDetail(null);
-        }
-    }
 }

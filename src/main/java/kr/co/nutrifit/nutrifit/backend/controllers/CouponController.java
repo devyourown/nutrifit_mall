@@ -40,7 +40,7 @@ public class CouponController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         try {
-            couponService.assignCouponToUser(code, userAdapter.getUser().getId());
+            couponService.assignCouponToUser(code, userAdapter.getUser());
             return ResponseEntity.ok("쿠폰이 정상적으로 할당 되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
