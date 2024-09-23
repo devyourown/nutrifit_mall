@@ -39,7 +39,6 @@ public class CouponService {
     }
 
     public Optional<Coupon> findCouponByCode(String code) {
-        System.out.println("coupon: " + couponRepository.findByCode(code));
         return couponRepository.findByCode(code)
                 .filter(coupon -> coupon.isActive()
                         && coupon.getRemainingQuantity() > 0
@@ -49,7 +48,6 @@ public class CouponService {
 
     @Transactional
     public void assignCouponToUser(String code, User user) {
-        System.out.println("code: " + code);
         Coupon coupon = findCouponByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 쿠폰입니다."));
 
@@ -74,8 +72,8 @@ public class CouponService {
     }
 
     @Transactional
-    public void useCoupon(User user, Long userCouponId, Long orderAmount) {
-        UserCoupon userCoupon = userCouponRepository.findByIdAndUser(userCouponId, user)
+    public void useCoupon(User user, String couponCode, Long orderAmount) {
+        UserCoupon userCoupon = userCouponRepository.findByCodeAndUser(couponCode, user)
                 .orElseThrow(() -> new IllegalArgumentException("쿠폰이 없거나 잘못된 쿠폰입니다."));
 
         if (userCoupon.isUsed()) {
@@ -99,19 +97,7 @@ public class CouponService {
         userCouponRepository.save(userCoupon);
     }
 
-    private CouponDto convertToDto(UserCoupon userCoupon) {
-        Coupon coupon = userCoupon.getCoupon();
-        return CouponDto.builder()
-                .description(coupon.getDescription())
-                .validFrom(coupon.getValidFrom())
-                .validUntil(coupon.getValidUntil())
-                .discountType(coupon.getDiscountType())
-                .discountValue(coupon.getDiscountValue())
-                .build();
-    }
-
     public List<CouponDto> getUserCoupon(User user) {
-        List<UserCoupon> userCoupons = userCouponRepository.findAllByUser(user);
-        return userCoupons.stream().map(this::convertToDto).toList();
+        return userCouponRepository.findAllByUserWithDto(user);
     }
 }
