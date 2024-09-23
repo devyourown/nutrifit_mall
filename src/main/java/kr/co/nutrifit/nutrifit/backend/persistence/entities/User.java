@@ -43,9 +43,6 @@ public class User {
     private List<Order> orders;
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Cart cart;
-
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private Orderer orderer;
 
     public void addOrder(Order order) {

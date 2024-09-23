@@ -33,14 +33,10 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         if (quantity <= 0) {
-            return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE,
-                    MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
-                    .body("수량은 1 이상이어야 합니다.");
+            return ResponseEntity.badRequest().body("수량은 1 이상이어야 합니다.");
         }
         cartService.addItemToCart(user.getUser(), productId, quantity);
-        return ResponseEntity.status(201).header(HttpHeaders.CONTENT_TYPE,
-                MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
-                .body("상품이 장바구니에 추가되었습니다.");
+        return ResponseEntity.status(201).body("상품이 장바구니에 추가되었습니다.");
     }
 
     @PostMapping
@@ -78,14 +74,10 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         if (quantity <= 0) {
-            return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE,
-                    MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
-                    .body("수량은 1 이상이어야 합니다.");
+            return ResponseEntity.badRequest().body("수량은 1 이상이어야 합니다.");
         }
         cartService.updateItemQuantity(user.getUser(), productId, quantity);
-        return ResponseEntity.status(200).header(HttpHeaders.CONTENT_TYPE,
-                MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8)
-                .body("아이템 수량이 변경되었습니다.");
+        return ResponseEntity.status(200).body("아이템 수량이 변경되었습니다.");
     }
 
     @DeleteMapping("/items/{productId}")
