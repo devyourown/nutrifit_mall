@@ -49,7 +49,7 @@ public class Payment {
     @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
     private Order order;
 
-    private Long couponId;
+    private String couponCode;
 
     private int usedPoints;
 }

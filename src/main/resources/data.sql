@@ -13,9 +13,9 @@ DELETE FROM orders;
 DELETE FROM payment;
 DELETE FROM point_transaction;
 DELETE FROM notification;
-DELETE FROM users;
 DELETE FROM cart;
 DELETE FROM point;
+DELETE FROM users;
 
 -- User data
 INSERT INTO users (id, email, username, password, role, o_auth) VALUES
@@ -113,8 +113,8 @@ VALUES
 
 -- Coupon data
 INSERT INTO coupon (id, code, description, discount_type, discount_value, valid_from, valid_until, is_active, minimum_order_amount, max_discount_amount, remaining_quantity) VALUES
-(1, 'DISCOUNT10', '10% off on orders above $50', 'PERCENTAGE', 10, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 5000, 1000, 100),
-(2, 'SAVE20', '$20 off on orders above $100', 'AMOUNT', 20, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 10000, 2000, 50);
+(1, 'DISCOUNT10', '5000원 이상 구매시, 10퍼센트 할인', 'PERCENTAGE', 10, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 5000, 1000, 100),
+(2, 'SAVE20', '10000원이상 구매시 2000원 할인', 'AMOUNT', 20, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 10000, 2000, 50);
 
 -- UserCoupon data
 INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) VALUES

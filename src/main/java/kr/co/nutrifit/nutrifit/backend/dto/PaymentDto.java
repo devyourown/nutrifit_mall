@@ -41,7 +41,7 @@ public class PaymentDto {
 
     private LocalDateTime paymentDate;
 
-    private Long couponId;
+    private String couponCode;
 
     private int usedPoints;
 

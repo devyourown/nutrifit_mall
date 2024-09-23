@@ -32,7 +32,7 @@ public class PaymentService {
     @Transactional
     public void createPayment(User user, PaymentDto paymentDto) {
         try {
-            validateCouponAndPoints(paymentDto.getCouponId(),paymentDto.getUsedPoints(), user, paymentDto.getTotal());
+            validateCouponAndPoints(paymentDto.getCouponCode(), paymentDto.getUsedPoints(), user, paymentDto.getTotal());
             PaymentApiResponse paymentApiResponse = paymentApiClient.getPayment(paymentDto.getOrderId());
             validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
             productService.reduceStock(paymentDto.getOrderItems());
@@ -80,7 +80,7 @@ public class PaymentService {
                 .paymentStatus(status)
                 .paymentDate(LocalDateTime.now())
                 .usedPoints(paymentDto.getUsedPoints())
-                .couponId(paymentDto.getCouponId())
+                .couponCode(paymentDto.getCouponCode())
                 .build();
         return paymentRepository.save(payment);
     }
@@ -105,15 +105,15 @@ public class PaymentService {
                 .paymentStatus(status)
                 .paymentDate(LocalDateTime.now())
                 .usedPoints(paymentDto.getUsedPoints())
-                .couponId(paymentDto.getCouponId())
+                .couponCode(paymentDto.getCouponCode())
                 .user(user)
                 .build();
         return paymentRepository.save(payment);
     }
 
-    private void validateCouponAndPoints(Long couponId, int points, User user, Long total) {
-        if(couponId != null) {
-            couponService.useCoupon(user, couponId, total);
+    private void validateCouponAndPoints(String couponCode, int points, User user, Long total) {
+        if(couponCode != null) {
+            couponService.useCoupon(user, couponCode, total);
         }
 
         if (points > 0) {
@@ -149,7 +149,7 @@ public class PaymentService {
                         .name(orderItem.getProduct().getName())
                         .quantity(orderItem.getQuantity())
                         .price(orderItem.getPrice())
-                        .imageUrl(orderItem.getProduct().getImageUrls().get(0))
+                        .imageUrl(orderItem.getImageUrl())
                         .build()).collect(Collectors.toList()))
                 .ordererDto(OrdererDto.builder()
                         .recipientName(shipping.getRecipientName())
@@ -160,7 +160,7 @@ public class PaymentService {
                         .addressDetail(shipping.getAddressDetail())
                         .cautions(shipping.getCautions())
                         .build())
-                .couponId(payment.getCouponId())
+                .couponCode(payment.getCouponCode())
                 .usedPoints(payment.getUsedPoints())
                 .build();
     }

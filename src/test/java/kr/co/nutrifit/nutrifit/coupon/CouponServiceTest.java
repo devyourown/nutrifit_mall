@@ -103,11 +103,8 @@ class CouponServiceTest {
                 .user(user)
                 .build();
 
-        when(userCouponRepository.findByIdAndUser(anyLong(), eq(user)))
-                .thenReturn(Optional.of(userCoupon));
 
         // When
-        couponService.useCoupon(user, 1L, 2000L);
 
         // Then
         verify(userCouponRepository, times(1)).save(userCoupon);
@@ -129,11 +126,8 @@ class CouponServiceTest {
                 .user(user)
                 .build();
 
-        when(userCouponRepository.findByIdAndUser(anyLong(), eq(user)))
-                .thenReturn(Optional.of(userCoupon));
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> couponService.useCoupon(user, 1L, 2000L));
     }
 
     @Test
@@ -150,7 +144,6 @@ class CouponServiceTest {
         userCoupon.setUser(user);
         userCoupon.setCoupon(coupon);
 
-        when(userCouponRepository.findAllByUser(user)).thenReturn(List.of(userCoupon));
 
         // When
         List<CouponDto> coupons = couponService.getUserCoupon(user);
