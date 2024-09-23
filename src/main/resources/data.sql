@@ -17,19 +17,12 @@ DELETE FROM users;
 DELETE FROM cart;
 DELETE FROM point;
 
--- Cart and CartItem data
-INSERT INTO cart (id) VALUES
-(1000),
-(2000),
-(3000),
-(4000);
-
 -- User data
-INSERT INTO users (id, email, username, password, role, o_auth, cart_id) VALUES
-(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false, 1000),
-(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false, 2000),
-(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false, 3000),
-(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true, 4000);
+INSERT INTO users (id, email, username, password, role, o_auth) VALUES
+(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false),
+(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false),
+(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false),
+(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true);
 
 -- Point and PointTransaction data
 INSERT INTO point (id, points, user_id) VALUES
@@ -52,10 +45,16 @@ VALUES
 (2, '훈제 닭가슴살', '훈제 향이 은은하게 배인 촉촉하고 부드러운 닭가슴살. 간편한 식사로 제격입니다.', 1200, 1000, 50, 5, ARRAY['/smoked_chicken1.webp', '/smoked_chicken2.jpg', '/smoked_chicken3.webp'], '건강식', ARRAY['무료배송'], 67513, 15003),
 (3, '칠리 닭가슴살', '매콤달콤한 칠리 소스로 양념된 닭가슴살로 색다른 맛을 즐겨보세요.', 1200, 1000, 50, 5, ARRAY['/chili_chicken1.jpg', '/chili_chicken2.webp', '/chili_chicken3.jpg'], '건강식', ARRAY['무료배송'], 15, 3);
 
-INSERT INTO cart_item (id, cart_id, product_id, quantity) VALUES
-(1, 1000, 1, 2),
-(2, 1000, 2, 1),
-(3, 2000, 3, 5);
+INSERT INTO cart (id, user_id) VALUES
+(1000, 10000),
+(2000, 20000),
+(3000, 30000),
+(4000, 40000);
+
+INSERT INTO cart_item (id, cart_id, product_id, quantity, image_url) VALUES
+(1, 1000, 1, 2, '/herb_chicken1.jpg'),
+(2, 1000, 2, 1, '/herb_chicken1.jpg'),
+(3, 2000, 3, 5, '/herb_chicken1.jpg');
 
 -- ProductDetail 더미 데이터 1
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)

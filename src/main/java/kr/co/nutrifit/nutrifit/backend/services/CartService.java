@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +27,8 @@ public class CartService {
 
     @Transactional
     public void addItemToCart(User user, Long productId, int quantity) {
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
 
         if (cart == null) {
             cart = Cart.builder().build();
@@ -38,7 +40,7 @@ public class CartService {
 
         CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product).orElse(null);
         if (cartItem == null) {
-            cartItem = CartItem.builder().cart(cart).product(product).quantity(quantity).build();
+            cartItem = CartItem.builder().cart(cart).product(product).quantity(quantity).imageUrl(product.getImageUrls().get(0)).build();
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
@@ -47,30 +49,15 @@ public class CartService {
     }
 
     public List<CartItemDto> getCartItems(User user) {
-        Cart cart = user.getCart();
-        List<CartItem> cartItems = cartItemRepository.findByCart(cart);
-        if (cartItems.isEmpty()) {
-            return List.of(); // 빈 리스트 반환
-        }
-        return cartItems.stream()
-                .map(this::convertToDto)
-                .toList();
-    }
-
-    private CartItemDto convertToDto(CartItem item) {
-        Product product = item.getProduct();
-        return CartItemDto.builder()
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getDiscountedPrice())
-                .imageUrl(product.getImageUrls().get(0))
-                .quantity(item.getQuantity())
-                .build();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
+        return cartItemRepository.findByCart(cart);
     }
 
     @Transactional
     public void removeItemFromCart(User user, Long productId) {
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
 
         if (cart != null) {
             Product product = productRepository.findById(productId)
@@ -87,7 +74,8 @@ public class CartService {
 
     @Transactional
     public void clearCart(User user) {
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
 
         if (cart != null && !cart.getCartItems().isEmpty()) {
             cartItemRepository.deleteAll(cart.getCartItems());
@@ -99,7 +87,8 @@ public class CartService {
 
     @Transactional
     public void updateItemQuantity(User user, Long productId, int quantity) {
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
         CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
@@ -116,7 +105,8 @@ public class CartService {
 
     @Transactional
     public void updateCart(User user, List<CartItemDto> items) {
-        Cart cart = user.getCart();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new NoSuchElementException("유저가 카트가 없습니다."));
         cart.getCartItems().clear();
 
         List<Long> productIds = items.stream().map(CartItemDto::getId).toList();
@@ -135,6 +125,7 @@ public class CartService {
                     .product(product)
                     .quantity(itemDto.getQuantity())
                     .cart(cart)
+                    .imageUrl(itemDto.getImageUrl())
                     .build();
 
             cart.addCartItem(cartItem);
