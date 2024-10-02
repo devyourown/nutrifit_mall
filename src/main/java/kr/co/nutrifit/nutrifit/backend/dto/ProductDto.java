@@ -14,7 +14,7 @@ import java.util.List;
 public class ProductDto {
     public ProductDto(Long id, String name, String description, String category, int stockQuantity, int lowStockThreshold,
                       List<String> imageUrls, List<String> badgeTexts, Long originalPrice, Long discountedPrice,
-                      Long reviewRating, Long reviewCount) {
+                      Long reviewRating, Long reviewCount, boolean isReleased) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -27,6 +27,7 @@ public class ProductDto {
         this.discountedPrice = discountedPrice;
         this.reviewRating = reviewRating;
         this.reviewCount = reviewCount;
+        this.isReleased = isReleased;
     }
     private Long id;
     private String name;
@@ -42,4 +43,5 @@ public class ProductDto {
     private Long reviewCount;
     private List<OptionDto> options;
     private ProductDetailDto productDetailDto;
+    private boolean isReleased;
 }
