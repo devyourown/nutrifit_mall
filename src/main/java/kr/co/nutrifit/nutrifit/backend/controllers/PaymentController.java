@@ -50,7 +50,7 @@ public class PaymentController {
     public ResponseEntity<PaymentDto> getPayment(
             @PathVariable String id
     ) {
-        PaymentDto paymentDto = paymentService.getPaymentByIdAndUser(id);
+        PaymentDto paymentDto = paymentService.getPaymentById(id);
         return ResponseEntity.ok(paymentDto);
     }
 
