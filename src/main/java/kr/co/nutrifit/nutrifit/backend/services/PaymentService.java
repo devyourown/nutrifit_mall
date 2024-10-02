@@ -37,6 +37,7 @@ public class PaymentService {
             validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
             productService.reduceStock(paymentDto.getOrderItems());
             createOrderAndPaymentAndShipping(user, paymentDto, paymentApiResponse.getStatus());
+            pointService.addPoints(user, (long) (paymentApiResponse.getAmount() * 0.05));
         } catch (Exception e) {
             throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
@@ -79,8 +80,6 @@ public class PaymentService {
                 .paymentMethod(paymentDto.getPaymentMethod())
                 .paymentStatus(status)
                 .paymentDate(LocalDateTime.now())
-                .usedPoints(paymentDto.getUsedPoints())
-                .couponCode(paymentDto.getCouponCode())
                 .build();
         return paymentRepository.save(payment);
     }
@@ -105,6 +104,7 @@ public class PaymentService {
                 .paymentStatus(status)
                 .paymentDate(LocalDateTime.now())
                 .usedPoints(paymentDto.getUsedPoints())
+                .earnPoints((long) (paymentDto.getTotal() * 0.05))
                 .couponCode(paymentDto.getCouponCode())
                 .user(user)
                 .build();
@@ -121,7 +121,7 @@ public class PaymentService {
         }
     }
 
-    public PaymentDto getPaymentByIdAndUser(String id) {
+    public PaymentDto getPaymentById(String id) {
         Payment payment = paymentRepository.findByOrderPaymentId(id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
         return convertToDto(payment);
@@ -162,6 +162,7 @@ public class PaymentService {
                         .build())
                 .couponCode(payment.getCouponCode())
                 .usedPoints(payment.getUsedPoints())
+                .earnPoints(payment.getEarnPoints())
                 .build();
     }
 

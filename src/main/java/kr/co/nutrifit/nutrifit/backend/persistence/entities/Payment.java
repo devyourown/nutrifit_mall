@@ -52,4 +52,6 @@ public class Payment {
     private String couponCode;
 
     private int usedPoints;
+
+    private long earnPoints;
 }

@@ -45,5 +45,7 @@ public class PaymentDto {
 
     private int usedPoints;
 
+    private long earnPoints;
+
     private String phoneNumber;
 }

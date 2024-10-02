@@ -121,16 +121,21 @@ INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) 
 (1, 10000, 1, false, '2024-06-01 12:00:00', NULL),
 (2, 20000, 2, false, '2024-06-01 12:00:00', NULL);
 
-INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, used_points, coupon_id) VALUES
-(1000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 10000, 10000, 1),
-(2000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2),
-(3000, 'payment-dasdas',10000, 11000, 1000, 3000, 'CREDITCARD', 'COMPLETE', '2024-06-01 12:00:00', 20000, 10000, 2);
+-- Payment 더미 데이터
+INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, coupon_code, used_points, earn_points)
+VALUES
+(10, 'PAY-20240001', 100000, 95000, 5000, 3000, 'CREDIT_CARD', 'COMPLETED', '2024-09-01 12:30:00', 10000, 'DISCOUNT10', 500, 1000),
+(20, 'PAY-20240002', 200000, 190000, 10000, 4000, 'PAYPAL', 'PENDING', '2024-09-02 14:45:00', 20000, 'DISCOUNT20', 1000, 2000),
+(30, 'PAY-20240003', 50000, 48000, 2000, 2000, 'KAKAO_PAY', 'COMPLETED', '2024-09-03 09:20:00', 40000, NULL, 0, 500),
+(40, 'PAY-20240004', 150000, 140000, 10000, 3000, 'BANK_TRANSFER', 'FAILED', '2024-09-04 16:00:00', 40000, 'DISCOUNT15', 700, 1500),
+(50, 'PAY-20240005', 300000, 285000, 15000, 5000, 'CREDIT_CARD', 'COMPLETED', '2024-09-05 11:15:00', 40000, 'DISCOUNT25', 1200, 3000);
+
 
 -- Order, OrderItem, and Shipping data
 INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id, payment_id) VALUES
-(10000000, 10000, 5000, '2024-06-01 12:30:00', '12213421', 1000),
-(20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 2000),
-(30000000, 40000, 10000, '2024-06-01 13:00:00', '11345678', 3000);
+(10000000, 10000, 5000, '2024-06-01 12:30:00', '12213421', 10),
+(20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 20),
+(30000000, 40000, 10000, '2024-06-01 13:00:00', '11345678', 30);
 
 INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount, image_url) VALUES
 (1000, 10000000, 1, 1000, 2, 2000, '/herb_chicken1.jpg'),
