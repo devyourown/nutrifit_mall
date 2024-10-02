@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount) " +
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount, p.isReleased) " +
             "FROM Product p")
     Page<ProductDto> findAllToDto(Pageable pageable);
     @Query("SELECT p FROM Product p " +

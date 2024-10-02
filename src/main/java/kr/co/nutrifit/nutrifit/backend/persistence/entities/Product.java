@@ -32,6 +32,9 @@ public class Product {
     private Long discountedPrice;
 
     @Column(nullable = false)
+    private boolean isReleased;
+
+    @Column(nullable = false)
     private int stockQuantity;
 
     private int lowStockThreshold;

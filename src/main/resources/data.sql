@@ -39,11 +39,11 @@ INSERT INTO point_transaction (id, point_id, transaction_type, points, descripti
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
-low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count)
+low_stock_threshold, image_urls, category, badge_texts, review_rating, review_count, is_released)
 VALUES
-(1, '허브 마리네이드 닭가슴살', '천연 허브로 마리네이드한 촉촉한 닭가슴살. 건강과 맛을 동시에 잡았습니다.', 200, 100, 900, 10, ARRAY['/herb_chicken1.jpg', '/herb_chicken2.jpg', '/herb_chicken3.jpg'], '건강식', ARRAY['신상품', '첫판매할인'], 5985, 1247),
-(2, '훈제 닭가슴살', '훈제 향이 은은하게 배인 촉촉하고 부드러운 닭가슴살. 간편한 식사로 제격입니다.', 1200, 1000, 50, 5, ARRAY['/smoked_chicken1.webp', '/smoked_chicken2.jpg', '/smoked_chicken3.webp'], '건강식', ARRAY['무료배송'], 67513, 15003),
-(3, '칠리 닭가슴살', '매콤달콤한 칠리 소스로 양념된 닭가슴살로 색다른 맛을 즐겨보세요.', 1200, 1000, 50, 5, ARRAY['/chili_chicken1.jpg', '/chili_chicken2.webp', '/chili_chicken3.jpg'], '건강식', ARRAY['무료배송'], 15, 3);
+(1, '허브 마리네이드 닭가슴살', '천연 허브로 마리네이드한 촉촉한 닭가슴살. 건강과 맛을 동시에 잡았습니다.', 200, 100, 900, 10, ARRAY['/herb_chicken1.jpg', '/herb_chicken2.jpg', '/herb_chicken3.jpg'], '건강식', ARRAY['신상품', '첫판매할인'], 5985, 1247, true),
+(2, '훈제 닭가슴살', '훈제 향이 은은하게 배인 촉촉하고 부드러운 닭가슴살. 간편한 식사로 제격입니다.', 1200, 1000, 50, 5, ARRAY['/smoked_chicken1.webp', '/smoked_chicken2.jpg', '/smoked_chicken3.webp'], '건강식', ARRAY['무료배송'], 67513, 15003, true),
+(3, '칠리 닭가슴살', '매콤달콤한 칠리 소스로 양념된 닭가슴살로 색다른 맛을 즐겨보세요.', 1200, 1000, 50, 5, ARRAY['/chili_chicken1.jpg', '/chili_chicken2.webp', '/chili_chicken3.jpg'], '건강식', ARRAY['무료배송'], 15, 3, true);
 
 INSERT INTO cart (id, user_id) VALUES
 (1000, 10000),
