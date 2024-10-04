@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
 import kr.co.nutrifit.nutrifit.backend.dto.*;
+import kr.co.nutrifit.nutrifit.backend.persistence.ProductDetailRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Options;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductDetailRepository productDetailRepository;
 
     @Transactional
     public void addProduct(ProductDto productDto) {
@@ -39,9 +41,8 @@ public class ProductService {
                 .category(productDto.getCategory())
                 .imageUrls(productDto.getImageUrls())
                 .lowStockThreshold(productDto.getLowStockThreshold())
-                .reviewRating(productDto.getReviewRating())
-                .reviewCount(productDto.getReviewCount())
-                .productDetail(productDetail)
+                .reviewRating(0L)
+                .reviewCount(0L)
                 .build();
         productDto.getOptions().forEach(optionDto -> product.addOption(Options.builder()
                 .quantity(optionDto.getQuantity())
@@ -50,6 +51,7 @@ public class ProductService {
                 .build()));
         Product saved = productRepository.save(product);
         productDetail.setProduct(saved);
+        productDetailRepository.save(productDetail);
     }
 
     @Transactional
@@ -58,14 +60,13 @@ public class ProductService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         if (productDto.getProductDetailDto() != null) {
             ProductDetailDto detailDto = productDto.getProductDetailDto();
-            ProductDetail productDetail = ProductDetail.builder()
-                    .detailImageUrls(detailDto.getDetailImageUrls())
-                    .exchangeAndReturns(detailDto.getExchangeAndReturns())
-                    .shippingDetails(detailDto.getShippingDetails())
-                    .qnas(new ArrayList<>())
-                    .build();
-            product.setProductDetail(productDetail);
+            ProductDetail productDetail = productDetailRepository.findByProductId(product.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("상품 상세정보를 찾을 수 없습니다."));
+            productDetail.setDetailImageUrls(detailDto.getDetailImageUrls());
+            productDetail.setShippingDetails(detailDto.getShippingDetails());
+            productDetail.setExchangeAndReturns(detailDto.getExchangeAndReturns());
         }
+        product.getOptions().clear();
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setBadgeTexts(productDto.getBadgeTexts());
@@ -73,15 +74,13 @@ public class ProductService {
         product.setDiscountedPrice(productDto.getDiscountedPrice());
         product.setImageUrls(productDto.getImageUrls());
         product.setStockQuantity(productDto.getStockQuantity());
-        product.setCategory(product.getCategory());
-        product.setLowStockThreshold(product.getLowStockThreshold());
+        product.setCategory(productDto.getCategory());
+        product.setLowStockThreshold(productDto.getLowStockThreshold());
         productDto.getOptions().forEach(optionDto -> product.addOption(Options.builder()
                 .quantity(optionDto.getQuantity())
                 .price(optionDto.getPrice())
                 .description(optionDto.getDescription())
                 .build()));
-        product.setReviewCount(productDto.getReviewCount());
-        product.setReviewRating(product.getReviewRating());
         productRepository.save(product);
     }
 
@@ -115,61 +114,18 @@ public class ProductService {
     }
 
     public ProductDto getProductById(Long productId) {
-        Product product = productRepository.findByIdWithOptionsAndDetail(productId)
+        ProductDto productDto = productRepository.findProductDtoById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-        ProductDetail productDetail = product.getProductDetail();
-        ProductDto productDto = convertToDto(product);
-        productDto.setProductDetailDto(ProductDetailDto.builder()
-                .detailImageUrls(productDetail.getDetailImageUrls())
-                .qnas(productDetail.getQnas().stream().map(this::convertToQnADto).toList())
-                .shippingDetails(productDetail.getShippingDetails())
-                .exchangeAndReturns(productDetail.getExchangeAndReturns())
-                .build());
+        List<OptionDto> optionDtos = productRepository.findOptionsByProductId(productId);
+        ProductDetailDto productDetailDto = productDetailRepository.findProductDetailDtoByProductId(productId);
+        List<ProductQnADto> qnas = productDetailRepository.findProductQnADtoByProductDetailId(productDetailDto.getId());
+        productDetailDto.setQnas(qnas);
+        productDto.setOptions(optionDtos);
+        productDto.setProductDetailDto(productDetailDto);
         return productDto;
     }
 
-    public List<ProductDto> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category)
-                .stream().map(this::convertToDto)
-                .toList();
-    }
-
-    private ProductQnADto convertToQnADto(ProductQnA qna) {
-        return ProductQnADto.builder()
-                .answer(qna.getAnswer())
-                .question(qna.getQuestion())
-                .answerDate(qna.getAnswerDate())
-                .questionDate(qna.getQuestionDate())
-                .build();
-    }
-
-    private ProductDto convertToDto(Product product) {
-        List<OptionDto> optionDtos = product.getOptions().stream()
-                .map(this::convertOptionToDto)
-                .toList();
-        return ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-        .description(product.getDescription())
-        .imageUrls(product.getImageUrls())
-        .badgeTexts(product.getBadgeTexts())
-        .discountedPrice(product.getDiscountedPrice())
-        .originalPrice(product.getOriginalPrice())
-        .category(product.getCategory())
-        .stockQuantity(product.getStockQuantity())
-        .lowStockThreshold(product.getLowStockThreshold())
-                .reviewCount(product.getReviewCount())
-                .reviewRating(product.getReviewRating())
-                .options(optionDtos)
-                .build();
-    }
-
-    private OptionDto convertOptionToDto(Options options) {
-        return OptionDto.builder()
-                .id(options.getId())
-                .quantity(options.getQuantity())
-                .price(options.getPrice())
-                .description(options.getDescription())
-                .build();
+    public Page<ProductDto> getProductsByCategory(Pageable pageable, String category) {
+        return productRepository.findProductsByCategory(pageable, category);
     }
 }
