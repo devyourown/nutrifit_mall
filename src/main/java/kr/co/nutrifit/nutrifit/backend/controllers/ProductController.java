@@ -71,8 +71,8 @@ public class ProductController {
 
     // 카테고리별 상품 조회 (사용자용)
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable String category) {
-        List<ProductDto> products = productService.getProductsByCategory(category);
+    public ResponseEntity<Page<ProductDto>> getProductsByCategory(Pageable pageable, @PathVariable String category) {
+        Page<ProductDto> products = productService.getProductsByCategory(pageable, category);
         return ResponseEntity.ok(products);
     }
 }

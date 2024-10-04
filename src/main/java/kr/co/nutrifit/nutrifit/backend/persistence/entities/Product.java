@@ -51,9 +51,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Options> options;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private ProductDetail productDetail;
-
     public void addOption(Options options) {
         if (this.options == null)
             this.options = new ArrayList<>();
