@@ -2,12 +2,17 @@ package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import jakarta.validation.Valid;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.PaymentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,11 +60,24 @@ public class PaymentController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<PaymentDto>> getUserPayments(@AuthenticationPrincipal UserAdapter userAdapter) {
+    public ResponseEntity<Page<PaymentDto>> getUserPayments(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                            Pageable pageable) {
         if (userAdapter == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<PaymentDto> payments = paymentService.getPaymentsByUser(userAdapter.getUser());
+        Page<PaymentDto> payments = paymentService.getPaymentsByUser(userAdapter.getUser().getId(), pageable);
+        return ResponseEntity.ok(payments);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{userId}")
+    public ResponseEntity<Page<PaymentDto>> getUserPaymentsByAdmin(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                                   @PathVariable Long userId,
+                                                                   Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<PaymentDto> payments = paymentService.getPaymentsByUser(userId, pageable);
         return ResponseEntity.ok(payments);
     }
 }
