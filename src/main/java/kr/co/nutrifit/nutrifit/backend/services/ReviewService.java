@@ -39,6 +39,10 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
+    public void deleteReviewByAdmin(Long reviewId) {
+        reviewRepository.deleteById(reviewId);
+    }
+
     @Transactional
     public boolean deleteReview(Long reviewId, User user) {
         Review review = reviewRepository.findByIdWithUser(reviewId)
