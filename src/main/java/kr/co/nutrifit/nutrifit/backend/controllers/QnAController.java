@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.QnADto;
+import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.QnAService;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -30,11 +33,27 @@ public class QnAController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{userId}")
+    public ResponseEntity<Page<QnADto>> getUserQnaByAdmin(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                          @PathVariable Long userId,
+                                                          Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        try {
+            Page<QnADto> qnas = qnAService.getUserQna(userId, pageable);
+            return ResponseEntity.ok(qnas);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/user")
     public ResponseEntity<Page<QnADto>> getQnaByUser(@AuthenticationPrincipal UserAdapter userAdapter,
                                                      Pageable pageable) {
         try {
-            Page<QnADto> result = qnAService.getUserQna(userAdapter.getUser(), pageable);
+            Page<QnADto> result = qnAService.getUserQna(userAdapter.getUser().getId(), pageable);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
