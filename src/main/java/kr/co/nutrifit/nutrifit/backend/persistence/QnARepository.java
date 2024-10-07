@@ -22,8 +22,8 @@ public interface QnARepository extends JpaRepository<ProductQnA, Long> {
             "FROM ProductQnA q " +
             "JOIN q.productDetail pd " +
             "JOIN pd.product p " +
-            "WHERE q.user = :user")
-    Page<QnADto> findByUserWithDto(@Param("user") User user, Pageable pageable);
+            "WHERE q.user.id = :userId")
+    Page<QnADto> findByUserWithDto(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT qna FROM ProductQnA qna JOIN FETCH qna.user WHERE qna.id = :qnaId")
     Optional<ProductQnA> findByIdWithUser(@Param("qnaId") Long qnaId);

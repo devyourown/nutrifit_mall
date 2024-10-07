@@ -34,8 +34,8 @@ public class QnAService {
         qnARepository.save(qnA);
     }
 
-    public Page<QnADto> getUserQna(User user, Pageable pageable) {
-        return qnARepository.findByUserWithDto(user, pageable);
+    public Page<QnADto> getUserQna(Long userId, Pageable pageable) {
+        return qnARepository.findByUserWithDto(userId, pageable);
     }
 
     @Transactional
