@@ -28,9 +28,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "JOIN o.user u " +
             "JOIN oi.statuses ss " +
             "JOIN oi.product p " +
-            "WHERE o.user = :user " +
+            "WHERE u.id = :userId " +
             "AND ss.statusTime = (SELECT max(ss2.statusTime) FROM ShippingStatus ss2 WHERE ss2.orderItem = oi)")
-    Page<OrderDto> findAllWithItemsAndProductsByUser(@Param("user") User user, Pageable pageable);
+    Page<OrderDto> findAllWithItemsAndProductsByUser(@Param("userId") Long userId, Pageable pageable);
 
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +

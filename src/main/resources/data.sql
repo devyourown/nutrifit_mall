@@ -18,11 +18,11 @@ DELETE FROM point;
 DELETE FROM users;
 
 -- User data
-INSERT INTO users (id, email, username, password, role, o_auth) VALUES
-(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false),
-(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false),
-(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false),
-(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true);
+INSERT INTO users (id, email, username, password, role, o_auth, created_at) VALUES
+(10000, 'user1@example.com', 'user1', 'password1', 'ROLE_USER', false, '2024-06-01 12:00:00'),
+(20000, 'user2@example.com', 'user2', 'password2', 'ROLE_USER', false, '2024-06-01 12:00:00'),
+(30000, 'admin@example.com', 'admin', 'adminpassword', 'ROLE_ADMIN', false, '2024-06-01 12:00:00'),
+(40000, 'lhj6947@naver.com', 'buru', 'adminpassword', 'ROLE_USER', true, '2024-06-01 12:00:00');
 
 -- Point and PointTransaction data
 INSERT INTO point (id, points, user_id) VALUES

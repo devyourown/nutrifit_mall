@@ -4,12 +4,17 @@ import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentApiResponse;
 import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
+import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PaymentRepository;
+import kr.co.nutrifit.nutrifit.backend.persistence.ShippingRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Shipping;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ShippingRepository shippingRepository;
     private final OrderService orderService;
     private final ShippingService shippingService;
     private final CouponService couponService;
@@ -127,10 +134,10 @@ public class PaymentService {
         return convertToDto(payment);
     }
 
-    public List<PaymentDto> getPaymentsByUser(User user) {
-        return paymentRepository.findByUserWithOrdersAndItemsAndShipping(user.getId())
-                .stream().map(this::convertToDto)
-                .toList();
+    public Page<PaymentDto> getPaymentsByUser(Long userId, Pageable pageable) {
+        Page<Payment> payments = paymentRepository.findByUserWithOrdersAndItemsAndShipping(userId, pageable);
+        List<PaymentDto> paymentDtos = payments.stream().map(this::convertToDto).toList();
+        return new PageImpl<>(paymentDtos, pageable, payments.getTotalElements());
     }
 
     public PaymentDto convertToDto(Payment payment) {

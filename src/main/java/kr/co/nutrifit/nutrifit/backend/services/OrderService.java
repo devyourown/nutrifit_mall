@@ -93,8 +93,8 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Page<OrderDto> getOrdersByUser(User user, Pageable pageable) {
-        return orderRepository.findAllWithItemsAndProductsByUser(user, pageable);
+    public Page<OrderDto> getOrdersByUser(Long userId, Pageable pageable) {
+        return orderRepository.findAllWithItemsAndProductsByUser(userId, pageable);
     }
 
     public Page<OrderDto> getOrders(Pageable pageable) {

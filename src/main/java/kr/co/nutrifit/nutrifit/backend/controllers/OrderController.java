@@ -28,13 +28,25 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<Page<OrderDto>> getUserOrders(@AuthenticationPrincipal UserAdapter userAdapter,
                                                         Pageable pageable) {
-        Page<OrderDto> orders = orderService.getOrdersByUser(userAdapter.getUser(), pageable);
+        Page<OrderDto> orders = orderService.getOrdersByUser(userAdapter.getUser().getId(), pageable);
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{orderPaymentId}")
     public ResponseEntity<List<OrderDto>> getNonMemberOrder(@PathVariable String orderPaymentId) {
         return ResponseEntity.ok(orderService.getNonMemberOrder(orderPaymentId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<Page<OrderDto>> getUserOrdersByAdmin(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                               @PathVariable Long id,
+                                                               Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<OrderDto> orders = orderService.getOrdersByUser(id, pageable);
+        return ResponseEntity.ok(orders);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

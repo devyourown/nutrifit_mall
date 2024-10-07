@@ -1,7 +1,10 @@
 package kr.co.nutrifit.nutrifit.backend.persistence;
 
+import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +31,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "JOIN FETCH o.shipping s " +
             "JOIN FETCH oi.product product " +
             "WHERE p.user.id = :userId")
-    List<Payment> findByUserWithOrdersAndItemsAndShipping(@Param("userId") Long userId);}
+    Page<Payment> findByUserWithOrdersAndItemsAndShipping(@Param("userId") Long userId, Pageable pageable);
+}
