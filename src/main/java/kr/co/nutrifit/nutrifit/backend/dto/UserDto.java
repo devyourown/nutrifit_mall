@@ -13,6 +13,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    public UserDto(Long id, String username, String email, String profileImage, LocalDateTime createdAt) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.profileImage = profileImage;
+        this.createdAt = createdAt;
+    }
     private Long id;
     private String username;
     private String email;
