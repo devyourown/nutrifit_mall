@@ -16,8 +16,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount, p.isReleased) " +
             "FROM Product p")
     Page<ProductDto> findAllToDto(Pageable pageable);
+
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount) " +
+            "FROM Product p WHERE p.isReleased = true")
+    Page<ProductDto> findReleasedProducts(Pageable pageable);
+
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount, p.isReleased) " +
-            "FROM Product p WHERE p.id = :id")
+            "FROM Product p WHERE p.id = :id and p.isReleased = true")
     Optional<ProductDto> findProductDtoById(@Param("id") Long id);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OptionDto(o.id, o.quantity, o.price, o.description) " +
@@ -25,7 +30,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<OptionDto> findOptionsByProductId(@Param("productId") Long productId);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount, p.isReleased) " +
-            "FROM Product p")
+            "FROM Product p WHERE p.isReleased = true and p.category = :category")
     Page<ProductDto> findProductsByCategory(Pageable pageable, @Param("category") String category);
     List<Product> findByIdIn(List<Long> ids);
 }

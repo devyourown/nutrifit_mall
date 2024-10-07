@@ -37,6 +37,7 @@ public class ProductService {
                 .originalPrice(productDto.getOriginalPrice())
                 .badgeTexts(productDto.getBadgeTexts())
                 .discountedPrice(productDto.getDiscountedPrice())
+                .isReleased(productDto.isReleased())
                 .stockQuantity(productDto.getStockQuantity())
                 .category(productDto.getCategory())
                 .imageUrls(productDto.getImageUrls())
@@ -75,6 +76,7 @@ public class ProductService {
         product.setImageUrls(productDto.getImageUrls());
         product.setStockQuantity(productDto.getStockQuantity());
         product.setCategory(productDto.getCategory());
+        product.setReleased(productDto.isReleased());
         product.setLowStockThreshold(productDto.getLowStockThreshold());
         productDto.getOptions().forEach(optionDto -> product.addOption(Options.builder()
                 .quantity(optionDto.getQuantity())
@@ -111,6 +113,10 @@ public class ProductService {
 
     public Page<ProductDto> getAllProduct(Pageable pageable) {
         return productRepository.findAllToDto(pageable);
+    }
+
+    public Page<ProductDto> getReleasedProducts(Pageable pageable) {
+        return productRepository.findReleasedProducts(pageable);
     }
 
     public ProductDto getProductById(Long productId) {
