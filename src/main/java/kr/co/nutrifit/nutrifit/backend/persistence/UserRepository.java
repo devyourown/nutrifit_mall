@@ -3,6 +3,8 @@ package kr.co.nutrifit.nutrifit.backend.persistence;
 import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.orderer.cautions) " +
             "FROM User u WHERE u = :user")
     Optional<OrdererDto> findOrdererDtoByUser(@Param("user") User user);
+
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.UserDto(" +
+            "u.id, u.username, u.email, u.profileImage, u.createdAt) " +
+            "FROM User u ORDER BY u.createdAt ASC")
+    Page<UserDto> findAllUsersByCreatedAt(Pageable pageable);
 }
