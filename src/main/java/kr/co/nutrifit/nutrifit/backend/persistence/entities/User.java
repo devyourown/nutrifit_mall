@@ -46,7 +46,7 @@ public class User {
     }
 
     @Column
-    private String imageUrl;
+    private String profileImage;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Order> orders;

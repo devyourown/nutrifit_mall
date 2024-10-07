@@ -37,7 +37,7 @@ public class UserService {
                 .oAuth(userDto.isOAuth())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(Role.ROLE_USER)
-                .imageUrl(userDto.getProfileImage())
+                .profileImage(userDto.getProfileImage())
                 .build();
         user = userRepository.save(user);
         Point point = Point.builder()
