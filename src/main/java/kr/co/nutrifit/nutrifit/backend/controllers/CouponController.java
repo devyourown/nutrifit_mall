@@ -7,6 +7,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.CouponService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,11 +50,24 @@ public class CouponController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CouponDto>> getUserCoupon(@AuthenticationPrincipal UserAdapter userAdapter) {
+    public ResponseEntity<Page<CouponDto>> getUserCoupon(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                         Pageable pageable) {
         if (userAdapter == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        List<CouponDto> coupons = couponService.getUserCoupon(userAdapter.getUser());
+        Page<CouponDto> coupons = couponService.getUserCoupon(userAdapter.getUser().getId(), pageable);
+        return ResponseEntity.ok(coupons);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{userId}")
+    public ResponseEntity<Page<CouponDto>> getUserCouponsByAdmin(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                                 @PathVariable Long userId,
+                                                                 Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<CouponDto> coupons = couponService.getUserCoupon(userId, pageable);
         return ResponseEntity.ok(coupons);
     }
 }

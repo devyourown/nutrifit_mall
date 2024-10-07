@@ -4,6 +4,8 @@ import kr.co.nutrifit.nutrifit.backend.dto.CouponDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Coupon;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.UserCoupon;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,6 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
             "uc.coupon.maxDiscountAmount, " +
             "uc.coupon.remainingQuantity) " +
             "FROM UserCoupon uc " +
-            "WHERE uc.user = :user")
-    List<CouponDto> findAllByUserWithDto(@Param("user") User user);
+            "WHERE uc.user.id = :userId")
+    Page<CouponDto> findAllByUserWithDto(@Param("userId") Long userId, Pageable pageable);
 }

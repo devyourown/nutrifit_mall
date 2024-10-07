@@ -8,6 +8,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Coupon;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.UserCoupon;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +99,7 @@ public class CouponService {
         userCouponRepository.save(userCoupon);
     }
 
-    public List<CouponDto> getUserCoupon(User user) {
-        return userCouponRepository.findAllByUserWithDto(user);
+    public Page<CouponDto> getUserCoupon(Long userId, Pageable pageable) {
+        return userCouponRepository.findAllByUserWithDto(userId, pageable);
     }
 }

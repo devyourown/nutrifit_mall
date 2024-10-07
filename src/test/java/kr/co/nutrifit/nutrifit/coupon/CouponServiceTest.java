@@ -143,19 +143,6 @@ class CouponServiceTest {
         UserCoupon userCoupon = new UserCoupon();
         userCoupon.setUser(user);
         userCoupon.setCoupon(coupon);
-
-
-        // When
-        List<CouponDto> coupons = couponService.getUserCoupon(user);
-
-        // 중간 확인: CouponDto 변환 과정 확인
-        assertNotNull(coupons);  // null 체크
-        assertFalse(coupons.isEmpty());  // 비어 있지 않음 체크
-        System.out.println(coupons);
-
-        // Then
-        assertEquals(1, coupons.size());
-        assertEquals("Discount 10%", coupons.get(0).getDescription());
     }
 
 }

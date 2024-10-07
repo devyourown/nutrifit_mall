@@ -25,7 +25,4 @@ public class Point {
 
     @Column(nullable = false)
     private Long points;
-
-    @OneToMany(mappedBy = "point", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PointTransaction> transactions;
 }

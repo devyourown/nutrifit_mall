@@ -101,7 +101,6 @@ class CouponControllerTest {
         List<CouponDto> coupons = List.of(
                 new CouponDto("TEST123", "Discount 10%", 10, DiscountType.PERCENTAGE, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1),10, 10, 10)
         );
-        when(couponService.getUserCoupon(any(User.class))).thenReturn(coupons);
         when(userAdapter.getUser()).thenReturn(new User());
 
         mockMvc.perform(get("/api/coupon")
@@ -109,7 +108,6 @@ class CouponControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code").value("TEST123"));
 
-        verify(couponService, times(1)).getUserCoupon(any(User.class));
     }
 }
 

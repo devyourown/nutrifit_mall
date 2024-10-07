@@ -13,5 +13,4 @@ import java.util.List;
 @AllArgsConstructor
 public class PointDto {
     private Long points;
-    private List<PointTransactionDto> transactions;
 }
