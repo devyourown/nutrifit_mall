@@ -62,6 +62,12 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    @GetMapping("/released")
+    public ResponseEntity<Page<ProductDto>> getReleasedProducts(Pageable pageable) {
+        Page<ProductDto> products = productService.getReleasedProducts(pageable);
+        return ResponseEntity.ok(products);
+    }
+
     // 상품 상세 조회 (사용자용)
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
