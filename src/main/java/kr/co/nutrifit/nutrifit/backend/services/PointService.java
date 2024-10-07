@@ -12,6 +12,8 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ public class PointService {
 
         // 트랜잭션 기록
         PointTransaction transaction = PointTransaction.builder()
-                .point(point)
+                .user(user)
                 .points(amount)
                 .transactionType(PointTransactionType.REWARD)
                 .description(LocalDateTime.now() + " 포인트 추가").build();
@@ -56,20 +58,22 @@ public class PointService {
 
         // 트랜잭션 기록
         PointTransaction transaction = PointTransaction.builder()
-                .point(point)
+                .user(user)
                 .points(-amount)
                 .transactionType(PointTransactionType.USE)
                 .description(LocalDateTime.now() + " 포인트 사용").build();;
         transactionRepository.save(transaction);
     }
 
-    public PointDto getUserPoints(User user) {
-        Point point = pointsRepository.findByUserId(user.getId())
+    public PointDto getUserPoints(Long userId) {
+        Point point = pointsRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException("사용자의 포인트가 없습니다."));
-        List<PointTransactionDto> transactions = transactionRepository.findByPoint(point);
         return PointDto.builder()
                 .points(point.getPoints())
-                .transactions(transactions)
                 .build();
+    }
+
+    public Page<PointTransactionDto> getTransactions(Long userId, Pageable pageable) {
+        return transactionRepository.findByUserId(userId, pageable);
     }
 }

@@ -31,11 +31,11 @@ INSERT INTO point (id, points, user_id) VALUES
 (300, 1000, 30000),
 (400, 1000, 40000);
 
-INSERT INTO point_transaction (id, point_id, transaction_type, points, description, created_at) VALUES
-(1, 100, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
-(2, 200, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
-(3, 300, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
-(4, 400, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
+INSERT INTO point_transaction (id, user_id, transaction_type, points, description, created_at) VALUES
+(1, 10000, 'REWARD', 500, 'Signup bonus', '2024-06-01 12:00:00'),
+(2, 20000, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
+(3, 30000, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00'),
+(4, 40000, 'REWARD', 1000, 'Signup bonus', '2024-06-01 12:00:00');
 
 -- Product data
 INSERT INTO product (id, name, description, original_price, discounted_price, stock_quantity,
