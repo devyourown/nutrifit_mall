@@ -70,4 +70,25 @@ public class CouponController {
         Page<CouponDto> coupons = couponService.getUserCoupon(userId, pageable);
         return ResponseEntity.ok(coupons);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public ResponseEntity<Page<CouponDto>> getAllCoupons(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                         Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<CouponDto> coupons = couponService.getAllCoupons(pageable);
+        return ResponseEntity.ok(coupons);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{couponCode}")
+    public ResponseEntity<String> deleteCoupon(@AuthenticationPrincipal UserAdapter userAdapter,
+                                               @PathVariable String couponCode) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(couponService.deleteCoupon(couponCode));
+    }
 }

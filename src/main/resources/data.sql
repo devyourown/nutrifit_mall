@@ -113,13 +113,13 @@ VALUES
 
 -- Coupon data
 INSERT INTO coupon (id, code, description, discount_type, discount_value, valid_from, valid_until, is_active, minimum_order_amount, max_discount_amount, remaining_quantity) VALUES
-(1, 'DISCOUNT10', '5000원 이상 구매시, 10퍼센트 할인', 'PERCENTAGE', 10, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 5000, 1000, 100),
-(2, 'SAVE20', '10000원이상 구매시 2000원 할인', 'AMOUNT', 20, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 10000, 2000, 50);
+(1000, 'DISCOUNT10', '5000원 이상 구매시, 10퍼센트 할인', 'PERCENTAGE', 10, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 5000, 1000, 100),
+(2000, 'SAVE20', '10000원이상 구매시 2000원 할인', 'AMOUNT', 2000, '2024-01-01 00:00:00', '2024-12-31 23:59:59', true, 10000, 2000, 50);
 
 -- UserCoupon data
 INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) VALUES
-(1, 10000, 1, false, '2024-06-01 12:00:00', NULL),
-(2, 20000, 2, false, '2024-06-01 12:00:00', NULL);
+(1000, 10000, 1000, false, '2024-06-01 12:00:00', NULL),
+(2000, 20000, 2000, false, '2024-06-01 12:00:00', NULL);
 
 -- Payment 더미 데이터
 INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, coupon_code, used_points, earn_points)
