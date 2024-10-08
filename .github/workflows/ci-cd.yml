@@ -40,9 +40,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws elasticbeanstalk create-application-version \
-            --application-name mall_backend \
+            --application-name nutrifit_backend \
             --version-label ${{ github.sha }} \
             --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-025066269685",S3Key="myapp.jar"
           aws elasticbeanstalk update-environment \
-            --environment-name Mallbackend-env \
+            --environment-name Nutrifitbackend-env \
             --version-label ${{ github.sha }}
