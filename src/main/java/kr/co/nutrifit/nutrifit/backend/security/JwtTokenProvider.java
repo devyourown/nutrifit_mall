@@ -5,20 +5,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
     private static final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 24;
     private final CustomUserDetailsService userDetailsService;
 
     public JwtTokenProvider(CustomUserDetailsService userDetailsService) {
@@ -27,6 +21,7 @@ public class JwtTokenProvider {
 
     public String generateToken(User user) {
         Date now = new Date();
+        long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 24;
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
 
         return Jwts.builder()
@@ -38,8 +33,9 @@ public class JwtTokenProvider {
     }
 
     public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
 
@@ -48,7 +44,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(key).parseClaimsJws(authToken);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
         } catch (Exception e) {
             return false;
