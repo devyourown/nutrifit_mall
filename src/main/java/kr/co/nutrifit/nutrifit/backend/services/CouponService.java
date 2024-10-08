@@ -99,7 +99,25 @@ public class CouponService {
         userCouponRepository.save(userCoupon);
     }
 
+    @Transactional
+    public String deleteCoupon(String couponCode) {
+        try {
+            userCouponRepository.deleteByCouponCode(couponCode);
+            int result = couponRepository.deleteByCouponCode(couponCode);
+            if (result == 1) {
+                return "쿠폰이 정상적으로 삭제 되었습니다.";
+            }
+            return "쿠폰이 " + result + "개 삭제 되었습니다.";
+        } catch (Exception e) {
+            return "쿠폰 삭제에 실패했습니다.";
+        }
+    }
+
     public Page<CouponDto> getUserCoupon(Long userId, Pageable pageable) {
         return userCouponRepository.findAllByUserWithDto(userId, pageable);
+    }
+
+    public Page<CouponDto> getAllCoupons(Pageable pageable) {
+        return couponRepository.findAllCouponsAsDto(pageable);
     }
 }
