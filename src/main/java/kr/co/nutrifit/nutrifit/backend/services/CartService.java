@@ -21,8 +21,8 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
-    public Page<CartItemDto> getCartItems(User user, Pageable pageable) {
-        return cartItemRepository.findByUserId(user.getId(), pageable);
+    public List<CartItemDto> getCartItems(User user) {
+        return cartItemRepository.findByUserId(user.getId());
     }
 
     public void syncCartItems(User user, List<CartItemDto> items) {
