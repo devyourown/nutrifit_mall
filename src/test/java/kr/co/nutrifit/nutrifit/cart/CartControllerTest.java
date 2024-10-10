@@ -1,52 +1,19 @@
 package kr.co.nutrifit.nutrifit.cart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.nutrifit.nutrifit.backend.controllers.CartController;
 import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
-import kr.co.nutrifit.nutrifit.backend.persistence.CartItemRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.CartRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
-import kr.co.nutrifit.nutrifit.backend.security.CustomUserDetailsService;
-import kr.co.nutrifit.nutrifit.backend.security.JwtTokenProvider;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.CartService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -96,7 +63,6 @@ class CartControllerTest {
                 new CartItemDto(100L, "Product1", "Description1", 1000L, "image1.jpg", 2),
                 new CartItemDto(100L, "Product2", "Description2", 2000L, "image2.jpg", 1)
         );
-        given(cartService.getCartItems(any())).willReturn(cartItems);
 
         mockMvc.perform(get("/api/cart/items")
                         .with(user(userAdapter)))
