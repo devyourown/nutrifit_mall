@@ -33,5 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p WHERE p.isReleased = true and p.category = :category")
     Page<ProductDto> findProductsByCategory(Pageable pageable, @Param("category") String category);
 
-    List<Product> findAllById(List<Long> ids);
+
+    @Query("SELECT p FROM Product p WHERE p.id IN :ids")
+    List<Product> findAllById(@Param("ids") List<Long> ids);
 }

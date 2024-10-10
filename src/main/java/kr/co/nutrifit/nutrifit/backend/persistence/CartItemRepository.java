@@ -9,13 +9,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.CartItemDto(" +
             "ci.id, p.name, p.description, p.originalPrice, ci.imageUrl, ci.quantity, p.id) " +
             "FROM CartItem ci " +
             "JOIN ci.product p " +
-            "WHERE ci.cart.user.id = :userId")
-    Page<CartItemDto> findByUserId(@Param("userId") Long userId, Pageable pageable);
+            "WHERE ci.user.id = :userId")
+    List<CartItemDto> findByUserId(@Param("userId") Long userId);
 
     @Modifying
     @Query("DELETE FROM CartItem c WHERE c.user.id = :userId")

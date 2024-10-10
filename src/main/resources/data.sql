@@ -13,7 +13,6 @@ DELETE FROM orders;
 DELETE FROM payment;
 DELETE FROM point_transaction;
 DELETE FROM notification;
-DELETE FROM cart;
 DELETE FROM point;
 DELETE FROM users;
 
@@ -45,16 +44,11 @@ VALUES
 (2000, '훈제 닭가슴살', '훈제 향이 은은하게 배인 촉촉하고 부드러운 닭가슴살. 간편한 식사로 제격입니다.', 1200, 1000, 50, 5, ARRAY['/smoked_chicken1.webp', '/smoked_chicken2.jpg', '/smoked_chicken3.webp'], '건강식', ARRAY['무료배송'], 67513, 15003, true),
 (3000, '칠리 닭가슴살', '매콤달콤한 칠리 소스로 양념된 닭가슴살로 색다른 맛을 즐겨보세요.', 1200, 1000, 50, 5, ARRAY['/chili_chicken1.jpg', '/chili_chicken2.webp', '/chili_chicken3.jpg'], '건강식', ARRAY['무료배송'], 15, 3, true);
 
-INSERT INTO cart (id, user_id) VALUES
-(1000, 10000),
-(2000, 20000),
-(3000, 30000),
-(4000, 40000);
 
-INSERT INTO cart_item (id, cart_id, product_id, quantity, image_url) VALUES
-(1, 1000, 1000, 2, '/herb_chicken1.jpg'),
-(2, 1000, 2000, 1, '/herb_chicken1.jpg'),
-(3, 2000, 3000, 5, '/herb_chicken1.jpg');
+INSERT INTO cart_item (id, user_id, product_id, quantity, image_url) VALUES
+(1, 10000, 1000, 2, '/herb_chicken1.jpg'),
+(2, 10000, 2000, 1, '/herb_chicken1.jpg'),
+(3, 20000, 3000, 5, '/herb_chicken1.jpg');
 
 -- ProductDetail 더미 데이터 1
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)

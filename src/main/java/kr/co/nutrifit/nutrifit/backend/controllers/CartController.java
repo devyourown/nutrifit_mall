@@ -20,12 +20,11 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping("/items")
-    public ResponseEntity<Page<CartItemDto>> getCartItems(@AuthenticationPrincipal UserAdapter userAdapter,
-                                                          Pageable pageable) {
+    public ResponseEntity<List<CartItemDto>> getCartItems(@AuthenticationPrincipal UserAdapter userAdapter) {
         if (userAdapter == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-        Page<CartItemDto> cartItems = cartService.getCartItems(userAdapter.getUser(), pageable);
+        List<CartItemDto> cartItems = cartService.getCartItems(userAdapter.getUser());
         return ResponseEntity.ok(cartItems);
     }
 
