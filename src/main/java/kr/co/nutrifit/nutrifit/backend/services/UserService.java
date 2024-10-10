@@ -2,7 +2,6 @@ package kr.co.nutrifit.nutrifit.backend.services;
 
 import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
 import kr.co.nutrifit.nutrifit.backend.dto.UserDto;
-import kr.co.nutrifit.nutrifit.backend.persistence.CartRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PointRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
@@ -22,7 +21,6 @@ public class UserService {
     //private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final PointRepository pointRepository;
-    private final CartRepository cartRepository;
 
     @Transactional
     public User registerUser(UserDto userDto) throws Exception {
@@ -35,6 +33,7 @@ public class UserService {
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .oAuth(userDto.isOAuth())
+                .items(new ArrayList<>())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(Role.ROLE_USER)
                 .profileImage(userDto.getProfileImage())
@@ -45,11 +44,6 @@ public class UserService {
                 .user(user)
                 .build();
         pointRepository.save(point);
-        Cart cart = Cart.builder()
-                .user(user)
-                .cartItems(new ArrayList<>())
-                .build();
-        cartRepository.save(cart);
         user.setOrders(new ArrayList<>());
         return user;
     }

@@ -32,5 +32,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.ProductDto(p.id, p.name, p.description, p.category, p.stockQuantity, p.lowStockThreshold, p.imageUrls, p.badgeTexts, p.originalPrice, p.discountedPrice, p.reviewRating, p.reviewCount, p.isReleased) " +
             "FROM Product p WHERE p.isReleased = true and p.category = :category")
     Page<ProductDto> findProductsByCategory(Pageable pageable, @Param("category") String category);
-    List<Product> findByIdIn(List<Long> ids);
+
+    List<Product> findAllById(List<Long> ids);
 }
