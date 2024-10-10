@@ -46,9 +46,9 @@ VALUES
 
 
 INSERT INTO cart_item (id, user_id, product_id, quantity, image_url) VALUES
-(1, 10000, 1000, 2, '/herb_chicken1.jpg'),
-(2, 10000, 2000, 1, '/herb_chicken1.jpg'),
-(3, 20000, 3000, 5, '/herb_chicken1.jpg');
+(10000, 10000, 1000, 2, '/herb_chicken1.jpg'),
+(20000, 10000, 2000, 1, '/herb_chicken1.jpg'),
+(30000, 20000, 3000, 5, '/herb_chicken1.jpg');
 
 -- ProductDetail 더미 데이터 1
 INSERT INTO product_detail (id, product_id, detail_image_urls, shipping_details, exchange_and_returns)
