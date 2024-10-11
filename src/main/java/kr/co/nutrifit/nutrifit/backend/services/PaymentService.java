@@ -20,14 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final ShippingRepository shippingRepository;
     private final OrderService orderService;
     private final ShippingService shippingService;
     private final CouponService couponService;
@@ -69,7 +68,7 @@ public class PaymentService {
     }
 
     private void createOrderAndPaymentAndShippingWithoutUser(PaymentDto paymentDto, String status) {
-        Order order = orderService.createOrderWithoutUser(paymentDto.getPhoneNumber(), paymentDto.getOrderId(), paymentDto.getOrderItems());
+        Order order = orderService.createOrder(Optional.empty(), paymentDto.getPhoneNumber(), paymentDto.getOrderId(), paymentDto.getOrderItems(), paymentDto.getOrdererDto());
         Payment payment = createPaymentEntityWithoutUser(paymentDto, status, order);
         Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);
         order.setPayment(payment);
@@ -92,7 +91,7 @@ public class PaymentService {
     }
 
     private void createOrderAndPaymentAndShipping(User user, PaymentDto paymentDto, String status) {
-        Order order = orderService.createOrder(user, paymentDto.getOrderId(), paymentDto.getOrderItems());
+        Order order = orderService.createOrder(Optional.of(user), "", paymentDto.getOrderId(), paymentDto.getOrderItems(), paymentDto.getOrdererDto());
         Payment payment = createPaymentEntity(user, paymentDto, status, order);
         Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);
         order.setPayment(payment);
@@ -152,8 +151,8 @@ public class PaymentService {
                 .paymentMethod(payment.getPaymentMethod())
                 .paymentDate(payment.getPaymentDate())
                 .orderItems(order.getOrderItems().stream().map(orderItem -> CartItemDto.builder()
-                        .id(orderItem.getProduct().getId())
-                        .name(orderItem.getProduct().getName())
+                        .id(orderItem.getProductId())
+                        .name(orderItem.getProductName())
                         .quantity(orderItem.getQuantity())
                         .price(orderItem.getPrice())
                         .imageUrl(orderItem.getImageUrl())
