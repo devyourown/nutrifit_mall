@@ -12,47 +12,51 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final OrderItemRepository orderItemRepository;
-    private static final int BATCH_SIZE = 1000;
+    private static final int BATCH_SIZE = 10000;
 
     @Transactional
-    public Order createOrder(User user, String orderId, List<CartItemDto> cartItemDto) {
+    public Order createOrder(Optional<User> user, String phone, String orderId, List<CartItemDto> cartItemDto, OrdererDto ordererDto) {
         Order order = new Order();
-        user.addOrder(order);
-        order.setUser(user);
         order.setOrderPaymentId(orderId);
         LocalDateTime now = LocalDateTime.now();
+
+        if (user.isPresent()) {
+            order.setUser(user.get());
+            user.get().addOrder(order);
+        } else {
+            order.setUserPhone(phone);
+        }
+
+        List<Long> productIds = cartItemDto.stream()
+                .map(CartItemDto::getId)
+                .collect(Collectors.toList());
+        Map<Long, Product> productMap = productService.getProductsByIds(productIds);
 
         long totalAmount = 0;
 
         for (CartItemDto itemDto : cartItemDto) {
-            Product product = productRepository.findById(itemDto.getId()).orElseThrow();
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setImageUrl(product.getImageUrls().get(0));
-            orderItem.setProduct(product);
-            orderItem.setPrice(product.getDiscountedPrice());
-            orderItem.setQuantity(itemDto.getQuantity());
-            orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
-            orderItem.addStatus(ShippingStatus.builder()
-                    .orderItem(orderItem)
-                    .statusTime(now)
-                    .status("주문완료")
-                    .build());
+            Product product = productMap.get(itemDto.getId());
+            if (product == null) throw new IllegalArgumentException("상품을 찾을 수 없습니다: " + itemDto.getId());
 
+            OrderItem orderItem = createOrderItem(order, user.orElse(null), phone, now, ordererDto, product, itemDto);
             totalAmount += orderItem.getTotalAmount();
-
             order.addOrderItem(orderItem);
         }
 
@@ -60,41 +64,45 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    @Transactional
-    public Order createOrderWithoutUser(String phone, String orderId, List<CartItemDto> cartItemDto) {
-        Order order = new Order();
-        order.setUserPhone(phone);
-        order.setOrderPaymentId(orderId);
-        LocalDateTime now = LocalDateTime.now();
-
-        long totalAmount = 0;
-
-        for (CartItemDto itemDto : cartItemDto) {
-            Product product = productRepository.findById(itemDto.getId()).orElseThrow();
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setImageUrl(product.getImageUrls().get(0));
-            orderItem.setProduct(product);
-            orderItem.setPrice(product.getDiscountedPrice());
-            orderItem.setQuantity(itemDto.getQuantity());
-            orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
-            orderItem.addStatus(ShippingStatus.builder()
-                    .orderItem(orderItem)
-                    .statusTime(now)
-                    .status("주문완료")
-                    .build());
-
-            totalAmount += orderItem.getTotalAmount();
-
-            order.addOrderItem(orderItem);
+    private OrderItem createOrderItem(Order order, User user, String phone, LocalDateTime now, OrdererDto ordererDto, Product product, CartItemDto itemDto) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        if (user != null) {
+            orderItem.setUserId(user.getId());
+            orderItem.setUsername(user.getUsername());
+        } else {
+            orderItem.setUsername(phone);
         }
-
-        order.setTotalAmount(totalAmount);
-        return orderRepository.save(order);
+        orderItem.setOrderPaymentId(order.getOrderPaymentId());
+        orderItem.setCurrentStatus("주문완료");
+        orderItem.setCurrentStatusTime(now);
+        orderItem.setOrderDate(now);
+        orderItem.setProductId(product.getId());
+        orderItem.setProductName(product.getName());
+        orderItem.setPrice(product.getDiscountedPrice());
+        orderItem.setQuantity(itemDto.getQuantity());
+        orderItem.setTotalAmount(product.getDiscountedPrice() * itemDto.getQuantity());
+        orderItem.setImageUrl(product.getImageUrls().get(0));
+        orderItem.setOrdererName(ordererDto.getOrdererName());
+        orderItem.setOrdererPhone(ordererDto.getOrdererPhone());
+        orderItem.setRecipientName(ordererDto.getRecipientName());
+        orderItem.setRecipientPhone(ordererDto.getRecipientPhone());
+        orderItem.setAddress(ordererDto.getAddress());
+        orderItem.setAddressDetail(ordererDto.getAddressDetail());
+        orderItem.setCautions(ordererDto.getCautions());
+        orderItem.addStatus(ShippingStatus.builder()
+                .orderItem(orderItem)
+                .statusTime(now)
+                .status("주문완료").build());
+        return orderItem;
     }
 
     public Page<OrderDto> getOrdersByUser(Long userId, Pageable pageable) {
         return orderRepository.findAllWithItemsAndProductsByUser(userId, pageable);
+    }
+
+    public List<OrderDto> getNonMemberOrder(String id) {
+        return orderRepository.findByOrderPaymentId(id);
     }
 
     public Page<OrderDto> getOrders(Pageable pageable) {
@@ -109,66 +117,57 @@ public class OrderService {
         return orderItemRepository.findOrderItemsByStatus(status);
     }
 
-    @Transactional
     public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems) {
-        List<OrderItem> itemsToSave = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        for (int i=0; i<orderItems.size(); i += BATCH_SIZE) {
+            List<OrderItemExcelDto> partitionItems = orderItems.subList(i, Math.min(i + BATCH_SIZE, orderItems.size()));
+            List<OrderItem> foundItems = findOrderItems(partitionItems);
+            Map<String, OrderItem> orderItemMap = createOrderItemMap(foundItems);
+
+            processAndUpdateOrderItems(partitionItems, orderItemMap, now);
+        }
+    }
+
+
+
+    private List<OrderItem> findOrderItems(List<OrderItemExcelDto> orderItems) {
         List<String> orderIds = orderItems.stream().map(OrderItemExcelDto::getOrderId).toList();
         List<String> productNames = orderItems.stream().map(OrderItemExcelDto::getProductName).toList();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = LocalDate.now().minusDays(1).atStartOfDay();
+        LocalDateTime endDate = LocalDate.now().plusDays(1).atTime(LocalTime.MAX);
+        return orderItemRepository.findAllByOrderIdInAndProductNameInAndOrderDateBetween(orderIds, productNames, startDate, endDate);
+    }
 
-        List<OrderItem> foundItems = orderItemRepository.findAllByOrderIdInAndProductNameIn(orderIds, productNames);
-        Map<String, OrderItem> orderItemMap = foundItems.stream()
+    private Map<String, OrderItem> createOrderItemMap(List<OrderItem> foundItems) {
+        return foundItems.stream()
                 .collect(Collectors.toMap(
-                        item -> item.getOrder().getOrderPaymentId() + "_" + item.getProduct().getName(),
+                        item -> item.getOrderPaymentId() + "_" + item.getProductName(),
                         item -> item
                 ));
+    }
+
+    private void processAndUpdateOrderItems(List<OrderItemExcelDto> orderItems, Map<String, OrderItem> orderItemMap, LocalDateTime now) {
+        List<OrderItem> itemsToSave = new ArrayList<>();
 
         for (OrderItemExcelDto dto : orderItems) {
             String key = dto.getOrderId() + "_" + dto.getProductName();
             OrderItem orderItem = orderItemMap.get(key);
             if (orderItem != null) {
-                // Step 5: quantity를 기반으로 기존 OrderItem을 나누어 처리
-                int remainingQuantity = dto.getQuantity();
-                int availableQuantity = orderItem.getQuantity();
-
-                if (availableQuantity == remainingQuantity) {
-                    // Case 1: 전체 수량이 동일하면 바로 운송장 번호 설정
-                    orderItem.setTrackingNumber(dto.getTrackingNumber());
-                } else if (availableQuantity > remainingQuantity) {
-                    // Case 2: 수량이 나누어졌을 경우
-                    // 기존 OrderItem의 수량을 남은 부분으로 줄이고, 새로운 OrderItem 생성
-                    orderItem.setQuantity(availableQuantity - remainingQuantity);
-
-                    // 새로운 OrderItem 생성 및 운송장 번호 설정
-                    OrderItem newOrderItem = new OrderItem();
-                    newOrderItem.setOrder(orderItem.getOrder());
-                    newOrderItem.setProduct(orderItem.getProduct());
-                    newOrderItem.setQuantity(remainingQuantity);
-                    newOrderItem.setTrackingNumber(dto.getTrackingNumber());
-
-                    newOrderItem.addStatus(ShippingStatus.builder()
-                            .orderItem(newOrderItem)
-                            .statusTime(now)
-                            .status("출고완료").build());
-                    itemsToSave.add(newOrderItem);
-                }
+                orderItem.setTrackingNumber(dto.getTrackingNumber());
+                orderItem.setCurrentStatus("출고완료");
+                orderItem.setCurrentStatusTime(now);
                 orderItem.addStatus(ShippingStatus.builder()
                         .orderItem(orderItem)
                         .statusTime(now)
                         .status("출고완료").build());
                 itemsToSave.add(orderItem);
-                if (itemsToSave.size() >= BATCH_SIZE) {
-                    orderItemRepository.saveAll(itemsToSave);
-                    itemsToSave.clear();
-                }
             }
         }
-        if (!itemsToSave.isEmpty()) {
-            orderItemRepository.saveAll(itemsToSave);
-        }
+        saveOrderItems(itemsToSave);
     }
 
-    public List<OrderDto> getNonMemberOrder(String id) {
-        return orderRepository.findByOrderPaymentId(id);
+    @Transactional
+    private void saveOrderItems(List<OrderItem> items) {
+        orderItemRepository.saveAll(items);
     }
 }

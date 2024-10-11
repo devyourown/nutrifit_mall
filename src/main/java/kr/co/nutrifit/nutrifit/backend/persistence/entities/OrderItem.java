@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "order_item", indexes = {
+        @Index(name = "idx_order_payment_id", columnList = "orderPaymentId"),
+        @Index(name = "idx_order_id_product_name", columnList = "orderPaymentId, productName")
+})
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +28,20 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false)
+    private String orderPaymentId;
+
+    @Column(nullable = true)
+    private Long userId;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private Long productId;
+
+    @Column(nullable = false)
+    private String productName;
 
     @Column(nullable = false)
     private Long price;
@@ -41,6 +57,36 @@ public class OrderItem {
 
     @Column
     private String trackingNumber;
+
+    @Column(nullable = false)
+    private LocalDateTime orderDate;
+
+    @Column(nullable = false)
+    private LocalDateTime currentStatusTime;
+
+    @Column(nullable = false)
+    private String currentStatus;
+
+    @Column(nullable = false)
+    private String recipientName;
+
+    @Column(nullable = false)
+    private String recipientPhone;
+
+    @Column(nullable = false)
+    private String ordererName;
+
+    @Column(nullable = false)
+    private String ordererPhone;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private String addressDetail;
+
+    @Column
+    private String cautions;
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ShippingStatus> statuses;

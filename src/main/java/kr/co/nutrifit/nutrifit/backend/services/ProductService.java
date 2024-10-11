@@ -8,6 +8,10 @@ import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductDetail;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductQnA;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,13 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
+    private final CacheManager cacheManager;
 
+    @CacheEvict(value = {"allProducts", "pageProducts", "releasedProducts", "productsByCategory"}, allEntries = true)
     @Transactional
     public void addProduct(ProductDto productDto) {
         ProductDetailDto detailDto = productDto.getProductDetailDto();
@@ -55,6 +63,7 @@ public class ProductService {
         productDetailRepository.save(productDetail);
     }
 
+    @CacheEvict(value = {"allProducts", "pageProducts", "releasedProducts", "productsByCategory", "products"}, key = "#productDto.id", allEntries = true)
     @Transactional
     public void updateProduct(ProductDto productDto) {
         Product product = productRepository.findById(productDto.getId())
@@ -91,6 +100,32 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         productRepository.delete(product);
+
+        // CacheManager를 이용하여 캐시 수동 무효화
+        Cache productCache = cacheManager.getCache("products");
+        if (productCache != null) {
+            productCache.evict(productId);  // 개별 제품 캐시 무효화
+        }
+
+        Cache allProductsCache = cacheManager.getCache("allProducts");
+        if (allProductsCache != null) {
+            allProductsCache.clear();  // 전체 제품 목록 캐시 무효화
+        }
+
+        Cache pageProductsCache = cacheManager.getCache("pageProducts");
+        if (pageProductsCache != null) {
+            pageProductsCache.clear();  // 페이징 제품 목록 캐시 무효화
+        }
+
+        Cache releasedProductsCache = cacheManager.getCache("releasedProducts");
+        if (releasedProductsCache != null) {
+            releasedProductsCache.clear();  // 출시된 제품 목록 캐시 무효화
+        }
+
+        Cache productsByCategoryCache = cacheManager.getCache("productsByCategory");
+        if (productsByCategoryCache != null) {
+            productsByCategoryCache.clear();  // 카테고리별 제품 캐시 무효화
+        }
     }
 
     @Transactional
@@ -111,14 +146,17 @@ public class ProductService {
         productRepository.saveAll(savedProduct);
     }
 
+    @Cacheable(value = "pageProducts", key = "#pageable.pageNumber")
     public Page<ProductDto> getAllProduct(Pageable pageable) {
         return productRepository.findAllToDto(pageable);
     }
 
+    @Cacheable(value = "releasedProducts", key = "#pageable.pageNumber")
     public Page<ProductDto> getReleasedProducts(Pageable pageable) {
         return productRepository.findReleasedProducts(pageable);
     }
 
+    @Cacheable(value = "products", key = "#productId")
     public ProductDto getProductById(Long productId) {
         ProductDto productDto = productRepository.findProductDtoById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
@@ -131,7 +169,31 @@ public class ProductService {
         return productDto;
     }
 
+    @Cacheable(value = "productsByCategory", key = "#category + '-' + #pageable.pageNumber")
     public Page<ProductDto> getProductsByCategory(Pageable pageable, String category) {
         return productRepository.findProductsByCategory(pageable, category);
+    }
+
+    @Cacheable(value = "allProducts", key = "'all'")
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public Map<Long, Product> getProductsByIds(List<Long> productIds) {
+        // 전체 제품을 캐시에서 가져오기
+        Cache allProductsCache = cacheManager.getCache("allProducts");
+        List<Product> allProducts;
+
+        if (allProductsCache != null) {
+            allProducts = allProductsCache.get("all", List.class);
+        } else {
+            // 캐시가 없으면 데이터베이스에서 조회
+            allProducts = findAllProducts();
+        }
+
+        // 요청된 productIds에 해당하는 제품만 추출하여 Map으로 변환
+        return allProducts.stream()
+                .filter(product -> productIds.contains(product.getId()))
+                .collect(Collectors.toMap(Product::getId, product -> product));
     }
 }
