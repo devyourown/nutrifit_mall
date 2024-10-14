@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,17 +29,18 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.quantity, " +
             "oi.trackingNumber) " +
             "FROM OrderItem oi " +
-            "WHERE oi.currentStatus = :status")
-    List<OrderItemExcelDto> findOrderItemsByStatus(@Param("status") String status);
+            "WHERE oi.currentStatus = :status " +
+            "ORDER BY oi.orderDate ASC")
+    Page<OrderItemExcelDto> findOrderItemsByStatus(@Param("status") String status, Pageable pageable);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "oi.orderPaymentId, " +
             "oi.orderDate, " +
             "oi.currentStatus, " +
-            "oi.username " +
+            "oi.username, " +
             "oi.trackingNumber, " +
             "oi.productName) " +
-            "FROM OrderItem oi ")
+            "FROM OrderItem oi")
     Page<OrderDto> findAllOrders(Pageable pageable);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +

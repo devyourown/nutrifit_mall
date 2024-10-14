@@ -1,4 +1,5 @@
 DELETE FROM shipping_status;
+DELETE FROM order_item_backup;
 DELETE FROM order_item;
 DELETE FROM options;
 DELETE FROM cart_item;
@@ -131,24 +132,40 @@ INSERT INTO orders (id, user_id, total_amount, order_date, order_payment_id, pay
 (20000000, 20000, 10000, '2024-06-01 13:00:00', '12312423', 20),
 (30000000, 40000, 10000, '2024-06-01 13:00:00', '11345678', 30);
 
-INSERT INTO order_item (id, order_id, product_id, price, quantity, total_amount, image_url) VALUES
-(1000, 10000000, 1000, 1000, 2, 2000, '/herb_chicken1.jpg'),
-(2000, 10000000, 2000, 1500, 2, 3000, '/herb_chicken1.jpg'),
-(3000, 20000000, 3000, 3000, 3, 9000, '/herb_chicken1.jpg'),
-(4000, 30000000, 3000, 3000, 3, 9000, '/herb_chicken1.jpg'),
-(5000, 30000000, 3000, 3000, 3, 9000, '/herb_chicken1.jpg');
+-- 백만 개의 OrderItem 데이터를 삽입하는 SQL 스크립트
+INSERT INTO order_item (
+    id, order_id, order_payment_id, user_id, username, product_id, product_name,
+    price, quantity, image_url, total_amount, tracking_number, order_date,
+    current_status_time, current_status, recipient_name, recipient_phone,
+    orderer_name, orderer_phone, address, address_detail, cautions
+)
+SELECT
+    generate_series(1, 1000000) AS id,
+    10000000 AS order_id,
+    md5(random()::text) AS order_payment_id,
+    (random() * 1000)::bigint AS user_id,
+    'user_' || (random() * 1000)::bigint AS username,
+    (random() * 100)::bigint AS product_id,
+    'Product ' || (random() * 100)::bigint AS product_name,
+    (random() * 10000)::bigint AS price,
+    (random() * 10 + 1)::int AS quantity,
+    'https://example.com/image_' || (random() * 100)::bigint || '.jpg' AS image_url,
+    (random() * 100000)::bigint AS total_amount,
+    'TRACK_' || (random() * 100000)::bigint AS tracking_number,
+    now() - (random() * interval '30 days') AS order_date,
+    now() - (random() * interval '30 days') AS current_status_time,
+    '주문완료' AS current_status,
+    'Recipient_' || (random() * 1000)::bigint AS recipient_name,
+    '010-' || (random() * 10000)::bigint || '-' || (random() * 10000)::bigint AS recipient_phone,
+    'Orderer_' || (random() * 1000)::bigint AS orderer_name,
+    '010-' || (random() * 10000)::bigint || '-' || (random() * 10000)::bigint AS orderer_phone,
+    'Address_' || (random() * 1000)::bigint AS address,
+    'Detail_' || (random() * 1000)::bigint AS address_detail,
+    'No cautions' AS cautions;
 
 INSERT INTO shipping (id, order_id, recipient_name, address, address_detail, recipient_phone, orderer_name, orderer_phone) VALUES
 (10000,10000000, 'John Doe', '123 Main St', 'key', '010-1234-5678', 'lee', '010-1234-5678'),
 (20000, 20000000, 'Jane Smith', '456 Park Ave', 'key', '010-8765-4321', 'joe', '010-1234-5678');
-
-INSERT INTO shipping_status (id, order_item_id, status, status_time) VALUES
-(12122, 1000, '출고완료','2024-06-01 12:00:00'),
-(22121, 1000, '배송완료','2024-06-03 12:00:00'),
-(31212, 2000, '출고완료','2024-06-01 12:00:00'),
-(41212, 2000, '배송완료','2024-06-03 12:00:00'),
-(3121232, 4000, '출고완료','2024-06-01 12:00:00'),
-(4121232, 5000, '배송완료','2024-06-03 12:00:00');
 
 -- Review data
 INSERT INTO review (id, user_id, product_id, rating, comment, created_at, image_urls) VALUES

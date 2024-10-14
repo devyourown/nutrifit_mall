@@ -17,7 +17,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "JOIN FETCH p.order o " +
             "JOIN FETCH o.orderItems oi " +
             "JOIN FETCH o.shipping s " +
-            "JOIN FETCH oi.product product " +
             "WHERE p.id = :paymentId")
     Optional<Payment> findByIdWithOrderAndItemsAndShipping(@Param("paymentId") String paymentId);
 
@@ -29,7 +28,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "JOIN FETCH p.order o " +
             "JOIN FETCH o.orderItems oi " +
             "JOIN FETCH o.shipping s " +
-            "JOIN FETCH oi.product product " +
             "WHERE p.user.id = :userId")
     Page<Payment> findByUserWithOrdersAndItemsAndShipping(@Param("userId") Long userId, Pageable pageable);
 }
