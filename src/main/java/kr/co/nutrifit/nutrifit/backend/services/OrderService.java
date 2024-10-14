@@ -8,6 +8,7 @@ import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,28 +114,27 @@ public class OrderService {
         return orderItemRepository.findAllByShippingStatusAndPage(status, pageable);
     }
 
-    public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status) {
-        return orderItemRepository.findOrderItemsByStatus(status);
+    public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<OrderItemExcelDto> resultPage = orderItemRepository.findOrderItemsByStatus(status, pageable);
+        return resultPage.getContent();
     }
 
-    public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems) {
-        LocalDateTime now = LocalDateTime.now();
-        for (int i=0; i<orderItems.size(); i += BATCH_SIZE) {
+    public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems, LocalDateTime startDate, LocalDateTime endDate) {
+        for (int i = 0; i < orderItems.size(); i += BATCH_SIZE) {
             List<OrderItemExcelDto> partitionItems = orderItems.subList(i, Math.min(i + BATCH_SIZE, orderItems.size()));
-            List<OrderItem> foundItems = findOrderItems(partitionItems);
+            List<OrderItem> foundItems = findOrderItems(partitionItems, startDate, endDate);
+            for (OrderItem item : foundItems) {
+                System.out.println(item.getId());
+            }
             Map<String, OrderItem> orderItemMap = createOrderItemMap(foundItems);
-
-            processAndUpdateOrderItems(partitionItems, orderItemMap, now);
+            processAndUpdateOrderItems(partitionItems, orderItemMap, LocalDateTime.now());
         }
     }
 
-
-
-    private List<OrderItem> findOrderItems(List<OrderItemExcelDto> orderItems) {
+    private List<OrderItem> findOrderItems(List<OrderItemExcelDto> orderItems, LocalDateTime startDate, LocalDateTime endDate) {
         List<String> orderIds = orderItems.stream().map(OrderItemExcelDto::getOrderId).toList();
         List<String> productNames = orderItems.stream().map(OrderItemExcelDto::getProductName).toList();
-        LocalDateTime startDate = LocalDate.now().minusDays(1).atStartOfDay();
-        LocalDateTime endDate = LocalDate.now().plusDays(1).atTime(LocalTime.MAX);
         return orderItemRepository.findAllByOrderIdInAndProductNameInAndOrderDateBetween(orderIds, productNames, startDate, endDate);
     }
 
@@ -147,8 +147,6 @@ public class OrderService {
     }
 
     private void processAndUpdateOrderItems(List<OrderItemExcelDto> orderItems, Map<String, OrderItem> orderItemMap, LocalDateTime now) {
-        List<OrderItem> itemsToSave = new ArrayList<>();
-
         for (OrderItemExcelDto dto : orderItems) {
             String key = dto.getOrderId() + "_" + dto.getProductName();
             OrderItem orderItem = orderItemMap.get(key);
@@ -160,14 +158,13 @@ public class OrderService {
                         .orderItem(orderItem)
                         .statusTime(now)
                         .status("출고완료").build());
-                itemsToSave.add(orderItem);
             }
         }
-        saveOrderItems(itemsToSave);
+        saveOrderItems();
     }
 
     @Transactional
-    private void saveOrderItems(List<OrderItem> items) {
-        orderItemRepository.saveAll(items);
+    private void saveOrderItems() {
+        orderItemRepository.flush();
     }
 }

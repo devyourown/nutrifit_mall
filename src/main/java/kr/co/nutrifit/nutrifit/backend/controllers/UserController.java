@@ -118,6 +118,9 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/check")
     public ResponseEntity<?> checkAdmin(@AuthenticationPrincipal UserAdapter userAdapter) {
+        if (userAdapter == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
