@@ -54,13 +54,4 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "WHERE oi.currentStatus = :status")
     Page<OrderDto> findAllByShippingStatusAndPage(@Param("status") String status, Pageable pageable);
 
-    @Query("SELECT oi FROM OrderItem oi " +
-            "WHERE oi.orderPaymentId IN :orderIds " +
-            "AND oi.productName IN :productNames " +
-            "AND oi.orderDate BETWEEN :startDate AND :endDate")
-    List<OrderItem> findAllByOrderIdInAndProductNameInAndOrderDateBetween(@Param("orderIds") List<String> orderIds,
-                                                       @Param("productNames") List<String> productNames,
-                                                       @Param("startDate") LocalDateTime startDate,
-                                                       @Param("endDate") LocalDateTime endDate);
-
 }

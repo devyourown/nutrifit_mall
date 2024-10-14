@@ -1,6 +1,4 @@
 DELETE FROM shipping_status;
-DELETE FROM order_item_backup;
-DELETE FROM order_item;
 DELETE FROM options;
 DELETE FROM cart_item;
 DELETE FROM review;

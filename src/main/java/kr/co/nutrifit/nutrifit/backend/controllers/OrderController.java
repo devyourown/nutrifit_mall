@@ -89,14 +89,12 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/tracking")
     public ResponseEntity<?> updateTrackingNumber(@AuthenticationPrincipal UserAdapter userAdapter,
-                                                  @RequestBody List<OrderItemExcelDto> dto,
-                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+                                                  @RequestBody List<OrderItemExcelDto> dto) {
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         try {
-            orderService.updateTrackingNumbers(dto, startDate, endDate);
+            orderService.updateTrackingNumbers(dto);
             return ResponseEntity.ok("성공적으로 운송장번호가 업데이트 되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("운송장번호 업데이트에 실패했습니다.");

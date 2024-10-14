@@ -1,5 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
@@ -18,10 +20,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +29,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final OrderItemRepository orderItemRepository;
-    private static final int BATCH_SIZE = 10000;
+    private final DataSource dataSource;
+    private static final int BATCH_SIZE = 1000;
 
     @Transactional
     public Order createOrder(Optional<User> user, String phone, String orderId, List<CartItemDto> cartItemDto, OrdererDto ordererDto) {
@@ -120,51 +120,37 @@ public class OrderService {
         return resultPage.getContent();
     }
 
-    public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems, LocalDateTime startDate, LocalDateTime endDate) {
-        for (int i = 0; i < orderItems.size(); i += BATCH_SIZE) {
-            List<OrderItemExcelDto> partitionItems = orderItems.subList(i, Math.min(i + BATCH_SIZE, orderItems.size()));
-            List<OrderItem> foundItems = findOrderItems(partitionItems, startDate, endDate);
-            for (OrderItem item : foundItems) {
-                System.out.println(item.getId());
+    public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems) {
+        String sql = """
+            UPDATE order_item
+            SET tracking_number = ?, current_status = '출고완료', current_status_time = ?
+            WHERE order_payment_id = ? AND product_name = ?
+        """;
+
+        LocalDateTime now = LocalDateTime.now();
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            int count = 0;
+            for (OrderItemExcelDto dto : orderItems) {
+                ps.setString(1, dto.getTrackingNumber());
+                ps.setTimestamp(2, Timestamp.valueOf(now));
+                ps.setString(3, dto.getOrderId());
+                ps.setString(4, dto.getProductName());
+                ps.addBatch();
+
+                // 배치 사이즈마다 실행
+                if (++count % BATCH_SIZE == 0) {
+                    ps.executeBatch();
+                }
             }
-            Map<String, OrderItem> orderItemMap = createOrderItemMap(foundItems);
-            processAndUpdateOrderItems(partitionItems, orderItemMap, LocalDateTime.now());
+
+            // 남아 있는 배치 실행
+            ps.executeBatch();
+            System.out.println("Batch update completed successfully.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Batch update failed", e);
         }
-    }
-
-    private List<OrderItem> findOrderItems(List<OrderItemExcelDto> orderItems, LocalDateTime startDate, LocalDateTime endDate) {
-        List<String> orderIds = orderItems.stream().map(OrderItemExcelDto::getOrderId).toList();
-        List<String> productNames = orderItems.stream().map(OrderItemExcelDto::getProductName).toList();
-        return orderItemRepository.findAllByOrderIdInAndProductNameInAndOrderDateBetween(orderIds, productNames, startDate, endDate);
-    }
-
-    private Map<String, OrderItem> createOrderItemMap(List<OrderItem> foundItems) {
-        return foundItems.stream()
-                .collect(Collectors.toMap(
-                        item -> item.getOrderPaymentId() + "_" + item.getProductName(),
-                        item -> item
-                ));
-    }
-
-    private void processAndUpdateOrderItems(List<OrderItemExcelDto> orderItems, Map<String, OrderItem> orderItemMap, LocalDateTime now) {
-        for (OrderItemExcelDto dto : orderItems) {
-            String key = dto.getOrderId() + "_" + dto.getProductName();
-            OrderItem orderItem = orderItemMap.get(key);
-            if (orderItem != null) {
-                orderItem.setTrackingNumber(dto.getTrackingNumber());
-                orderItem.setCurrentStatus("출고완료");
-                orderItem.setCurrentStatusTime(now);
-                orderItem.addStatus(ShippingStatus.builder()
-                        .orderItem(orderItem)
-                        .statusTime(now)
-                        .status("출고완료").build());
-            }
-        }
-        saveOrderItems();
-    }
-
-    @Transactional
-    private void saveOrderItems() {
-        orderItemRepository.flush();
     }
 }
