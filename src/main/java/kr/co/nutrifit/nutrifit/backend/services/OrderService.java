@@ -33,7 +33,7 @@ public class OrderService {
     private static final int BATCH_SIZE = 1000;
 
     @Transactional
-    public Order createOrder(Optional<User> user, String phone, String orderId, List<CartItemDto> cartItemDto, OrdererDto ordererDto) {
+    public Order createOrder(Optional<User> user, String phone, String orderId, List<OrderItemDto> orderItemDto, OrdererDto ordererDto) {
         Order order = new Order();
         order.setOrderPaymentId(orderId);
         LocalDateTime now = LocalDateTime.now();
@@ -45,16 +45,16 @@ public class OrderService {
             order.setUserPhone(phone);
         }
 
-        List<Long> productIds = cartItemDto.stream()
-                .map(CartItemDto::getId)
+        List<Long> productIds = orderItemDto.stream()
+                .map(OrderItemDto::getProductId)
                 .collect(Collectors.toList());
         Map<Long, Product> productMap = productService.getProductsByIds(productIds);
 
         long totalAmount = 0;
 
-        for (CartItemDto itemDto : cartItemDto) {
-            Product product = productMap.get(itemDto.getId());
-            if (product == null) throw new IllegalArgumentException("상품을 찾을 수 없습니다: " + itemDto.getId());
+        for (OrderItemDto itemDto : orderItemDto) {
+            Product product = productMap.get(itemDto.getProductId());
+            if (product == null) throw new IllegalArgumentException("상품을 찾을 수 없습니다: " + itemDto.getProductId());
 
             OrderItem orderItem = createOrderItem(order, user.orElse(null), phone, now, ordererDto, product, itemDto);
             totalAmount += orderItem.getTotalAmount();
@@ -65,7 +65,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    private OrderItem createOrderItem(Order order, User user, String phone, LocalDateTime now, OrdererDto ordererDto, Product product, CartItemDto itemDto) {
+    private OrderItem createOrderItem(Order order, User user, String phone, LocalDateTime now, OrdererDto ordererDto, Product product, OrderItemDto itemDto) {
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         if (user != null) {
@@ -112,6 +112,10 @@ public class OrderService {
 
     public Page<OrderDto> getOrdersByFilter(String status, Pageable pageable) {
         return orderItemRepository.findAllByShippingStatusAndPage(status, pageable);
+    }
+
+    public List<OrderItemDto> getItemsByPaymentId(String paymentId) {
+        return orderItemRepository.findItemsByPaymentId(paymentId);
     }
 
     public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status, int limit) {

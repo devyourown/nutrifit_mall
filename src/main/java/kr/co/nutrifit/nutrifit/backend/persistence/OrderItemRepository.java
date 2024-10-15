@@ -54,4 +54,14 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "WHERE oi.currentStatus = :status")
     Page<OrderDto> findAllByShippingStatusAndPage(@Param("status") String status, Pageable pageable);
 
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(" +
+            "oi.productId, " +
+            "oi.productName, " +
+            "oi.imageUrl, " +
+            "oi.price, " +
+            "oi.quantity, " +
+            "oi.totalAmount) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.orderPaymentId = :paymentId")
+    List<OrderItemDto> findItemsByPaymentId(@Param("paymentId") String paymentId);
 }

@@ -15,6 +15,31 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentDto {
+    public PaymentDto(String orderId, Long total, Long subtotal, Long discount, Long shippingFee,
+                      String paymentMethod, String recipientName, String recipientPhone,
+                      String ordererName, String ordererPhone, String address, String addressDetail,
+                      String cautions, LocalDateTime paymentDate, String couponCode,
+                      int usedPoints, long earnPoints, String phoneNumber) {
+        this.orderId = orderId;
+        this.total = total;
+        this.subtotal = subtotal;
+        this.discount = discount;
+        this.shippingFee = shippingFee;
+        this.paymentMethod = paymentMethod;
+        this.recipientName = recipientName;
+        this.recipientPhone = recipientPhone;
+        this.ordererName = ordererName;
+        this.ordererPhone = ordererPhone;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.cautions = cautions;
+        this.paymentDate = paymentDate;
+        this.couponCode = couponCode;
+        this.usedPoints = usedPoints;
+        this.earnPoints = earnPoints;
+        this.phoneNumber = phoneNumber;
+    }
+
     @NotNull
     private String orderId;
 
@@ -34,7 +59,7 @@ public class PaymentDto {
     private String paymentMethod;
 
     @NotNull
-    private List<CartItemDto> orderItems;
+    private List<OrderItemDto> orderItems;
 
     @NotNull
     private OrdererDto ordererDto;
@@ -48,4 +73,24 @@ public class PaymentDto {
     private long earnPoints;
 
     private String phoneNumber;
+
+    @NotNull
+    private String recipientName;
+
+    @NotNull
+    private String recipientPhone;
+
+    @NotNull
+    private String ordererName;
+
+    @NotNull
+    private String ordererPhone;
+
+    @NotNull
+    private String address;
+
+    @NotNull
+    private String addressDetail;
+
+    private String cautions;
 }

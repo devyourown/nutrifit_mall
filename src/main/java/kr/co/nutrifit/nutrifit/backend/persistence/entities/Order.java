@@ -44,9 +44,6 @@ public class Order {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
-    private Shipping shipping;
-
     public void addOrderItem(OrderItem orderItem) {
         if (orderItems == null)
             orderItems = new ArrayList<>();

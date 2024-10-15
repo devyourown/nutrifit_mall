@@ -13,21 +13,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    @Query("SELECT p FROM Payment p " +
-            "JOIN FETCH p.order o " +
-            "JOIN FETCH o.orderItems oi " +
-            "JOIN FETCH o.shipping s " +
-            "WHERE p.id = :paymentId")
-    Optional<Payment> findByIdWithOrderAndItemsAndShipping(@Param("paymentId") String paymentId);
-
-    @Query("SELECT p FROM Payment p WHERE p.orderPaymentId = :paymentId")
-    Optional<Payment> findByOrderPaymentId(@Param("paymentId") String paymentId);
+    @Query("SELECT new com.example.dto.PaymentDto(" +
+            "p.orderPaymentId, p.total, p.subtotal, p.discount, p.shippingFee, p.paymentMethod, " +
+            "p.recipientName, p.recipientPhone, p.ordererName, p.ordererPhone, " +
+            "p.address, p.addressDetail, p.cautions, p.paymentDate, p.couponCode, " +
+            "p.usedPoints, p.earnPoints, p.phoneNumber) " +
+            "FROM Payment p " +
+            "WHERE p.orderPaymentId = :paymentId")
+    Optional<PaymentDto> findByOrderPaymentId(@Param("paymentId") String paymentId);
 
     // 2. 특정 userId로 해당 사용자의 모든 Payment 리스트 조회
-    @Query("SELECT DISTINCT p FROM Payment p " +
-            "JOIN FETCH p.order o " +
-            "JOIN FETCH o.orderItems oi " +
-            "JOIN FETCH o.shipping s " +
+    @Query("SELECT new com.example.dto.PaymentDto(" +
+            "p.orderPaymentId, p.total, p.subtotal, p.discount, p.shippingFee, p.paymentMethod, " +
+            "p.recipientName, p.recipientPhone, p.ordererName, p.ordererPhone, " +
+            "p.address, p.addressDetail, p.cautions, p.paymentDate, p.couponCode, " +
+            "p.usedPoints, p.earnPoints, p.phoneNumber) " +
+            "FROM Payment p " +
             "WHERE p.user.id = :userId")
-    Page<Payment> findByUserWithOrdersAndItemsAndShipping(@Param("userId") Long userId, Pageable pageable);
+    Page<PaymentDto> findPaymentDtosByUserId(@Param("userId") Long userId, Pageable pageable);
+
 }

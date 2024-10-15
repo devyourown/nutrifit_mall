@@ -44,7 +44,7 @@ public class PaymentController {
             @RequestBody @Valid PaymentDto paymentDto
     ) {
         try {
-            paymentService.createPaymentWithoutUser(paymentDto);
+            paymentService.createPayment(null, paymentDto);
             return ResponseEntity.ok("결제가 완료되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

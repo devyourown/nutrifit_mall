@@ -54,4 +54,27 @@ public class Payment {
     private int usedPoints;
 
     private long earnPoints;
+
+    @Column(nullable = false)
+    private String recipientName;
+
+    @Column(nullable = false)
+    private String recipientPhone;
+
+    @Column(nullable = false)
+    private String ordererName;
+
+    @Column(nullable = false)
+    private String ordererPhone;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private String addressDetail;
+
+    @Column
+    private String cautions;
+
+    private String phoneNumber;
 }

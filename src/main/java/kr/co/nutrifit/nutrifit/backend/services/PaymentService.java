@@ -1,19 +1,12 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
-import kr.co.nutrifit.nutrifit.backend.dto.CartItemDto;
-import kr.co.nutrifit.nutrifit.backend.dto.OrdererDto;
-import kr.co.nutrifit.nutrifit.backend.dto.PaymentApiResponse;
-import kr.co.nutrifit.nutrifit.backend.dto.PaymentDto;
-import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
+import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.PaymentRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.ShippingRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Order;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Payment;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Shipping;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
-    private final ShippingService shippingService;
     private final CouponService couponService;
     private final PointService pointService;
     private final ProductService productService;
     private final PaymentApiClient paymentApiClient;
-
+    private static final double POINT_MULTIPLIER = 0.05;
 
     @Transactional
     public void createPayment(User user, PaymentDto paymentDto) {
@@ -41,24 +32,17 @@ public class PaymentService {
             validateCouponAndPoints(paymentDto.getCouponCode(), paymentDto.getUsedPoints(), user, paymentDto.getTotal());
             PaymentApiResponse paymentApiResponse = paymentApiClient.getPayment(paymentDto.getOrderId());
             validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
-            productService.reduceStock(paymentDto.getOrderItems());
-            createOrderAndPaymentAndShipping(user, paymentDto, paymentApiResponse.getStatus());
-            pointService.addPoints(user, (long) (paymentApiResponse.getAmount() * 0.05));
+            createOrderAndPayment(user, paymentDto, paymentApiResponse.getStatus());
+            if (user != null) pointService.addPoints(user, (long) (paymentApiResponse.getAmount() * POINT_MULTIPLIER));
         } catch (Exception e) {
             throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
 
-    @Transactional
-    public void createPaymentWithoutUser(PaymentDto paymentDto) {
-        try {
-            PaymentApiResponse paymentApiResponse = paymentApiClient.getPayment(paymentDto.getOrderId());
-            validatePaymentAmount(paymentApiResponse.getAmount(), paymentDto.getTotal());
-            productService.reduceStock(paymentDto.getOrderItems());
-            createOrderAndPaymentAndShippingWithoutUser(paymentDto, paymentApiResponse.getStatus());
-        } catch (Exception e) {
-            throw new RuntimeException("결제 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
-        }
+    private void validateCouponAndPoints(String couponCode, int points, User user, Long total) {
+        if (user == null) return;
+        if (couponCode != null) couponService.useCoupon(user, couponCode, total);
+        if (points > 0) pointService.usePoints(user, points);
     }
 
     private void validatePaymentAmount(Long pgAmount, Long amount) {
@@ -67,39 +51,22 @@ public class PaymentService {
         }
     }
 
-    private void createOrderAndPaymentAndShippingWithoutUser(PaymentDto paymentDto, String status) {
-        Order order = orderService.createOrder(Optional.empty(), paymentDto.getPhoneNumber(), paymentDto.getOrderId(), paymentDto.getOrderItems(), paymentDto.getOrdererDto());
-        Payment payment = createPaymentEntityWithoutUser(paymentDto, status, order);
-        Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);
-        order.setPayment(payment);
-        order.setShipping(shipping);
-    }
-
-    private Payment createPaymentEntityWithoutUser(PaymentDto paymentDto, String status, Order order) {
-        Payment payment = Payment.builder()
-                .orderPaymentId(paymentDto.getOrderId())
-                .order(order)
-                .total(paymentDto.getTotal())
-                .shippingFee(paymentDto.getShippingFee())
-                .discount(paymentDto.getDiscount())
-                .subtotal(paymentDto.getSubtotal())
-                .paymentMethod(paymentDto.getPaymentMethod())
-                .paymentStatus(status)
-                .paymentDate(LocalDateTime.now())
-                .build();
-        return paymentRepository.save(payment);
-    }
-
-    private void createOrderAndPaymentAndShipping(User user, PaymentDto paymentDto, String status) {
-        Order order = orderService.createOrder(Optional.of(user), "", paymentDto.getOrderId(), paymentDto.getOrderItems(), paymentDto.getOrdererDto());
+    private void createOrderAndPayment(User user, PaymentDto paymentDto, String status) {
+        productService.reduceStock(paymentDto.getOrderItems());
+        Order order = orderService.createOrder(
+                Optional.ofNullable(user),
+                paymentDto.getPhoneNumber(),
+                paymentDto.getOrderId(),
+                paymentDto.getOrderItems(),
+                paymentDto.getOrdererDto()
+        );
         Payment payment = createPaymentEntity(user, paymentDto, status, order);
-        Shipping shipping = shippingService.createShipping(paymentDto.getOrdererDto(), order);
         order.setPayment(payment);
-        order.setShipping(shipping);
     }
 
     private Payment createPaymentEntity(User user, PaymentDto paymentDto, String status, Order order) {
-        Payment payment = Payment.builder()
+        OrdererDto ordererDto = paymentDto.getOrdererDto();
+        Payment.PaymentBuilder paymentBuilder = Payment.builder()
                 .orderPaymentId(paymentDto.getOrderId())
                 .order(order)
                 .total(paymentDto.getTotal())
@@ -109,67 +76,33 @@ public class PaymentService {
                 .paymentMethod(paymentDto.getPaymentMethod())
                 .paymentStatus(status)
                 .paymentDate(LocalDateTime.now())
-                .usedPoints(paymentDto.getUsedPoints())
-                .earnPoints((long) (paymentDto.getTotal() * 0.05))
-                .couponCode(paymentDto.getCouponCode())
-                .user(user)
-                .build();
-        return paymentRepository.save(payment);
-    }
+                .recipientName(ordererDto.getRecipientName())
+                .recipientPhone(ordererDto.getRecipientPhone())
+                .ordererName(ordererDto.getOrdererName())
+                .ordererPhone(ordererDto.getOrdererPhone())
+                .address(ordererDto.getAddress())
+                .addressDetail(ordererDto.getAddressDetail())
+                .cautions(ordererDto.getCautions());
 
-    private void validateCouponAndPoints(String couponCode, int points, User user, Long total) {
-        if(couponCode != null) {
-            couponService.useCoupon(user, couponCode, total);
+        if (user != null) {
+            paymentBuilder
+                    .user(user)
+                    .usedPoints(paymentDto.getUsedPoints())
+                    .earnPoints((long) (paymentDto.getTotal() * POINT_MULTIPLIER))
+                    .couponCode(paymentDto.getCouponCode());
         }
-
-        if (points > 0) {
-            pointService.usePoints(user, points);
-        }
+        return paymentRepository.save(paymentBuilder.build());
     }
 
     public PaymentDto getPaymentById(String id) {
-        Payment payment = paymentRepository.findByOrderPaymentId(id)
+        List<OrderItemDto> items = orderService.getItemsByPaymentId(id);
+        PaymentDto paymentDto = paymentRepository.findByOrderPaymentId(id)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
-        return convertToDto(payment);
+        paymentDto.setOrderItems(items);
+        return paymentDto;
     }
 
     public Page<PaymentDto> getPaymentsByUser(Long userId, Pageable pageable) {
-        Page<Payment> payments = paymentRepository.findByUserWithOrdersAndItemsAndShipping(userId, pageable);
-        List<PaymentDto> paymentDtos = payments.stream().map(this::convertToDto).toList();
-        return new PageImpl<>(paymentDtos, pageable, payments.getTotalElements());
+        return paymentRepository.findPaymentDtosByUserId(userId, pageable);
     }
-
-    public PaymentDto convertToDto(Payment payment) {
-        Order order = payment.getOrder();
-        Shipping shipping = order.getShipping();
-        return PaymentDto.builder()
-                .orderId(order.getOrderPaymentId())
-                .total(payment.getTotal())
-                .shippingFee(payment.getShippingFee())
-                .discount(payment.getDiscount())
-                .subtotal(payment.getSubtotal())
-                .paymentMethod(payment.getPaymentMethod())
-                .paymentDate(payment.getPaymentDate())
-                .orderItems(order.getOrderItems().stream().map(orderItem -> CartItemDto.builder()
-                        .id(orderItem.getProductId())
-                        .name(orderItem.getProductName())
-                        .quantity(orderItem.getQuantity())
-                        .price(orderItem.getPrice())
-                        .imageUrl(orderItem.getImageUrl())
-                        .build()).collect(Collectors.toList()))
-                .ordererDto(OrdererDto.builder()
-                        .recipientName(shipping.getRecipientName())
-                        .recipientPhone(shipping.getRecipientPhone())
-                        .ordererName(shipping.getOrdererName())
-                        .ordererPhone(shipping.getOrdererPhone())
-                        .address(shipping.getAddress())
-                        .addressDetail(shipping.getAddressDetail())
-                        .cautions(shipping.getCautions())
-                        .build())
-                .couponCode(payment.getCouponCode())
-                .usedPoints(payment.getUsedPoints())
-                .earnPoints(payment.getEarnPoints())
-                .build();
-    }
-
 }

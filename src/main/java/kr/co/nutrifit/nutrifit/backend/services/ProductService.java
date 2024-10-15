@@ -129,17 +129,17 @@ public class ProductService {
     }
 
     @Transactional
-    public void reduceStock(List<CartItemDto> items) {
+    public void reduceStock(List<OrderItemDto> items) {
         List<Product> savedProduct = new ArrayList<>();
         items.forEach(item -> {
-            Product product = productRepository.findById(item.getId())
+            Product product = productRepository.findById(item.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
             if (product.getStockQuantity() < item.getQuantity()) {
                 throw new IllegalArgumentException("주문량이 재고를 초과합니다.");
             }
             product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
             if (product.getLowStockThreshold() >= product.getStockQuantity()) {
-                //알림
+                product.setReleased(false);
             }
             savedProduct.add(product);
         });
