@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class OrderItemDto {
-    public OrderItemDto(Long productId, String name, String imageUrl, int price, int quantity, Long totalAmount) {
+    public OrderItemDto(Long productId, String name, String imageUrl, Long price, int quantity, Long totalAmount) {
         this.productId = productId;
         this.quantity = quantity;
         this.totalAmount = totalAmount;
@@ -21,7 +21,7 @@ public class OrderItemDto {
     private Long productId;
     private String name;
     private String imageUrl;
-    private int price;
+    private Long price;
     private int quantity;
     private Long totalAmount;
 }

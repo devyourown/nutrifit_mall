@@ -106,12 +106,12 @@ public class OrderService {
         return orderRepository.findByOrderPaymentId(id);
     }
 
-    public Page<OrderDto> getOrders(Pageable pageable) {
-        return orderItemRepository.findAllOrders(pageable);
+    public Page<OrderDto> getOrders(Pageable pageable, LocalDateTime startDate, LocalDateTime endDate) {
+        return orderItemRepository.findAllOrders(startDate, endDate, pageable);
     }
 
-    public Page<OrderDto> getOrdersByFilter(String status, Pageable pageable) {
-        return orderItemRepository.findAllByShippingStatusAndPage(status, pageable);
+    public Page<OrderDto> getOrdersByFilterBetweenDate(String status, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate) {
+        return orderItemRepository.findAllByFilterBetweenDate(status, startDate, endDate, pageable);
     }
 
     public List<OrderItemDto> getItemsByPaymentId(String paymentId) {

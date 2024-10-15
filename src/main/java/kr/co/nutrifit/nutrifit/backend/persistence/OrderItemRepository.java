@@ -40,8 +40,11 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.username, " +
             "oi.trackingNumber, " +
             "oi.productName) " +
-            "FROM OrderItem oi")
-    Page<OrderDto> findAllOrders(Pageable pageable);
+            "FROM OrderItem oi " +
+            "WHERE oi.orderDate BETWEEN :startDate AND :endDate")
+    Page<OrderDto> findAllOrders(@Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate,
+                                 Pageable pageable);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "oi.orderPaymentId, " +
@@ -51,8 +54,12 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.trackingNumber, " +
             "oi.productName) " +
             "FROM OrderItem oi " +
-            "WHERE oi.currentStatus = :status")
-    Page<OrderDto> findAllByShippingStatusAndPage(@Param("status") String status, Pageable pageable);
+            "WHERE oi.currentStatus = :status " +
+            "AND oi.orderDate BETWEEN :startDate AND :endDate")
+    Page<OrderDto> findAllByFilterBetweenDate(@Param("status") String status,
+                                                  @Param("startDate") LocalDateTime startDate,
+                                                  @Param("endDate") LocalDateTime endDate,
+                                                  Pageable pageable);
 
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(" +
             "oi.productId, " +

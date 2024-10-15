@@ -55,23 +55,27 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public ResponseEntity<Page<OrderDto>> getOrders(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
                                     Pageable pageable) {
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Page<OrderDto> orders = orderService.getOrders(pageable);
+        Page<OrderDto> orders = orderService.getOrders(pageable, startDate, endDate);
         return ResponseEntity.ok(orders);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/filter")
     public ResponseEntity<Page<OrderDto>> getOrdersByFilter(@AuthenticationPrincipal UserAdapter userAdapter,
-                                                    @RequestParam String status,
+                                                            @RequestParam String status,
+                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
                                                     Pageable pageable) {
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Page<OrderDto> orders = orderService.getOrdersByFilter(status, pageable);
+        Page<OrderDto> orders = orderService.getOrdersByFilterBetweenDate(status, pageable, startDate, endDate);
         return ResponseEntity.ok(orders);
     }
 
