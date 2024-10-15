@@ -87,8 +87,10 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "OR oi.productName LIKE :query% " +
             "OR oi.username LIKE :query% " +
             "OR oi.trackingNumber LIKE :query%) " +
+            "AND oi.currentStatus = :status " +
             "AND oi.orderDate BETWEEN :startDate AND :endDate")
-    Page<OrderDto> findAllByQueryBetweenDate(@Param("query") String query,
+    Page<OrderDto> findAllByQueryBetweenDate(@Param("status") String status,
+                                            @Param("query") String query,
                                              @Param("startDate") LocalDateTime startDate,
                                              @Param("endDate") LocalDateTime endDate,
                                              Pageable pageable);

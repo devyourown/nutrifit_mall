@@ -13,18 +13,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrdererDto( " +
-            "u.orderer.recipientName, " +
-            "u.orderer.recipientPhone, " +
-            "u.orderer.ordererName, " +
-            "u.orderer.ordererPhone, " +
-            "u.orderer.address, " +
-            "u.orderer.addressDetail, " +
-            "u.orderer.cautions) " +
+            "u.recipientName, " +
+            "u.recipientPhone, " +
+            "u.ordererName, " +
+            "u.ordererPhone, " +
+            "u.address, " +
+            "u.addressDetail, " +
+            "u.cautions) " +
             "FROM User u WHERE u = :user")
     Optional<OrdererDto> findOrdererDtoByUser(@Param("user") User user);
 

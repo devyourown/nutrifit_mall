@@ -8,6 +8,7 @@ DELETE FROM product;
 DELETE FROM user_coupon;
 DELETE FROM coupon;
 DELETE FROM shipping;
+DELETE FROM order_item;
 DELETE FROM orders;
 DELETE FROM payment;
 DELETE FROM point_transaction;
@@ -115,13 +116,13 @@ INSERT INTO user_coupon (id, user_id, coupon_id, is_used, assigned_at, used_at) 
 (2000, 20000, 2000, false, '2024-06-01 12:00:00', NULL);
 
 -- Payment 더미 데이터
-INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, coupon_code, used_points, earn_points)
+INSERT INTO payment (id, order_payment_id, total, subtotal, discount, shipping_fee, payment_method, payment_status, payment_date, user_id, coupon_code, used_points, earn_points, recipient_name, recipient_phone, orderer_name, orderer_phone, address, address_detail, cautions, phone_number)
 VALUES
-(10, 'PAY-20240001', 100000, 95000, 5000, 3000, 'CREDIT_CARD', 'COMPLETED', '2024-09-01 12:30:00', 10000, 'DISCOUNT10', 500, 1000),
-(20, 'PAY-20240002', 200000, 190000, 10000, 4000, 'PAYPAL', 'PENDING', '2024-09-02 14:45:00', 20000, 'DISCOUNT20', 1000, 2000),
-(30, 'PAY-20240003', 50000, 48000, 2000, 2000, 'KAKAO_PAY', 'COMPLETED', '2024-09-03 09:20:00', 40000, NULL, 0, 500),
-(40, 'PAY-20240004', 150000, 140000, 10000, 3000, 'BANK_TRANSFER', 'FAILED', '2024-09-04 16:00:00', 40000, 'DISCOUNT15', 700, 1500),
-(50, 'PAY-20240005', 300000, 285000, 15000, 5000, 'CREDIT_CARD', 'COMPLETED', '2024-09-05 11:15:00', 40000, 'DISCOUNT25', 1200, 3000);
+(10, 'PAY-20240001', 100000, 95000, 5000, 3000, 'CREDIT_CARD', 'COMPLETED', '2024-09-01 12:30:00', 10000, 'DISCOUNT10', 500, 1000, '홍길동', '010-1234-5678', '김철수', '010-5678-1234', '서울특별시 강남구 테헤란로', '101호', '조심히 배송해주세요', '010-9999-8888'),
+(20, 'PAY-20240002', 200000, 190000, 10000, 4000, 'PAYPAL', 'PENDING', '2024-09-02 14:45:00', 20000, 'DISCOUNT20', 1000, 2000, '김영희', '010-2345-6789', '박영수', '010-6789-2345', '서울특별시 강남구 역삼로', '202호', NULL, '010-7777-6666'),
+(30, 'PAY-20240003', 50000, 48000, 2000, 2000, 'KAKAO_PAY', 'COMPLETED', '2024-09-03 09:20:00', 40000, NULL, 0, 500, '이순신', '010-3456-7890', '정우성', '010-7890-3456', '서울특별시 강남구 삼성로', '303호', NULL, '010-5555-4444'),
+(40, 'PAY-20240004', 150000, 140000, 10000, 3000, 'BANK_TRANSFER', 'FAILED', '2024-09-04 16:00:00', 40000, 'DISCOUNT15', 700, 1500, '박지성', '010-4567-8901', '이민호', '010-8901-4567', '서울특별시 강남구 학동로', '404호', '급하게 부탁드립니다', '010-3333-2222'),
+(50, 'PAY-20240005', 300000, 285000, 15000, 5000, 'CREDIT_CARD', 'COMPLETED', '2024-09-05 11:15:00', 40000, 'DISCOUNT25', 1200, 3000, '손흥민', '010-5678-9012', '김민재', '010-9012-5678', '서울특별시 강남구 언주로', '505호', NULL, '010-1111-0000');
 
 
 -- Order, OrderItem, and Shipping data

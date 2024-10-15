@@ -82,6 +82,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/query")
     public ResponseEntity<Page<OrderDto>> getOrdersByQuery(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                           @RequestParam String status,
                                                            @RequestParam String query,
                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -89,7 +90,7 @@ public class OrderController {
         if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Page<OrderDto> orders = orderService.getOrdersByQuery(query, pageable, startDate, endDate);
+        Page<OrderDto> orders = orderService.getOrdersByQuery(status, query, pageable, startDate, endDate);
         return ResponseEntity.ok(orders);
     }
 

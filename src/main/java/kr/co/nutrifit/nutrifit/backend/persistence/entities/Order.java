@@ -40,6 +40,15 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ShippingStatus> statuses;
+
+    public void addStatus(ShippingStatus status) {
+        if (statuses == null)
+            statuses = new ArrayList<>();
+        statuses.add(status);
+    }
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;

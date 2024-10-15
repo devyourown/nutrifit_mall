@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.persistence.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,8 +55,19 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CartItem> items;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Orderer orderer;
+    private String recipientName;
+
+    private String recipientPhone;
+
+    private String ordererName;
+
+    private String ordererPhone;
+
+    private String address;
+
+    private String addressDetail;
+
+    private String cautions;
 
     public void addOrder(Order order) {
         if (orders == null)

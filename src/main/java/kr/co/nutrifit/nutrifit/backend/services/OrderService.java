@@ -68,6 +68,10 @@ public class OrderService {
 
     private OrderItem createOrderItem(Order order, User user, String phone, LocalDateTime now, OrdererDto ordererDto, Product product, OrderItemDto itemDto) {
         OrderItem orderItem = new OrderItem();
+        order.addStatus(ShippingStatus.builder()
+                .order(order)
+                .statusTime(now)
+                .status("주문완료").build());
         orderItem.setOrder(order);
         if (user != null) {
             orderItem.setUserId(user.getId());
@@ -92,10 +96,6 @@ public class OrderService {
         orderItem.setAddress(ordererDto.getAddress());
         orderItem.setAddressDetail(ordererDto.getAddressDetail());
         orderItem.setCautions(ordererDto.getCautions());
-        orderItem.addStatus(ShippingStatus.builder()
-                .orderItem(orderItem)
-                .statusTime(now)
-                .status("주문완료").build());
         return orderItem;
     }
 
@@ -115,8 +115,8 @@ public class OrderService {
         return orderItemRepository.findAllByFilterBetweenDate(status, startDate, endDate, pageable);
     }
 
-    public Page<OrderDto> getOrdersByQuery(String query, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate) {
-        return orderItemRepository.findAllByQueryBetweenDate(query, startDate, endDate, pageable);
+    public Page<OrderDto> getOrdersByQuery(String status, String query, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate) {
+        return orderItemRepository.findAllByQueryBetweenDate(status, query, startDate, endDate, pageable);
     }
 
     public List<OrderItemDto> getItemsByPaymentId(String paymentId) {
@@ -151,13 +151,10 @@ public class OrderService {
                 ps.setString(5, dto.getProductName());
                 ps.addBatch();
 
-                // 배치 사이즈마다 실행
                 if (++count % BATCH_SIZE == 0) {
                     ps.executeBatch();
                 }
             }
-
-            // 남아 있는 배치 실행
             ps.executeBatch();
             entityManager.flush();
             entityManager.clear();
