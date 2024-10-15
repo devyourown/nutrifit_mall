@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDto {
+public class ProductDto implements Serializable {
     public ProductDto(Long id, String name, String description, String category, int stockQuantity, int lowStockThreshold,
                       List<String> imageUrls, List<String> badgeTexts, Long originalPrice, Long discountedPrice,
                       Long reviewRating, Long reviewCount) {

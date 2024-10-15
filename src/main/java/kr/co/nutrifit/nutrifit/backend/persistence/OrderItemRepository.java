@@ -41,7 +41,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.trackingNumber, " +
             "oi.productName) " +
             "FROM OrderItem oi " +
-            "WHERE oi.orderDate BETWEEN :startDate AND :endDate")
+            "WHERE oi.orderDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY oi.orderDate DESC")
     Page<OrderDto> findAllOrders(@Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate,
                                  Pageable pageable);
@@ -55,7 +56,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.productName) " +
             "FROM OrderItem oi " +
             "WHERE oi.currentStatus = :status " +
-            "AND oi.orderDate BETWEEN :startDate AND :endDate")
+            "AND oi.orderDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY oi.orderDate DESC")
     Page<OrderDto> findAllByFilterBetweenDate(@Param("status") String status,
                                                   @Param("startDate") LocalDateTime startDate,
                                                   @Param("endDate") LocalDateTime endDate,
@@ -69,6 +71,25 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "oi.quantity, " +
             "oi.totalAmount) " +
             "FROM OrderItem oi " +
-            "WHERE oi.orderPaymentId = :paymentId")
+            "WHERE oi.orderPaymentId = :paymentId " +
+            "ORDER BY oi.orderDate DESC")
     List<OrderItemDto> findItemsByPaymentId(@Param("paymentId") String paymentId);
+
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
+            "oi.orderPaymentId, " +
+            "oi.orderDate, " +
+            "oi.currentStatus, " +
+            "oi.username, " +
+            "oi.trackingNumber, " +
+            "oi.productName) " +
+            "FROM OrderItem oi " +
+            "WHERE (oi.orderPaymentId LIKE :query% " +
+            "OR oi.productName LIKE :query% " +
+            "OR oi.username LIKE :query% " +
+            "OR oi.trackingNumber LIKE :query%) " +
+            "AND oi.orderDate BETWEEN :startDate AND :endDate")
+    Page<OrderDto> findAllByQueryBetweenDate(@Param("query") String query,
+                                             @Param("startDate") LocalDateTime startDate,
+                                             @Param("endDate") LocalDateTime endDate,
+                                             Pageable pageable);
 }

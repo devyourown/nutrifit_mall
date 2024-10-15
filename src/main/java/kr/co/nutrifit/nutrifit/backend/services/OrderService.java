@@ -30,6 +30,7 @@ public class OrderService {
     private final ProductService productService;
     private final OrderItemRepository orderItemRepository;
     private final DataSource dataSource;
+    private final EntityManager entityManager;
     private static final int BATCH_SIZE = 1000;
 
     @Transactional
@@ -114,6 +115,10 @@ public class OrderService {
         return orderItemRepository.findAllByFilterBetweenDate(status, startDate, endDate, pageable);
     }
 
+    public Page<OrderDto> getOrdersByQuery(String query, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate) {
+        return orderItemRepository.findAllByQueryBetweenDate(query, startDate, endDate, pageable);
+    }
+
     public List<OrderItemDto> getItemsByPaymentId(String paymentId) {
         return orderItemRepository.findItemsByPaymentId(paymentId);
     }
@@ -124,10 +129,11 @@ public class OrderService {
         return resultPage.getContent();
     }
 
+    @Transactional
     public void updateTrackingNumbers(List<OrderItemExcelDto> orderItems) {
         String sql = """
             UPDATE order_item
-            SET tracking_number = ?, current_status = '출고완료', current_status_time = ?
+            SET tracking_number = ?, current_status = ?, current_status_time = ?
             WHERE order_payment_id = ? AND product_name = ?
         """;
 
@@ -139,9 +145,10 @@ public class OrderService {
             int count = 0;
             for (OrderItemExcelDto dto : orderItems) {
                 ps.setString(1, dto.getTrackingNumber());
-                ps.setTimestamp(2, Timestamp.valueOf(now));
-                ps.setString(3, dto.getOrderId());
-                ps.setString(4, dto.getProductName());
+                ps.setString(2, "출고완료");
+                ps.setTimestamp(3, Timestamp.valueOf(now));
+                ps.setString(4, dto.getOrderId());
+                ps.setString(5, dto.getProductName());
                 ps.addBatch();
 
                 // 배치 사이즈마다 실행
@@ -152,8 +159,9 @@ public class OrderService {
 
             // 남아 있는 배치 실행
             ps.executeBatch();
-            System.out.println("Batch update completed successfully.");
-        } catch (SQLException e) {
+            entityManager.flush();
+            entityManager.clear();
+        } catch (Exception e) {
             throw new RuntimeException("Batch update failed", e);
         }
     }

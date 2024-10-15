@@ -80,6 +80,20 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/query")
+    public ResponseEntity<Page<OrderDto>> getOrdersByQuery(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                           @RequestParam String query,
+                                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                                                           Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<OrderDto> orders = orderService.getOrdersByQuery(query, pageable, startDate, endDate);
+        return ResponseEntity.ok(orders);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/excel/filter")
     public ResponseEntity<List<OrderItemExcelDto>> getOrdersForExcelByFilter(@AuthenticationPrincipal UserAdapter userAdapter,
                                                                     @RequestParam String status, @RequestParam int limit) {
