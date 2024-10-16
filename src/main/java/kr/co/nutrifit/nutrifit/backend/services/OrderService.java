@@ -118,6 +118,10 @@ public class OrderService {
         return orderItemRepository.findItemsByPaymentId(paymentId);
     }
 
+    public Page<OrderItemDto> getItemsByUser(Long userId, Pageable pageable) {
+        return orderItemRepository.findItemsByUser(userId, pageable);
+    }
+
     public List<OrderItemExcelDto> getOrdersForExcelByFilter(String status, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         Page<OrderItemExcelDto> resultPage = orderItemRepository.findOrderItemsByStatus(status, pageable);

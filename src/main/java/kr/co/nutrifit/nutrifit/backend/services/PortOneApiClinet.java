@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 public class PortOneApiClinet implements PaymentApiClient{
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
     @Value("${iamport.apiSecret}")
     private String apiSecret;

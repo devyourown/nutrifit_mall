@@ -63,18 +63,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
                                                   @Param("endDate") LocalDateTime endDate,
                                                   Pageable pageable);
 
-    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(" +
-            "oi.productId, " +
-            "oi.productName, " +
-            "oi.imageUrl, " +
-            "oi.price, " +
-            "oi.quantity, " +
-            "oi.totalAmount) " +
-            "FROM OrderItem oi " +
-            "WHERE oi.orderPaymentId = :paymentId " +
-            "ORDER BY oi.orderDate DESC")
-    List<OrderItemDto> findItemsByPaymentId(@Param("paymentId") String paymentId);
-
     @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderDto(" +
             "oi.orderPaymentId, " +
             "oi.orderDate, " +
@@ -94,4 +82,29 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
                                              @Param("startDate") LocalDateTime startDate,
                                              @Param("endDate") LocalDateTime endDate,
                                              Pageable pageable);
+
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(" +
+            "oi.productId, " +
+            "oi.productName, " +
+            "oi.imageUrl, " +
+            "oi.price, " +
+            "oi.quantity, " +
+            "oi.totalAmount) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.orderPaymentId = :paymentId " +
+            "ORDER BY oi.orderDate DESC")
+    List<OrderItemDto> findItemsByPaymentId(@Param("paymentId") String paymentId);
+
+    @Query("SELECT new kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto(" +
+            "oi.productId, " +
+            "oi.productName, " +
+            "oi.imageUrl, " +
+            "oi.price, " +
+            "oi.quantity, " +
+            "oi.totalAmount, " +
+            "oi.orderDate) " +
+            "FROM OrderItem oi " +
+            "WHERE oi.userId = :userId " +
+            "ORDER BY oi.orderDate DESC")
+    Page<OrderItemDto> findItemsByUser(@Param("userId") Long userId, Pageable pageable);
 }

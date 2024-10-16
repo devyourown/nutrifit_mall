@@ -1,6 +1,7 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.OrderDto;
+import kr.co.nutrifit.nutrifit.backend.dto.OrderItemDto;
 import kr.co.nutrifit.nutrifit.backend.dto.OrderItemExcelDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
@@ -48,6 +49,17 @@ public class OrderController {
         }
         Page<OrderDto> orders = orderService.getOrdersByUser(id, pageable);
         return ResponseEntity.ok(orders);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/user")
+    public ResponseEntity<Page<OrderItemDto>> getOrdersByUser(@AuthenticationPrincipal UserAdapter userAdapter,
+                                                              @RequestParam Long userId,
+                                                              Pageable pageable) {
+        if (!userAdapter.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(orderService.getItemsByUser(userId, pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
