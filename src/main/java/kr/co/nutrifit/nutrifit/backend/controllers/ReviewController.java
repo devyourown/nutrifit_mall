@@ -1,7 +1,6 @@
 package kr.co.nutrifit.nutrifit.backend.controllers;
 
 import kr.co.nutrifit.nutrifit.backend.dto.ReviewDto;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.Review;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Role;
 import kr.co.nutrifit.nutrifit.backend.security.UserAdapter;
 import kr.co.nutrifit.nutrifit.backend.services.ReviewService;
@@ -15,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController

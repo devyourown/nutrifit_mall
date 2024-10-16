@@ -91,13 +91,4 @@ public class OrderItem {
 
     @Column
     private String cautions;
-
-    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ShippingStatus> statuses;
-
-    public void addStatus(ShippingStatus status) {
-        if (statuses == null)
-            statuses = new ArrayList<>();
-        statuses.add(status);
-    }
 }

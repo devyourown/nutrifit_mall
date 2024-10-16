@@ -1,12 +1,9 @@
 package kr.co.nutrifit.nutrifit.backend.services;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import kr.co.nutrifit.nutrifit.backend.dto.*;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderItemRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.OrderRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -6,7 +6,6 @@ import kr.co.nutrifit.nutrifit.backend.persistence.ProductRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Options;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Product;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductDetail;
-import kr.co.nutrifit.nutrifit.backend.persistence.entities.ProductQnA;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;

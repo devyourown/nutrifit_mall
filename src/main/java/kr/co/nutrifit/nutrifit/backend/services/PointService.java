@@ -4,21 +4,17 @@ import kr.co.nutrifit.nutrifit.backend.dto.PointDto;
 import kr.co.nutrifit.nutrifit.backend.dto.PointTransactionDto;
 import kr.co.nutrifit.nutrifit.backend.persistence.PointRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.PointTransactionRepository;
-import kr.co.nutrifit.nutrifit.backend.persistence.UserRepository;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.Point;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.PointTransaction;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.PointTransactionType;
 import kr.co.nutrifit.nutrifit.backend.persistence.entities.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
