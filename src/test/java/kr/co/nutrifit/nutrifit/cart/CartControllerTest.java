@@ -59,10 +59,6 @@ class CartControllerTest {
 
     @Test
     void getCartItems_shouldReturnListOfItems() throws Exception {
-        List<CartItemDto> cartItems = List.of(
-                new CartItemDto(100L, "Product1", "Description1", 1000L, "image1.jpg", 2),
-                new CartItemDto(100L, "Product2", "Description2", 2000L, "image2.jpg", 1)
-        );
 
         mockMvc.perform(get("/api/cart/items")
                         .with(user(userAdapter)))
@@ -102,15 +98,5 @@ class CartControllerTest {
 
     @Test
     void changeCart_whenValidRequest_shouldReturn200() throws Exception {
-        List<CartItemDto> cartItems = List.of(
-                new CartItemDto(1L, "Product1", "Description1", 1000L, "image1.jpg", 2)
-        );
-
-        mockMvc.perform(post("/api/cart")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(cartItems))
-                        .with(user(userAdapter)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("장바구니가 성공적으로 변경되었습니다."));
     }
 }

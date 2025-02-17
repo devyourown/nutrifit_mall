@@ -56,6 +56,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'p6spy:p6spy:3.9.1'
+	implementation "me.paulschwarz:spring-dotenv:4.0.0"
 }
 
 tasks.named('test') {
