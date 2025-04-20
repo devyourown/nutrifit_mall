@@ -9,11 +9,11 @@ Language: Java 17
 
 Database: PostgreSQL
 
-Cache: Redis
+Cache: Redis (삭제)
 
 Build Tool: Gradle
 
-Authentication: JWT + Google OAuth
+Authentication: JWT + Google, KAKAO, NAVER OAuth
 
 ORM: Hibernate (JPA)
 
